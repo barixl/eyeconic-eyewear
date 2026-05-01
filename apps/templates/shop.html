@@ -250,10 +250,25 @@
           {% endfor %}
         </div>
 
+        <hr class="sidebar-divider" />
+
+        <!-- ── Sale ──────────────────────────────────────── -->
+        <div style="margin-bottom:0.5rem;">
+          <div class="sidebar-section-label">Offers</div>
+          <label class="cb-item">
+            <input type="checkbox" name="on_sale" value="1"
+                   {% if on_sale %}checked{% endif %}
+                   onchange="applyFilters();" />
+            <span class="cb-box"></span>
+            <span class="cb-label">On Sale</span>
+            <span class="cb-count" style="background:rgba(34,197,94,0.15); color:#22c55e;">%</span>
+          </label>
+        </div>
+
         <!-- ── Actions ────────────────────────────────────── -->
         <div class="sidebar-actions">
           <button type="button" class="btn-apply" onclick="applyFilters()">Apply Filters</button>
-          {% if search or current_categories or current_brands or current_shape %}
+          {% if search or current_categories or current_brands or current_shape or on_sale %}
           <a href="{{ url_for('public.shop') }}" class="btn-clear">✕ Clear</a>
           {% endif %}
         </div>
@@ -284,7 +299,7 @@
     </div>
 
     <!-- Active filter chips -->
-    {% set has_filters = search or current_categories or current_brands or current_shape %}
+    {% set has_filters = search or current_categories or current_brands or current_shape or on_sale %}
     {% if has_filters %}
     <div class="filter-chips">
       {% if search %}
@@ -313,6 +328,12 @@
       <span class="filter-chip">
         Shape: {{ current_shape }}
         <button onclick="removeFilter('shape', '')" title="Remove">×</button>
+      </span>
+      {% endif %}
+      {% if on_sale %}
+      <span class="filter-chip" style="background:rgba(34,197,94,0.12); border-color:rgba(34,197,94,0.3); color:#22c55e;">
+        🏷️ On Sale
+        <button onclick="removeFilter('on_sale', '')" title="Remove" style="color:#22c55e;">×</button>
       </span>
       {% endif %}
     </div>
@@ -443,6 +464,9 @@ function removeFilter(name, value) {
     document.getElementById('searchInput').value = '';
   } else if (name === 'shape') {
     document.getElementById('shapeInput').value = '';
+  } else if (name === 'on_sale') {
+    const cb = form.querySelector('input[name="on_sale"]');
+    if (cb) cb.checked = false;
   } else {
     // uncheck the matching checkbox
     const cb = form.querySelector(`input[name="${name}"][value="${value}"]`);

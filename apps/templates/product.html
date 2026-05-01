@@ -309,7 +309,7 @@
   const basePrice   = {{ product.sale_price or product.price or 0 }};
 
   function updateVariation() {
-    const selects       = document.querySelectorAll('.variant-select');
+    const selects       = Array.from(document.querySelectorAll('.variant-select'));
     const btn           = document.getElementById('addToCartBtn');
     const priceDisplay  = document.getElementById('displayPrice');
     const skuDisplay    = document.getElementById('displaySku');
@@ -317,54 +317,130 @@
     const variationInput = document.getElementById('cartVariationId');
     const optionsInput  = document.getElementById('cartSelectedOptions');
 
-    const filled     = Array.from(selects).filter(s => s.value !== '');
+    const filled     = selects.filter(s => s.value !== '');
     const allFilled  = filled.length === selects.length;
     const selectedIds = filled.map(s => s.value);
+    
+    const isContacts = ["contacts", "contact-lenses"].includes("{{ product.category_slug }}");
 
-    // Nothing selected yet
-    if (filled.length === 0) {
-      btn.disabled = true;
-      btn.textContent = 'Select Options';
-      priceDisplay.textContent = '₹' + Math.round(basePrice);
-      variationInput.value = '';
-      if (optionsInput) optionsInput.value = '';
-      return;
-    }
-
-    // ── Mode 1: traditional variable product — try to find an exact variation match ──
-    if (allFilled && variations.length > 0) {
-      const match = variations.find(v =>
-        v.attribute_value_ids &&
-        selectedIds.every(id => v.attribute_value_ids.map(String).includes(String(id)))
-      );
-      if (match) {
-        variationInput.value = match.id;
-        if (optionsInput) optionsInput.value = '';
-        qtyInput.value = 1;
-        priceDisplay.textContent = '₹' + Math.round(basePrice);
-        skuDisplay.textContent = 'SKU: ' + (match.sku || '{{ product.sku or "N/A" }}');
-        btn.disabled = false;
-        btn.textContent = 'Add to Cart 🛒';
-        return;
-      }
-    }
-
-    // ── Mode 2: independent attributes (e.g. Left Eye + Right Eye for contacts) ──
-    // Any ≥1 selection enables the button.
-    // qty auto-sets to number of selected attributes; price shows base × qty.
+    // Defaults
+    btn.disabled = true;
+    btn.textContent = 'Select Options';
+    priceDisplay.textContent = '₹' + Math.round(basePrice);
     variationInput.value = '';
-    const qty = filled.length;
-    qtyInput.value = qty;
-    priceDisplay.textContent = '₹' + Math.round(basePrice * qty);
+    if (optionsInput) optionsInput.value = '';
+    qtyInput.value = 1;
 
-    const optStr = filled.map(s => {
-      const label = s.closest('.attr-group').querySelector('label').textContent.trim();
-      return label + ': ' + s.options[s.selectedIndex].text;
-    }).join(' | ');
-    if (optionsInput) optionsInput.value = optStr;
+    if (filled.length === 0) return;
 
+    let canAddToCart = false;
+    let calculatedQty = 1;
+
+    if (isContacts) {
+        let otherCount = 0;
+        let otherFilledCount = 0;
+        let eyePowerFilledCount = 0;
+
+        selects.forEach(s => {
+            const label = s.closest('.attr-group').querySelector('label').textContent.trim().toLowerCase();
+            if (label.includes("left eye") || label.includes("right eye")) {
+                if (s.value !== '') eyePowerFilledCount++;
+            } else {
+                otherCount++;
+                if (s.value !== '') otherFilledCount++;
+            }
+        });
+
+        if (otherFilledCount === otherCount && eyePowerFilledCount > 0) {
+            canAddToCart = true;
+            calculatedQty = eyePowerFilledCount;
+        } else if (eyePowerFilledCount === 0 && otherFilledCount === otherCount && otherCount > 0) {
+             canAddToCart = true;
+             calculatedQty = 1;
+        }
+    } else {
+        if (allFilled) {
+            canAddToCart = true;
+        }
+    }
+
+    if (!canAddToCart) {
+        // Build incomplete option string for display if needed
+        const optStr = filled.map(s => {
+            const label = s.closest('.attr-group').querySelector('label').textContent.trim();
+            return label + ': ' + s.options[s.selectedIndex].text;
+        }).join(' | ');
+        if (optionsInput) optionsInput.value = optStr;
+        return;
+    }
+
+    // --- Add To Cart is Enabled ---
+
+    if (!isContacts && variations.length > 0) {
+        const match = variations.find(v =>
+            v.attribute_value_ids &&
+            selectedIds.every(id => v.attribute_value_ids.map(String).includes(String(id)))
+        );
+        if (match) {
+            variationInput.value = match.id;
+            qtyInput.value = 1;
+            priceDisplay.textContent = '₹' + Math.round(basePrice);
+            skuDisplay.textContent = 'SKU: ' + (match.sku || '{{ product.sku or "N/A" }}');
+            btn.disabled = false;
+            btn.textContent = 'Add to Cart 🛒';
+            return;
+        }
+    }
+
+    // Calculate options string
+    if (isContacts) {
+        let leftPowerStr = null;
+        let rightPowerStr = null;
+        let otherAttrs = [];
+
+        filled.forEach(s => {
+            const label = s.closest('.attr-group').querySelector('label').textContent.trim();
+            const val = s.options[s.selectedIndex].text;
+            const lower = label.toLowerCase();
+            if (lower.includes("left eye")) {
+                leftPowerStr = label + ': ' + val;
+            } else if (lower.includes("right eye")) {
+                rightPowerStr = label + ': ' + val;
+            } else {
+                otherAttrs.push(label + ': ' + val);
+            }
+        });
+
+        let optStr = '';
+        if (leftPowerStr && rightPowerStr) {
+            const leftBox = [leftPowerStr, ...otherAttrs].join(' | ');
+            const rightBox = [rightPowerStr, ...otherAttrs].join(' | ');
+            optStr = leftBox + " || " + rightBox;
+        } else if (leftPowerStr) {
+            optStr = [leftPowerStr, ...otherAttrs].join(' | ');
+        } else if (rightPowerStr) {
+            optStr = [rightPowerStr, ...otherAttrs].join(' | ');
+        } else {
+            optStr = otherAttrs.join(' | ');
+        }
+        if (optionsInput) optionsInput.value = optStr;
+    } else {
+        const optStr = filled.map(s => {
+            const label = s.closest('.attr-group').querySelector('label').textContent.trim();
+            return label + ': ' + s.options[s.selectedIndex].text;
+        }).join(' | ');
+        if (optionsInput) optionsInput.value = optStr;
+    }
+
+    qtyInput.value = calculatedQty;
+    priceDisplay.textContent = '₹' + Math.round(basePrice * calculatedQty);
+    
     btn.disabled = false;
-    btn.textContent = qty > 1 ? 'Add Both Eyes to Cart 🛒' : 'Add to Cart 🛒';
+    if (isContacts && calculatedQty > 1) {
+        btn.textContent = 'Add Both Eyes to Cart 🛒';
+    } else {
+        btn.textContent = 'Add to Cart 🛒';
+    }
   }
 </script>
 {% endblock %}

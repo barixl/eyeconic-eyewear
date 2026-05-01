@@ -93,8 +93,12 @@
 <!-- FEATURED PRODUCTS -->
 <section class="section-padding section-fade" style="padding:2.5rem 0;">
   <div style="width:100vw; margin-left:calc(50% - 50vw); padding:0;">
-    <div style="display:flex; justify-content:center; align-items:center; margin-bottom:2.5rem; padding:0 1.5rem;">
+    <div style="display:flex; justify-content:center; align-items:center; margin-bottom:2.5rem; padding:0 1.5rem; position:relative;">
       <h2 style="font-size:2.2rem;">Featured Products</h2>
+      <div style="position:absolute; right:5%; display:flex; gap:0.5rem;" class="track-arrows">
+        <button style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="scrollTrack(this, -1)" aria-label="Scroll left"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+        <button style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="scrollTrack(this, 1)" aria-label="Scroll right"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+      </div>
     </div>
     <div class="product-track">
       {% for p in featured %}{{ product_card(p) }}{% else %}
@@ -102,7 +106,7 @@
       {% endfor %}
     </div>
     <div style="display:flex; justify-content:center; margin:2rem 0;">
-      <a href="{{ url_for('public.shop') }}" style="color:var(--primary); font-weight:600; font-size:1rem;">View All</a>
+      <a href="{{ url_for('public.shop') }}" class="glass-btn-professional" style="padding:0.75rem 2.5rem; border-radius:50px; font-weight:bold; font-size:1rem; color:var(--text-main);">View All</a>
     </div>
   </div>
 </section>
@@ -128,8 +132,12 @@
 <!-- LATEST RELEASES -->
 <section class="section-padding section-fade" style="padding:2.5rem 0;">
   <div style="width:100vw; margin-left:calc(50% - 50vw); padding:0;">
-    <div style="display:flex; justify-content:center; align-items:center; margin-bottom:2.5rem; padding:0 1.5rem;">
+    <div style="display:flex; justify-content:center; align-items:center; margin-bottom:2.5rem; padding:0 1.5rem; position:relative;">
       <h2 style="font-size:2.2rem;">Latest Releases</h2>
+      <div style="position:absolute; right:5%; display:flex; gap:0.5rem;" class="track-arrows">
+        <button style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="scrollTrack(this, -1)" aria-label="Scroll left"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+        <button style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="scrollTrack(this, 1)" aria-label="Scroll right"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+      </div>
     </div>
     <div class="product-track">
       {% for p in latest %}{{ product_card(p) }}{% else %}
@@ -137,7 +145,7 @@
       {% endfor %}
     </div>
     <div style="display:flex; justify-content:center; margin:2rem 0;">
-      <a href="{{ url_for('public.shop') }}" style="color:var(--primary); font-weight:600; font-size:1rem;">View All</a>
+      <a href="{{ url_for('public.shop') }}" class="glass-btn-professional" style="padding:0.75rem 2.5rem; border-radius:50px; font-weight:bold; font-size:1rem; color:var(--text-main);">View All</a>
     </div>
   </div>
 </section>
@@ -149,23 +157,12 @@
       <img src="{{ resolve_image('sections/promo_sunglasses.jpg') }}" style="width:100%; height:100%; object-fit:cover;" alt="Sunglasses" loading="lazy" onerror="this.style.background='linear-gradient(135deg,#1e3a5f,#2563eb)'; this.style.minHeight='400px';" />
       <div class="promo-gradient-side"></div>
     </div>
-    <div style="padding:4rem 3rem; display:flex; flex-direction:column; justify-content:center; background:#0d0d0d;">
+    <div class="promo-content-wrapper">
       <h2 style="font-size:clamp(2rem,3vw,2.5rem); font-weight:800; margin-bottom:1rem; line-height:1.2; color:white; text-align:center;">Sunglasses with lenses to suit your taste</h2>
-      <p style="color:#aaaaaa; font-size:1.1rem; margin-bottom:2.5rem; line-height:1.6;">You've found your perfect frame, but you'd like different lenses? No problem! Many of our sunglasses can be fitted with custom lenses. Even without a prescription!</p>
-      <a href="{{ url_for('public.shop', category='sunglasses') }}" class="glass-btn-professional" style="align-self:flex-start; background:#d34a1c !important; color:white; padding:1rem 2.5rem; border-radius:50px; font-weight:bold; font-size:1rem; margin-bottom:3rem; box-shadow:0 4px 15px rgba(211,74,28,0.3); display:inline-block;">Try it now</a>
+      <a href="{{ url_for('public.shop', category='sunglasses') }}" class="glass-btn-professional" style="align-self:center; background:#d34a1c !important; color:white; padding:1rem 2.5rem; border-radius:50px; font-weight:bold; font-size:1rem; margin-bottom:3rem; box-shadow:0 4px 15px rgba(211,74,28,0.3); display:inline-block;">Try it now</a>
       <div class="promo-cards-grid">
         {% for p in promo1 %}
-        <a href="{{ url_for('public.product_detail', product_id=p.id) }}" class="glass" style="background:rgba(255,255,255,0.05); border-radius:1rem; padding:1.5rem; cursor:pointer; border:1px solid rgba(255,255,255,0.08); text-decoration:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <div style="padding:0.2rem 0.6rem; color:#e0e0e0; background:rgba(255,255,255,0.1); border-radius:4px; font-size:0.75rem; font-weight:bold;">👓 Glazable</div>
-          </div>
-          <div style="height:100px; margin-bottom:1rem; display:flex; align-items:center; justify-content:center; background:white; border-radius:0.5rem; padding:0.5rem;">
-            <img src="{{ resolve_image(p.image_url) }}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="{{ p.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
-          </div>
-          <h4 style="font-size:1rem; font-weight:700; text-align:center; margin-bottom:0.2rem; color:white;">{{ p.category_name or 'Eyewear' }}</h4>
-          <p style="font-size:0.8rem; color:#aaa; text-align:center; margin-bottom:1rem;">{{ p.name[:40] }}</p>
-          <div style="text-align:center; font-weight:bold; color:white; font-size:1.1rem;">₹{{ "%.0f"|format(p.sale_price or p.price) }}</div>
-        </a>
+          {{ product_card(p) }}
         {% endfor %}
       </div>
     </div>
@@ -175,8 +172,12 @@
 <!-- POPULAR FRAMES -->
 <section class="section-padding section-fade" style="padding:2.5rem 0;">
   <div style="width:100vw; margin-left:calc(50% - 50vw); padding:0;">
-    <div style="display:flex; justify-content:center; align-items:center; margin-bottom:2.5rem; padding:0 1.5rem;">
-      <h2 style="font-size:2.2rem;">contacts</h2>
+    <div style="display:flex; justify-content:center; align-items:center; margin-bottom:2.5rem; padding:0 1.5rem; position:relative;">
+      <h2 style="font-size:2.2rem;">Contacts</h2>
+      <div style="position:absolute; right:5%; display:flex; gap:0.5rem;" class="track-arrows">
+        <button style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="scrollTrack(this, -1)" aria-label="Scroll left"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+        <button style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:white; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'" onclick="scrollTrack(this, 1)" aria-label="Scroll right"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
+      </div>
     </div>
     <div class="product-track">
       {% for p in popular %}{{ product_card(p) }}{% else %}
@@ -184,7 +185,7 @@
       {% endfor %}
     </div>
     <div style="display:flex; justify-content:center; margin:2rem 0;">
-      <a href="{{ url_for('public.shop') }}" style="color:var(--primary); font-weight:600; font-size:1rem;">View All</a>
+      <a href="{{ url_for('public.shop') }}" class="glass-btn-professional" style="padding:0.75rem 2.5rem; border-radius:50px; font-weight:bold; font-size:1rem; color:var(--text-main);">View All</a>
     </div>
   </div>
 </section>
@@ -204,25 +205,12 @@
       </div>
       <div class="promo-gradient-side"></div>
     </div>
-    <div style="padding:4rem 3rem; display:flex; flex-direction:column; justify-content:center; background:#0d0d0d;">
+    <div class="promo-content-wrapper">
       <h2 style="font-size:clamp(2rem,3vw,2.5rem); font-weight:800; margin-bottom:2.5rem; line-height:1.2; color:white; text-align:center;">Big discounts at the end of the season</h2>
-      <a href="{{ url_for('public.shop') }}" class="glass-btn-professional" style="align-self:flex-start; background:#d34a1c !important; color:white; padding:1rem 2.5rem; border-radius:50px; font-weight:bold; font-size:1rem; margin-bottom:3rem; box-shadow:0 4px 15px rgba(211,74,28,0.3); display:inline-block;">Discover all sports eyewear</a>
+      <a href="{{ url_for('public.shop') }}" class="glass-btn-professional" style="align-self:center; background:#d34a1c !important; color:white; padding:1rem 2.5rem; border-radius:50px; font-weight:bold; font-size:1rem; margin-bottom:3rem; box-shadow:0 4px 15px rgba(211,74,28,0.3); display:inline-block;">Discover all sports eyewear</a>
       <div class="promo-cards-grid">
         {% for p in promo2 %}
-        <a href="{{ url_for('public.product_detail', product_id=p.id) }}" class="glass" style="background:rgba(255,255,255,0.05); border-radius:1rem; padding:1.5rem; cursor:pointer; border:1px solid rgba(255,255,255,0.08); text-decoration:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <div style="padding:0.2rem 0.6rem; color:#10b981; background:rgba(16,185,129,0.1); border-radius:4px; font-size:0.75rem; font-weight:bold;">🏷️ On Sale</div>
-          </div>
-          <div style="height:100px; margin-bottom:1rem; display:flex; align-items:center; justify-content:center; background:white; border-radius:0.5rem; padding:0.5rem;">
-            <img src="{{ resolve_image(p.image_url) }}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="{{ p.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
-          </div>
-          <h4 style="font-size:1rem; font-weight:700; text-align:center; margin-bottom:0.2rem; color:white;">{{ p.category_name or 'Eyewear' }}</h4>
-          <p style="font-size:0.8rem; color:#aaa; text-align:center; margin-bottom:1rem;">{{ p.name[:40] }}</p>
-          <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem;">
-            <div style="font-weight:bold; color:#d34a1c; font-size:1.1rem;">₹{{ "%.0f"|format(p.sale_price or p.price) }}</div>
-            <div style="text-decoration:line-through; color:#666; font-size:0.8rem;">₹{{ "%.0f"|format(p.price) }}</div>
-          </div>
-        </a>
+          {{ product_card(p) }}
         {% endfor %}
       </div>
     </div>
@@ -413,5 +401,16 @@
   document.getElementById('heroPrev').addEventListener('click', () => { goToSlide(currentSlide - 1); resetHeroAuto(); });
   document.getElementById('heroNext').addEventListener('click', () => { goToSlide(currentSlide + 1); resetHeroAuto(); });
   startHeroAuto();
+
+  // Scroll function for product tracks
+  window.scrollTrack = function(btn, direction) {
+    const section = btn.closest('.section-padding');
+    if (!section) return;
+    const track = section.querySelector('.product-track');
+    if (track) {
+      const scrollAmount = 300 * direction;
+      track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
 </script>
 {% endblock %}

@@ -40,49 +40,43 @@ def generate_unique_variation_sku(base_sku=None, exclude_id=None):
 
 
 def generate_variations(product_id):
-    rows = db.query("""
-        SELECT av.attribute_id, av.id as value_id
-        FROM product_attribute_values pav
-        JOIN attribute_values av ON av.id = pav.attribute_value_id
-        WHERE pav.product_id = %s
-    """, [product_id])
-    grouped = {}
-    for r in rows:
-        grouped.setdefault(r["attribute_id"], []).append(r["value_id"])
-    
-    if not grouped:
+    """
+    For variable products, we no longer pre-generate all cartesian-product
+    variation rows.  The storefront product page already loads the available
+    attribute values directly from `product_attribute_values`, and the cart
+    stores selected options as text — so thousands of combination rows in
+    `product_variations` / `variation_attribute_values` are not required.
+
+    Instead, we create ONE placeholder variation per product so that the
+    admin 'Manage Variations' panel still works for editing, and the product
+    is recognized as having variations.
+    """
+    existing = db.query_one(
+        "SELECT id FROM product_variations WHERE product_id = %s LIMIT 1",
+        [product_id],
+    )
+    if existing:
+        return  # already has at least one variation row
+
+    product = db.query_one(
+        "SELECT price, sale_price, stock_quantity, sku FROM products WHERE id = %s",
+        [product_id],
+    )
+    if not product:
         return
-    
-    combinations = list(itertools.product(*grouped.values()))
-    existing_vars = db.query("SELECT id FROM product_variations WHERE product_id = %s", [product_id])
-    existing_combos = []
-    for ev in existing_vars:
-        vals = db.query("SELECT attribute_value_id FROM variation_attribute_values WHERE variation_id = %s", [ev["id"]])
-        existing_combos.append(set(v["attribute_value_id"] for v in vals))
-    
-    product = db.query_one("SELECT price, sale_price, stock_quantity, sku FROM products WHERE id = %s", [product_id])
-    base_price = float(product.get("sale_price") or product.get("price") or 0) if product else 0
-    base_stock = (db.query_one("SELECT stock_quantity FROM products WHERE id = %s", [product_id]) or {}).get("stock_quantity", 0)
-    base_sku = product["sku"] if product and product["sku"] else "VAR"
-    
-    for combo in combinations:
-        if any(set(combo) == ec for ec in existing_combos):
-            continue
-        
-        # Default stock is the minimum stock among the selected attribute values
-        default_stock = base_stock
-        
-        var_id = str(uuid.uuid4())
-        var_sku = generate_unique_variation_sku(base_sku)
-        db.execute(
-            "INSERT INTO product_variations (id, product_id, sku, price, stock_quantity) VALUES (%s,%s,%s,%s,%s)",
-            [var_id, product_id, var_sku, base_price, default_stock]
-        )
-        for val_id in combo:
-            db.execute(
-                "INSERT INTO variation_attribute_values (id, variation_id, attribute_value_id) VALUES (%s,%s,%s)",
-                [str(uuid.uuid4()), var_id, val_id]
-            )
+
+    base_price = float(product.get("sale_price") or product.get("price") or 0)
+    base_stock = int(product.get("stock_quantity") or 0)
+    base_sku   = product.get("sku") or "VAR"
+
+    var_id  = str(uuid.uuid4())
+    var_sku = generate_unique_variation_sku(base_sku)
+    db.execute(
+        "INSERT INTO product_variations (id, product_id, sku, price, stock_quantity) "
+        "VALUES (%s,%s,%s,%s,%s)",
+        [var_id, product_id, var_sku, base_price, base_stock],
+    )
+    print(f"DEBUG: Created 1 placeholder variation for product {product_id}")
 
 def require_admin(f):
     @wraps(f)
@@ -179,6 +173,9 @@ def register(app):
         if request.method == "POST":
             f = request.form
             try:
+                import time as _t
+                t0 = _t.time()
+
                 stock_qty = int(f.get("stock_quantity") or 0)
                 stock_status = f.get("stock_status", "in_stock")
                 name = f.get("name")
@@ -186,6 +183,7 @@ def register(app):
                 sku_input = f.get("sku", "").strip()
                 sku = sku_input or generate_unique_product_sku(name)
 
+                print(f"DEBUG [{_t.time()-t0:.2f}s]: Creating product '{name}'...")
                 product_id = db.execute_returning(
                     """INSERT INTO products
                        (id, name, slug, sku, type, description, short_description,
@@ -201,52 +199,61 @@ def register(app):
                         f.get("is_featured") == "on", f.get("is_active", "on") == "on",
                     ]
                 )["id"]
+                print(f"DEBUG [{_t.time()-t0:.2f}s]: Product row inserted.")
 
                 # Handle Primary Image
                 primary_file = request.files.get("primary_image")
                 if primary_file and primary_file.filename:
+                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Uploading primary image to Cloudinary...")
                     url = handle_upload(primary_file)
                     mid = str(uuid.uuid4())
                     db.execute("INSERT INTO media (id, file_url) VALUES (%s,%s)", [mid, url])
                     db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (%s,%s,%s,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
+                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Primary image done.")
 
                 # Handle Gallery Images
                 gallery_files = request.files.getlist("gallery_images")
-                for i, gfile in enumerate(gallery_files):
-                    if gfile and gfile.filename:
-                        url = handle_upload(gfile)
-                        mid = str(uuid.uuid4())
-                        db.execute("INSERT INTO media (id, file_url) VALUES (%s,%s)", [mid, url])
-                        db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (%s,%s,%s,FALSE,%s)", [str(uuid.uuid4()), product_id, mid, i+1])
+                if gallery_files and any(g.filename for g in gallery_files):
+                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Uploading {len(gallery_files)} gallery images...")
+                    for i, gfile in enumerate(gallery_files):
+                        if gfile and gfile.filename:
+                            url = handle_upload(gfile)
+                            mid = str(uuid.uuid4())
+                            db.execute("INSERT INTO media (id, file_url) VALUES (%s,%s)", [mid, url])
+                            db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (%s,%s,%s,FALSE,%s)", [str(uuid.uuid4()), product_id, mid, i+1])
+                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Gallery images done.")
 
-                for attr_id in request.form.getlist("attribute_ids"):
-                    db.execute("INSERT INTO product_attributes (id, product_id, attribute_id) VALUES (%s,%s,%s)", [str(uuid.uuid4()), product_id, attr_id])
-                for val_id in request.form.getlist("attribute_value_ids"):
-                    db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (%s,%s,%s)", [str(uuid.uuid4()), product_id, val_id])
-                
+                # Batch-insert attribute associations (1 query instead of N)
+                print(f"DEBUG [{_t.time()-t0:.2f}s]: Saving attributes...")
+                attr_ids = request.form.getlist("attribute_ids")
+                if attr_ids:
+                    values_sql = ",".join(["(%s,%s,%s)"] * len(attr_ids))
+                    params = []
+                    for attr_id in attr_ids:
+                        params.extend([str(uuid.uuid4()), product_id, attr_id])
+                    db.execute(
+                        f"INSERT INTO product_attributes (id, product_id, attribute_id) VALUES {values_sql}",
+                        params
+                    )
+
+                val_ids = request.form.getlist("attribute_value_ids")
+                if val_ids:
+                    values_sql = ",".join(["(%s,%s,%s)"] * len(val_ids))
+                    params = []
+                    for val_id in val_ids:
+                        params.extend([str(uuid.uuid4()), product_id, val_id])
+                    db.execute(
+                        f"INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES {values_sql}",
+                        params
+                    )
+                print(f"DEBUG [{_t.time()-t0:.2f}s]: {len(attr_ids)} attrs + {len(val_ids)} values saved in batch.")
+
                 if f.get("type") == "variable":
-                    # Check if we have dynamic variation data
-                    var_count = f.get("new_var_count")
-                    if var_count and int(var_count) > 0:
-                        for i in range(int(var_count)):
-                            vals = f.get(f"new_var_vals_{i}").split(",")
-                            v_price = float(f.get("price") or 0)
-                            v_stock = stock_qty
-                            
-                            var_id = str(uuid.uuid4())
-                            var_sku = generate_unique_variation_sku(sku)
-                            db.execute(
-                                "INSERT INTO product_variations (id, product_id, sku, price, stock_quantity) VALUES (%s,%s,%s,%s,%s)",
-                                [var_id, product_id, var_sku, v_price, v_stock]
-                            )
-                            for val_id in vals:
-                                db.execute(
-                                    "INSERT INTO variation_attribute_values (id, variation_id, attribute_value_id) VALUES (%s,%s,%s)",
-                                    [str(uuid.uuid4()), var_id, val_id]
-                                )
-                    else:
-                        generate_variations(product_id)
+                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Creating placeholder variation...")
+                    generate_variations(product_id)
 
+                print(f"DEBUG [{_t.time()-t0:.2f}s]: Product creation complete.")
+                get_products.cache_clear()
                 flash("Product created successfully.", "success")
                 return redirect(url_for("admin_products"))
             except Exception as e:
@@ -318,6 +325,7 @@ def register(app):
                 for vid in request.form.getlist("attribute_value_ids"):
                     db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (%s,%s,%s)", [str(uuid.uuid4()), product_id, vid])
 
+                get_products.cache_clear()
                 flash("Product updated successfully.", "success")
                 return redirect(url_for("admin_products"))
             except Exception as e:
@@ -347,6 +355,7 @@ def register(app):
     def admin_product_delete(product_id):
         try:
             db.execute("UPDATE products SET is_active=FALSE WHERE id=%s", [product_id])
+            get_products.cache_clear()
             flash("Product deleted (deactivated).", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")

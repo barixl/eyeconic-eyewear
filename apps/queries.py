@@ -56,11 +56,19 @@ PRODUCTS_MINIMAL_SELECT = """
 @ttl_cache(ttl_seconds=60)
 def get_products(search=None, categories=(), brands=(), shape=None,
                  sort="created_at_desc", page=1, per_page=16,
-                 featured=False, limit=None,
+                 featured=False, limit=None, on_sale=False,
                  # legacy single-value aliases kept for admin callers
                  category=None, brand=None):
     # Normalise: merge legacy single values into the multi-select tuples
-    cats = tuple(c for c in (list(categories or []) + ([category] if category else [])) if c)
+    cats_list = list(c for c in (list(categories or []) + ([category] if category else [])) if c)
+    if len(cats_list) > 1:
+        all_cats = get_categories()
+        sel_cats = [c for c in all_cats if c["slug"] in cats_list]
+        parent_ids = {c["parent_id"] for c in sel_cats if c.get("parent_id")}
+        cats = tuple(c["slug"] for c in sel_cats if c["id"] not in parent_ids)
+    else:
+        cats = tuple(cats_list)
+        
     brnds = tuple(b for b in (list(brands or []) + ([brand] if brand else [])) if b)
 
     conditions = ["p.is_active = TRUE"]
@@ -84,6 +92,8 @@ def get_products(search=None, categories=(), brands=(), shape=None,
         params += list(brnds)
     if featured:
         conditions.append("p.is_featured = TRUE")
+    if on_sale:
+        conditions.append("p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.price")
     if shape:
         conditions.append("""
             (EXISTS (

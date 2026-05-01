@@ -16,6 +16,9 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = os.getenv("SECRET_KEY", "dev-key-change-in-production")
     
+    # Payload limit: 16MB
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+    
     # Session configuration
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -75,10 +78,14 @@ def create_app():
 
 app = create_app()
 
-try:
-    db.migrate()
-except Exception as _e:
-    print(f"[db.migrate] {_e}")
+import os as _os
+# Only run migrations in the main process (not the watchdog reloader child).
+# This prevents the timeout warning you see on every hot-reload.
+if _os.environ.get("WERKZEUG_RUN_MAIN") != "true":
+    try:
+        db.migrate()
+    except Exception as _e:
+        print(f"[db.migrate] {_e}")
 
 if __name__ == "__main__":
     port  = int(os.getenv("PORT", 5001))

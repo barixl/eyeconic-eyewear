@@ -231,7 +231,14 @@
               </label>
 
               <div class="attr-values"
-                style="display: {% if product and attr.id in product_attribute_ids %}flex{% else %}none{% endif %}; flex-wrap:wrap; gap:0.75rem; padding-left:2.125rem;">
+                style="display: {% if product and attr.id in product_attribute_ids %}flex{% else %}none{% endif %}; flex-direction:column; gap:0.5rem; padding-left:2.125rem;">
+                <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
+                  <button type="button" onclick="toggleAllValues(this)"
+                    style="font-size:0.78rem; padding:0.25rem 0.75rem; border-radius:0.4rem; border:1px solid var(--admin-border); background:#e0e7ff; color:#4338ca; font-weight:600; cursor:pointer;">
+                    Select All
+                  </button>
+                </div>
+                <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
                 {% for val in attr.options %}
                 <label
                   style="font-size:0.875rem; display:flex; align-items:center; gap:0.5rem; background:white; padding:0.5rem 0.875rem; border-radius:0.5rem; border:1px solid var(--admin-border); cursor:pointer; transition:all 0.2s;">
@@ -240,6 +247,7 @@
                   <span style="font-weight:500;">{{ val.value }}</span>
                 </label>
                 {% endfor %}
+                </div>
               </div>
             </div>
             {% endfor %}
@@ -271,21 +279,6 @@
             </div>
           </div>
           {% endif %}
-
-          <div id="dynamicVariations" style="display:none; margin-top:2rem;">
-            <label class="admin-label" style="margin-bottom:1.25rem; display:block; font-weight:700; color:var(--admin-text-muted); text-transform:uppercase; letter-spacing:0.025em;">Variation Preview (New Product)</label>
-            <div style="background:#fff; border:1px solid var(--admin-border); border-radius:0.75rem; overflow:hidden;">
-              <table class="admin-table" style="width:100%; border-collapse:collapse;">
-                <thead style="background:#f9fafb;">
-                  <tr>
-                    <th style="padding:1rem; text-align:left; font-size:0.75rem;">COMBINATION</th>
-                    <th style="padding:1rem; text-align:left; font-size:0.75rem;">STOCK</th>
-                  </tr>
-                </thead>
-                <tbody id="dynamicVariationsBody"></tbody>
-              </table>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -309,7 +302,7 @@
 
       <!-- Submit -->
       <div style="display:flex; flex-direction:column; gap:1rem;">
-        <button type="submit" class="admin-btn btn-primary"
+        <button type="submit" id="submitBtn" class="admin-btn btn-primary"
           style="width:100%; justify-content:center; padding:1rem; font-weight:700; font-size:1rem; box-shadow:0 10px 15px -3px rgba(99,102,241,0.25);">
           {{ 'Save Product' if action == 'edit' else 'Publish Product' }}
         </button>
@@ -321,19 +314,33 @@
 </form>
 
 <script>
+document.querySelector('form').addEventListener('submit', function() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    btn.style.cursor = 'not-allowed';
+    btn.innerHTML = `
+        <svg class="animate-spin" style="width:1.25rem; height:1.25rem; margin-right:0.75rem; border:3px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%;" viewBox="0 0 24 24"></svg>
+        ${btn.innerText.includes('Save') ? 'Saving Product...' : 'Publishing Product...'}
+    `;
+    
+    // Add CSS for spin animation
+    const style = document.createElement('style');
+    style.innerHTML = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } .animate-spin { animation: spin 1s linear infinite; }';
+    document.head.appendChild(style);
+});
+</script>
+
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     const typeSelect = document.getElementById('productType');
     const varSections = document.getElementById('variableSections');
-    const dynamicVars = document.getElementById('dynamicVariations');
-    const action = "{{ action }}";
 
     function updateVisibility() {
         if (typeSelect.value === 'variable') {
             varSections.style.display = 'block';
-            if (action === 'new') dynamicVars.style.display = 'block';
         } else {
             varSections.style.display = 'none';
-            dynamicVars.style.display = 'none';
         }
     }
 
@@ -344,75 +351,15 @@ document.addEventListener('DOMContentLoaded', function() {
             this.closest('div').querySelector('.attr-values').style.display = this.checked ? 'flex' : 'none';
         });
     });
-
-    if (action === 'new') {
-        const attrCheckboxes = document.querySelectorAll('.attr-checkbox');
-        const valueCheckboxes = document.querySelectorAll('input[name="attribute_value_ids"]');
-        
-        function generateCombinations() {
-            const selectedGroups = [];
-            const activeAttrs = Array.from(attrCheckboxes).filter(cb => cb.checked);
-            
-            activeAttrs.forEach(attrCb => {
-                const attrId = attrCb.value;
-                const attrName = attrCb.nextElementSibling.innerText.trim();
-                const selectedVals = Array.from(valueCheckboxes).filter(vCb => {
-                    return vCb.checked && vCb.closest('.attr-values').previousElementSibling.querySelector('input').value === attrId;
-                }).map(vCb => ({
-                    id: vCb.value,
-                    name: vCb.nextElementSibling.innerText.trim()
-                }));
-                
-                if (selectedVals.length > 0) selectedGroups.push(selectedVals);
-            });
-
-            const body = document.getElementById('dynamicVariationsBody');
-            body.innerHTML = '';
-            if (selectedGroups.length === 0) return;
-
-            function cartesian(args) {
-                var r = [], max = args.length-1;
-                function helper(arr, i) {
-                    for (var j=0, l=args[i].length; j<l; j++) {
-                        var a = arr.slice(); a.push(args[i][j]);
-                        if (i==max) r.push(a); else helper(a, i+1);
-                    }
-                }
-                helper([], 0); return r;
-            }
-
-            const combos = cartesian(selectedGroups);
-            const basePrice = document.querySelector('input[name="price"]').value || 0;
-
-            combos.forEach((combo, index) => {
-                const label = combo.map(v => v.name).join(' / ');
-                const valIds = combo.map(v => v.id).join(',');
-                const row = document.createElement('tr');
-                row.style.borderTop = '1px solid var(--admin-border)';
-                row.innerHTML = `
-                    <td style="padding:1rem; font-size:0.875rem; font-weight:600;">${label}</td>
-                    <input type="hidden" name="new_var_vals_${index}" value="${valIds}">
-                    <input type="hidden" name="new_var_price_${index}" value="${basePrice}">
-                    <td style="padding:1rem;">
-                        <input type="number" name="new_var_stock_${index}" value="0" class="admin-input" style="padding:0.4rem; font-size:0.8rem; height:auto;" />
-                    </td>
-                `;
-                body.appendChild(row);
-            });
-            
-            let countInput = document.getElementById('new_var_count');
-            if (!countInput) {
-                countInput = document.createElement('input');
-                countInput.type = 'hidden'; countInput.id = 'new_var_count'; countInput.name = 'new_var_count';
-                document.querySelector('form').appendChild(countInput);
-            }
-            countInput.value = combos.length;
-        }
-
-        attrCheckboxes.forEach(cb => cb.addEventListener('change', generateCombinations));
-        valueCheckboxes.forEach(cb => cb.addEventListener('change', generateCombinations));
-        document.querySelector('input[name="price"]').addEventListener('input', generateCombinations);
-    }
 });
+
+// Toggle Select All / Deselect All for an attribute group
+function toggleAllValues(btn) {
+    const wrapper = btn.closest('.attr-values');
+    const checkboxes = wrapper.querySelectorAll('input[type="checkbox"]');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    checkboxes.forEach(cb => { cb.checked = !allChecked; });
+    btn.textContent = allChecked ? 'Select All' : 'Deselect All';
+}
 </script>
 {% endblock %}

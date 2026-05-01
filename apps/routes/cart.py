@@ -57,29 +57,59 @@ def cart_add():
                     display_name += f" ({' / '.join(o['value'] for o in opts)})"
             item_key = variation_id
 
+        is_contacts = product.get("category_slug") in ("contacts", "contact-lenses")
+        cart = session.get("cart", {})
+
+        if is_contacts and selected_options and "||" in selected_options:
+            # Split into separate entities for each eye (Left / Right boxes)
+            boxes = [b.strip() for b in selected_options.split("||")]
+            unit_qty = qty // len(boxes) if len(boxes) > 0 else qty
+            for box in boxes:
+                item_key = f"{product_id}|{box}"
+                if item_key in cart:
+                    cart[item_key]["qty"] += unit_qty
+                else:
+                    cart[item_key] = {
+                        "product_id": product_id,
+                        "variation_id": None,
+                        "name": f"{product['name']} ({box})",
+                        "price": price,
+                        "qty": unit_qty,
+                        "image": img,
+                        "sku": sku,
+                    }
         elif selected_options:
             # Independent-attribute mode (e.g. contacts: Left Eye + Right Eye).
             # qty already reflects how many attributes were selected (sent from JS).
             display_name += f" ({selected_options})"
             # Use a stable key so the same eye combination stacks, different ones don't.
             item_key = f"{product_id}|{selected_options}"
-
+            if item_key in cart:
+                cart[item_key]["qty"] += qty
+            else:
+                cart[item_key] = {
+                    "product_id": product_id,
+                    "variation_id": variation_id or None,
+                    "name": display_name,
+                    "price": price,
+                    "qty": qty,
+                    "image": img,
+                    "sku": sku,
+                }
         else:
             item_key = product_id
-
-        cart = session.get("cart", {})
-        if item_key in cart:
-            cart[item_key]["qty"] += qty
-        else:
-            cart[item_key] = {
-                "product_id": product_id,
-                "variation_id": variation_id or None,
-                "name": display_name,
-                "price": price,
-                "qty": qty,
-                "image": img,
-                "sku": sku,
-            }
+            if item_key in cart:
+                cart[item_key]["qty"] += qty
+            else:
+                cart[item_key] = {
+                    "product_id": product_id,
+                    "variation_id": variation_id or None,
+                    "name": display_name,
+                    "price": price,
+                    "qty": qty,
+                    "image": img,
+                    "sku": sku,
+                }
         session["cart"] = cart
         flash(f"'{display_name}' added to cart!", "success")
     except Exception as e:

@@ -36,10 +36,11 @@ def shop():
     sort            = request.args.get("sort", "created_at_desc")
     shape           = request.args.get("shape", "").strip()
     page            = max(1, int(request.args.get("page", 1)))
+    on_sale         = bool(request.args.get("on_sale", ""))
     try:
         products, total, total_pages = get_products(
             search=search, categories=selected_cats, brands=selected_brands,
-            shape=shape, sort=sort, page=page, per_page=16,
+            shape=shape, sort=sort, page=page, per_page=16, on_sale=on_sale,
         )
         all_categories = get_categories()
         all_brands     = get_brands()
@@ -66,6 +67,7 @@ def shop():
         current_categories=selected_cats,
         current_brands=selected_brands,
         current_sort=sort, current_shape=shape,
+        on_sale=on_sale,
     )
 
 
