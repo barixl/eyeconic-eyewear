@@ -126,7 +126,7 @@ def subscribe():
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest" or "application/json" in (request.headers.get("Accept") or "")
     if email:
         try:
-            db.execute("INSERT INTO newsletter_subscribers (email) VALUES (%s) ON CONFLICT (email) DO NOTHING", [email])
+            db.execute("INSERT INTO newsletter_subscribers (email) VALUES (?) ON CONFLICT (email) DO NOTHING", [email])
             message = "Thank you for subscribing to our newsletter!"
             if is_ajax:
                 return jsonify({"success": True, "message": message})
@@ -157,14 +157,14 @@ def sitemap():
 
     try:
         products = db.query(
-            "SELECT id, updated_at FROM products WHERE is_active = TRUE ORDER BY updated_at DESC"
+            "SELECT id, updated_at FROM products WHERE is_active = 1 ORDER BY updated_at DESC"
         )
     except Exception:
         products = []
 
     try:
         categories = db.query(
-            "SELECT slug FROM categories WHERE is_active = TRUE"
+            "SELECT slug FROM categories WHERE is_active = 1"
         )
     except Exception:
         categories = []

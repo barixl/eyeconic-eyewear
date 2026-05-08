@@ -1,256 +1,364 @@
 """
-db.py — Connection pool, query helpers, and schema migrations.
+db.py — Connection management and schema migrations for SQLite.
 """
 import os
-import psycopg2
-import psycopg2.extras
-from psycopg2 import pool
+import sqlite3
 from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-_pool = None
-
-
-def get_pool():
-    global _pool
-    if _pool is None:
-        _pool = pool.ThreadedConnectionPool(1, 5, DATABASE_URL)
-    return _pool
-
+# Default to chasma.db if no URL is provided
+DATABASE_URL = os.getenv("DATABASE_URL", "chasma.db")
 
 def get_conn():
-    return get_pool().getconn()
-
-
-def put_conn(conn):
-    get_pool().putconn(conn)
-
+    conn = sqlite3.connect(DATABASE_URL, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    # Enable foreign keys
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
 
 def query(sql, params=None):
     conn = get_conn()
     try:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute(sql, params or ())
-            return [dict(r) for r in cur.fetchall()]
+        cur = conn.cursor()
+        cur.execute(sql, params or ())
+        return [dict(r) for r in cur.fetchall()]
     finally:
-        put_conn(conn)
-
+        conn.close()
 
 def query_one(sql, params=None):
     conn = get_conn()
     try:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute(sql, params or ())
-            row = cur.fetchone()
-            return dict(row) if row else None
+        cur = conn.cursor()
+        cur.execute(sql, params or ())
+        row = cur.fetchone()
+        return dict(row) if row else None
     finally:
-        put_conn(conn)
-
+        conn.close()
 
 def execute(sql, params=None):
     conn = get_conn()
     try:
-        with conn.cursor() as cur:
-            cur.execute(sql, params or ())
-            conn.commit()
-            return cur.rowcount
+        cur = conn.cursor()
+        cur.execute(sql, params or ())
+        conn.commit()
+        return cur.rowcount
     except Exception:
         conn.rollback()
         raise
     finally:
-        put_conn(conn)
-
+        conn.close()
 
 def execute_returning(sql, params=None):
+    # SQLite doesn't have a direct RETURNING for all cases like Postgres,
+    # but for INSERT it has lastrowid. For complex ones, we'll need to query.
+    # However, since some queries might use RETURNING, we'll try to emulate or adjust.
     conn = get_conn()
     try:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-            cur.execute(sql, params or ())
-            conn.commit()
-            row = cur.fetchone()
-            return dict(row) if row else None
+        cur = conn.cursor()
+        cur.execute(sql, params or ())
+        conn.commit()
+        row = cur.fetchone()
+        return dict(row) if row else None
     except Exception:
         conn.rollback()
         raise
     finally:
-        put_conn(conn)
+        conn.close()
 
-
-# ─── Schema migrations ────────────────────────────────────────────────────────
+# ─── Schema migrations (SQLite Syntax) ────────────────────────────────────────
 
 _MIGRATIONS = [
-    """CREATE TABLE IF NOT EXISTS store_settings (
-        key VARCHAR(100) PRIMARY KEY,
-        value TEXT NOT NULL DEFAULT '',
-        updated_at TIMESTAMP DEFAULT NOW()
+    # ── Core Tables ─────────────────────────────────────────────────────────────
+    """CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        first_name TEXT DEFAULT '',
+        last_name TEXT DEFAULT '',
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        role TEXT DEFAULT 'customer',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""",
+
+    """CREATE TABLE IF NOT EXISTS categories (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        name TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        parent_id TEXT REFERENCES categories(id),
+        image_url TEXT DEFAULT '',
+        is_active INTEGER DEFAULT 1,
+        is_featured INTEGER DEFAULT 0,
+        display_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS brands (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        name TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        image_url TEXT DEFAULT '',
+        is_active INTEGER DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS attributes (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        name TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        display_order INTEGER DEFAULT 0
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS attribute_values (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        attribute_id TEXT NOT NULL REFERENCES attributes(id),
+        value TEXT NOT NULL,
+        image_url TEXT DEFAULT '',
+        display_order INTEGER DEFAULT 0
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS media (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        file_url TEXT NOT NULL,
+        alt_text TEXT DEFAULT '',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS products (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        name TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        sku TEXT UNIQUE,
+        type TEXT DEFAULT 'simple',
+        short_description TEXT DEFAULT '',
+        description TEXT DEFAULT '',
+        price DECIMAL(10,2) DEFAULT 0,
+        sale_price DECIMAL(10,2),
+        stock_quantity INTEGER DEFAULT 0,
+        stock_status TEXT DEFAULT 'in_stock',
+        category_id TEXT REFERENCES categories(id),
+        brand_id TEXT REFERENCES brands(id),
+        is_active INTEGER DEFAULT 1,
+        is_featured INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS product_images (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        product_id TEXT NOT NULL REFERENCES products(id),
+        media_id TEXT NOT NULL REFERENCES media(id),
+        is_primary INTEGER DEFAULT 0,
+        display_order INTEGER DEFAULT 0
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS product_variations (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        product_id TEXT NOT NULL REFERENCES products(id),
+        sku TEXT,
+        price DECIMAL(10,2) DEFAULT 0,
+        sale_price DECIMAL(10,2),
+        stock_quantity INTEGER DEFAULT 0,
+        stock_status TEXT DEFAULT 'in_stock',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS variation_attribute_values (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        variation_id TEXT NOT NULL REFERENCES product_variations(id),
+        attribute_value_id TEXT NOT NULL REFERENCES attribute_values(id)
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS product_attributes (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        product_id TEXT NOT NULL REFERENCES products(id),
+        attribute_id TEXT NOT NULL REFERENCES attributes(id),
+        display_order INTEGER DEFAULT 0
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS product_attribute_values (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        product_id TEXT NOT NULL REFERENCES products(id),
+        attribute_value_id TEXT NOT NULL REFERENCES attribute_values(id)
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS product_reviews (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        product_id TEXT NOT NULL REFERENCES products(id),
+        user_id TEXT REFERENCES users(id),
+        rating INTEGER DEFAULT 5,
+        title TEXT DEFAULT '',
+        body TEXT DEFAULT '',
+        is_approved INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS orders (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        user_id TEXT REFERENCES users(id),
+        status TEXT DEFAULT 'pending',
+        total_amount DECIMAL(10,2) DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS order_items (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        order_id TEXT NOT NULL REFERENCES orders(id),
+        product_id TEXT REFERENCES products(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    """CREATE TABLE IF NOT EXISTS coupons (
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        code TEXT UNIQUE NOT NULL,
+        type TEXT DEFAULT 'percent',
+        value DECIMAL(10,2) DEFAULT 0,
+        min_order DECIMAL(10,2) DEFAULT 0,
+        max_uses INTEGER DEFAULT 0,
+        per_user INTEGER DEFAULT 1,
+        is_active INTEGER DEFAULT 1,
+        expires_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+
+    # 1. Base settings table
+
+    """CREATE TABLE IF NOT EXISTS store_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL DEFAULT '',
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )""",
+    
+    # 2. User addresses
     """CREATE TABLE IF NOT EXISTS user_addresses (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL,
-        label VARCHAR(50) DEFAULT 'Home',
-        first_name VARCHAR(100) DEFAULT '',
-        last_name VARCHAR(100) DEFAULT '',
-        phone VARCHAR(20) DEFAULT '',
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        user_id TEXT NOT NULL,
+        label TEXT DEFAULT 'Home',
+        first_name TEXT DEFAULT '',
+        last_name TEXT DEFAULT '',
+        phone TEXT DEFAULT '',
         address_line1 TEXT NOT NULL DEFAULT '',
         address_line2 TEXT DEFAULT '',
-        city VARCHAR(100) DEFAULT '',
-        state VARCHAR(100) DEFAULT '',
-        pincode VARCHAR(20) DEFAULT '',
-        country VARCHAR(100) DEFAULT 'India',
-        is_default BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT NOW()
+        city TEXT DEFAULT '',
+        state TEXT DEFAULT '',
+        pincode TEXT DEFAULT '',
+        country TEXT DEFAULT 'India',
+        is_default BOOLEAN DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50) DEFAULT 'cod'",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status VARCHAR(50) DEFAULT 'pending'",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_number VARCHAR(50)",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS cancel_reason TEXT DEFAULT ''",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_address_json TEXT DEFAULT ''",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_name VARCHAR(200) DEFAULT ''",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email VARCHAR(200) DEFAULT ''",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_phone VARCHAR(20) DEFAULT ''",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT ''",
-    "ALTER TABLE order_items ADD COLUMN IF NOT EXISTS variation_id UUID",
-    "ALTER TABLE order_items ADD COLUMN IF NOT EXISTS quantity INTEGER DEFAULT 1",
-    "ALTER TABLE order_items ADD COLUMN IF NOT EXISTS unit_price NUMERIC(10,2) DEFAULT 0",
-    "ALTER TABLE order_items ADD COLUMN IF NOT EXISTS total_price NUMERIC(10,2) DEFAULT 0",
-    "ALTER TABLE order_items ADD COLUMN IF NOT EXISTS product_name_snapshot TEXT DEFAULT ''",
-    "ALTER TABLE attribute_values DROP COLUMN IF EXISTS stock_quantity",
-     """UPDATE orders
-         SET order_number = 'ORD-' || UPPER(SUBSTRING(REPLACE(id::text, '-', '') FROM 1 FOR 12))
-         WHERE order_number IS NULL OR order_number = ''""",
-    """UPDATE products p
-       SET price = v.variation_price
-       FROM (
-           SELECT product_id, MIN(NULLIF(price, 0)) AS variation_price
-           FROM product_variations
-           GROUP BY product_id
-       ) v
-       WHERE p.id = v.product_id
-         AND COALESCE(NULLIF(p.price, 0), 0) = 0
-         AND v.variation_price IS NOT NULL""",
-    """UPDATE product_variations pv
-       SET price = COALESCE(p.price, 0),
-           sale_price = p.sale_price,
-           stock_quantity = COALESCE(p.stock_quantity, 0)
-       FROM products p
-       WHERE p.id = pv.product_id""",
-    """CREATE OR REPLACE FUNCTION sync_variation_pricing_from_product()
-       RETURNS TRIGGER AS $$
-       DECLARE parent_row RECORD;
-       BEGIN
-           SELECT price, sale_price, stock_quantity
-           INTO parent_row
-           FROM products
-           WHERE id = NEW.product_id;
 
-           IF FOUND THEN
-               NEW.price = COALESCE(parent_row.price, 0);
-               NEW.sale_price = parent_row.sale_price;
-               NEW.stock_quantity = COALESCE(parent_row.stock_quantity, 0);
-           END IF;
+    # 3. Add columns to orders (SQLite doesn't support IF NOT EXISTS in ADD COLUMN)
+    # We wrap these in try-except in the migrate() function anyway.
+    "ALTER TABLE orders ADD COLUMN payment_method TEXT DEFAULT 'cod'",
+    "ALTER TABLE orders ADD COLUMN payment_status TEXT DEFAULT 'pending'",
+    "ALTER TABLE orders ADD COLUMN order_number TEXT",
+    "ALTER TABLE orders ADD COLUMN cancelled_at TIMESTAMP",
+    "ALTER TABLE orders ADD COLUMN cancel_reason TEXT DEFAULT ''",
+    "ALTER TABLE orders ADD COLUMN shipping_address_json TEXT DEFAULT ''",
+    "ALTER TABLE orders ADD COLUMN customer_name TEXT DEFAULT ''",
+    "ALTER TABLE orders ADD COLUMN customer_email TEXT DEFAULT ''",
+    "ALTER TABLE orders ADD COLUMN customer_phone TEXT DEFAULT ''",
+    "ALTER TABLE orders ADD COLUMN notes TEXT DEFAULT ''",
+    
+    # 4. Order items updates
+    "ALTER TABLE order_items ADD COLUMN variation_id TEXT",
+    "ALTER TABLE order_items ADD COLUMN quantity INTEGER DEFAULT 1",
+    "ALTER TABLE order_items ADD COLUMN unit_price DECIMAL(10,2) DEFAULT 0",
+    "ALTER TABLE order_items ADD COLUMN total_price DECIMAL(10,2) DEFAULT 0",
+    "ALTER TABLE order_items ADD COLUMN product_name_snapshot TEXT DEFAULT ''",
 
-           RETURN NEW;
-       END;
-       $$ LANGUAGE plpgsql""",
-    "DROP TRIGGER IF EXISTS trg_sync_variation_pricing ON product_variations",
-    """CREATE TRIGGER trg_sync_variation_pricing
-       BEFORE INSERT OR UPDATE ON product_variations
+    # 5. Data updates
+    """UPDATE orders
+       SET order_number = 'ORD-' || UPPER(SUBSTR(REPLACE(id, '-', ''), 1, 12))
+       WHERE order_number IS NULL OR order_number = ''""",
+
+    # 6. Triggers (SQLite syntax)
+    """CREATE TRIGGER IF NOT EXISTS trg_sync_variation_pricing
+       AFTER INSERT ON product_variations
        FOR EACH ROW
-       EXECUTE FUNCTION sync_variation_pricing_from_product()""",
-    """CREATE OR REPLACE FUNCTION sync_variations_from_product()
-       RETURNS TRIGGER AS $$
+       BEGIN
+           UPDATE product_variations
+              SET price = (SELECT COALESCE(price, 0) FROM products WHERE id = NEW.product_id),
+                  sale_price = (SELECT sale_price FROM products WHERE id = NEW.product_id),
+                  stock_quantity = (SELECT COALESCE(stock_quantity, 0) FROM products WHERE id = NEW.product_id)
+            WHERE id = NEW.id;
+       END;""",
+
+    """CREATE TRIGGER IF NOT EXISTS trg_sync_variations_from_product
+       AFTER UPDATE OF price, sale_price, stock_quantity ON products
+       FOR EACH ROW
        BEGIN
            UPDATE product_variations
               SET price = COALESCE(NEW.price, 0),
                   sale_price = NEW.sale_price,
                   stock_quantity = COALESCE(NEW.stock_quantity, 0)
             WHERE product_id = NEW.id;
+       END;""",
 
-           RETURN NEW;
-       END;
-       $$ LANGUAGE plpgsql""",
-    "DROP TRIGGER IF EXISTS trg_sync_variations_from_product ON products",
-    """CREATE TRIGGER trg_sync_variations_from_product
-       AFTER UPDATE OF price, sale_price, stock_quantity ON products
+    """CREATE TRIGGER IF NOT EXISTS trg_set_order_number_if_missing
+       AFTER INSERT ON orders
        FOR EACH ROW
-       EXECUTE FUNCTION sync_variations_from_product()""",
-     """CREATE OR REPLACE FUNCTION set_order_number_if_missing()
-         RETURNS TRIGGER AS $$
-         BEGIN
-              IF NEW.order_number IS NULL OR NEW.order_number = '' THEN
-                    NEW.order_number := 'ORD-' || UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', '') FROM 1 FOR 12));
-              END IF;
-              RETURN NEW;
-         END;
-         $$ LANGUAGE plpgsql""",
-     "DROP TRIGGER IF EXISTS trg_set_order_number_if_missing ON orders",
-     """CREATE TRIGGER trg_set_order_number_if_missing
-         BEFORE INSERT ON orders
-         FOR EACH ROW
-         EXECUTE FUNCTION set_order_number_if_missing()""",
-    """INSERT INTO store_settings (key, value) VALUES
+       WHEN NEW.order_number IS NULL OR NEW.order_number = ''
+       BEGIN
+           UPDATE orders
+              SET order_number = 'ORD-' || UPPER(SUBSTR(hex(randomblob(6)), 1, 12))
+            WHERE id = NEW.id;
+       END;""",
+
+    # 7. Initial Settings
+    """INSERT OR IGNORE INTO store_settings (key, value) VALUES
          ('cod_enabled','true'), ('online_payment_enabled','false'),
          ('upi_id',''), ('bank_name',''), ('bank_account',''), ('bank_ifsc',''),
-         ('razorpay_key_id',''), ('razorpay_key_secret','')
-       ON CONFLICT (key) DO NOTHING""",
+         ('razorpay_key_id',''), ('razorpay_key_secret','')""",
 
-    # ── Shipping settings ───────────────────────────────────────────────────
-    """INSERT INTO store_settings (key, value) VALUES
+    """INSERT OR IGNORE INTO store_settings (key, value) VALUES
          ('shipping_fee','99'),
          ('free_shipping_threshold','999'),
          ('free_shipping_enabled','true'),
-         ('free_shipping_all','false')
-       ON CONFLICT (key) DO NOTHING""",
+         ('free_shipping_all','false')""",
 
-    # ── Coupon usage tracking + order discount columns ─────────────────────
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS coupon_code VARCHAR(100) DEFAULT ''",
-    "ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_amount NUMERIC(10,2) DEFAULT 0",
+    # 8. Coupons
+    "ALTER TABLE orders ADD COLUMN coupon_code TEXT DEFAULT ''",
+    "ALTER TABLE orders ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0",
     """CREATE TABLE IF NOT EXISTS coupon_usages (
-        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        coupon_id  UUID NOT NULL,
-        user_id    UUID NOT NULL,
-        order_id   UUID NOT NULL,
-        used_at    TIMESTAMP DEFAULT NOW()
+        id         TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        coupon_id  TEXT NOT NULL,
+        user_id    TEXT NOT NULL,
+        order_id   TEXT NOT NULL,
+        used_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""",
-    "CREATE INDEX IF NOT EXISTS idx_coupon_usages_coupon_id ON coupon_usages(coupon_id)",
-    "CREATE INDEX IF NOT EXISTS idx_coupon_usages_user_id   ON coupon_usages(user_id)",
 
-    # ── Performance indexes ─────────────────────────────────────────────────
+    # 9. Indexes
     "CREATE INDEX IF NOT EXISTS idx_products_is_active       ON products(is_active)",
     "CREATE INDEX IF NOT EXISTS idx_products_category_id     ON products(category_id)",
     "CREATE INDEX IF NOT EXISTS idx_products_brand_id        ON products(brand_id)",
-    "CREATE INDEX IF NOT EXISTS idx_products_is_featured     ON products(is_featured) WHERE is_featured = TRUE",
+    "CREATE INDEX IF NOT EXISTS idx_products_is_featured     ON products(is_featured) WHERE is_featured = 1",
     "CREATE INDEX IF NOT EXISTS idx_products_created_at      ON products(created_at DESC)",
     "CREATE INDEX IF NOT EXISTS idx_products_price           ON products(price)",
-    "CREATE INDEX IF NOT EXISTS idx_products_active_created  ON products(is_active, created_at DESC)",
     "CREATE INDEX IF NOT EXISTS idx_product_images_prod_pri  ON product_images(product_id, is_primary)",
     "CREATE INDEX IF NOT EXISTS idx_product_variations_pid   ON product_variations(product_id)",
     "CREATE INDEX IF NOT EXISTS idx_vav_variation_id         ON variation_attribute_values(variation_id)",
-    "CREATE INDEX IF NOT EXISTS idx_vav_value_id             ON variation_attribute_values(attribute_value_id)",
-    "CREATE INDEX IF NOT EXISTS idx_attr_values_attr_id      ON attribute_values(attribute_id)",
     "CREATE INDEX IF NOT EXISTS idx_orders_user_id           ON orders(user_id)",
     "CREATE INDEX IF NOT EXISTS idx_orders_status            ON orders(status)",
     "CREATE INDEX IF NOT EXISTS idx_order_items_order_id     ON order_items(order_id)",
     "CREATE INDEX IF NOT EXISTS idx_user_addresses_user_id   ON user_addresses(user_id)",
     "CREATE INDEX IF NOT EXISTS idx_categories_slug          ON categories(slug)",
     "CREATE INDEX IF NOT EXISTS idx_brands_slug              ON brands(slug)",
-    "CREATE INDEX IF NOT EXISTS idx_product_reviews_pid      ON product_reviews(product_id, is_approved)",
     "CREATE INDEX IF NOT EXISTS idx_attributes_slug          ON attributes(slug)",
+
+    # 10. Newsletter
     """CREATE TABLE IF NOT EXISTS newsletter_subscribers (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        email VARCHAR(255) UNIQUE NOT NULL,
-        subscribed_at TIMESTAMP DEFAULT NOW()
+        id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+        email TEXT UNIQUE NOT NULL,
+        subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""",
 ]
-
 
 def migrate():
     for sql in _MIGRATIONS:
         try:
             execute(sql, [])
         except Exception as e:
-            print(f"[db.migrate] Warning: {e}")
+            # We ignore errors for duplicate columns/indexes since SQLite 
+            # doesn't support IF NOT EXISTS for ADD COLUMN
+            pass

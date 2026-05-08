@@ -20,7 +20,7 @@ def login():
             return render_template("login.html")
         try:
             user = db.query_one(
-                "SELECT id, first_name, last_name, email, password_hash, role FROM users WHERE email=%s",
+                "SELECT id, first_name, last_name, email, password_hash, role FROM users WHERE email=?",
                 [email]
             )
         except Exception as e:
@@ -71,13 +71,13 @@ def register():
             flash("Password must be at least 6 characters.", "error")
             return render_template("register.html")
         try:
-            if db.query_one("SELECT id FROM users WHERE email=%s", [email]):
+            if db.query_one("SELECT id FROM users WHERE email=?", [email]):
                 flash("An account with that email already exists.", "error")
                 return render_template("register.html")
             hashed   = bcrypt.hashpw(password[:72].encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
             new_user = db.execute_returning(
                 "INSERT INTO users (id, first_name, last_name, email, password_hash, role) "
-                "VALUES (%s,%s,%s,%s,%s,'customer') RETURNING id, first_name, last_name, email, role",
+                "VALUES (?,?,?,?,?,'customer') RETURNING id, first_name, last_name, email, role",
                 [str(uuid.uuid4()), fname, lname, email, hashed]
             )
             if new_user:
@@ -118,7 +118,7 @@ def account():
                 flash("First name is required.", "error")
             else:
                 try:
-                    db.execute("UPDATE users SET first_name=%s, last_name=%s WHERE id=%s", [fname, lname, uid])
+                    db.execute("UPDATE users SET first_name=?, last_name=? WHERE id=?", [fname, lname, uid])
                     session["user"]["name"] = f"{fname} {lname}".strip()
                     flash("Profile updated successfully.", "success")
                 except Exception as e:
@@ -127,12 +127,12 @@ def account():
             try:
                 is_default = request.form.get("is_default") == "on"
                 if is_default:
-                    db.execute("UPDATE user_addresses SET is_default=FALSE WHERE user_id=%s", [uid])
+                    db.execute("UPDATE user_addresses SET is_default=FALSE WHERE user_id=?", [uid])
                 db.execute(
                     """INSERT INTO user_addresses
                        (id, user_id, label, first_name, last_name, phone,
                         address_line1, address_line2, city, state, pincode, country, is_default)
-                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     [
                         str(uuid.uuid4()), uid,
                         request.form.get("label", "Home"),
@@ -154,14 +154,14 @@ def account():
         return redirect(url_for("auth.account"))
     try:
         user      = db.query_one(
-            "SELECT id, first_name, last_name, email, role, created_at FROM users WHERE id=%s", [uid]
+            "SELECT id, first_name, last_name, email, role, created_at FROM users WHERE id=?", [uid]
         )
         addresses = db.query(
-            "SELECT * FROM user_addresses WHERE user_id=%s ORDER BY is_default DESC, created_at DESC", [uid]
+            "SELECT * FROM user_addresses WHERE user_id=? ORDER BY is_default DESC, created_at DESC", [uid]
         )
         orders    = db.query(
             "SELECT id, created_at, total_amount, status, payment_method, payment_status "
-            "FROM orders WHERE user_id=%s ORDER BY created_at DESC",
+            "FROM orders WHERE user_id=? ORDER BY created_at DESC",
             [uid]
         )
     except Exception as e:
@@ -177,7 +177,7 @@ def account_address_delete(addr_id):
     if "user" not in session:
         return redirect(url_for("auth.login"))
     db.execute(
-        "DELETE FROM user_addresses WHERE id=%s AND user_id=%s",
+        "DELETE FROM user_addresses WHERE id=? AND user_id=?",
         [addr_id, session["user"]["id"]]
     )
     flash("Address removed.", "success")
@@ -189,7 +189,7 @@ def account_address_default(addr_id):
     if "user" not in session:
         return redirect(url_for("auth.login"))
     uid = session["user"]["id"]
-    db.execute("UPDATE user_addresses SET is_default=FALSE WHERE user_id=%s", [uid])
-    db.execute("UPDATE user_addresses SET is_default=TRUE WHERE id=%s AND user_id=%s", [addr_id, uid])
+    db.execute("UPDATE user_addresses SET is_default=FALSE WHERE user_id=?", [uid])
+    db.execute("UPDATE user_addresses SET is_default=TRUE WHERE id=? AND user_id=?", [addr_id, uid])
     flash("Default address updated.", "success")
     return redirect(url_for("auth.account"))

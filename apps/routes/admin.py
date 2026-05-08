@@ -20,7 +20,7 @@ def generate_unique_product_sku(name=None):
     base = _sanitize_sku_prefix(slugify(name or ""), "PRD")
     for _ in range(8):
         candidate = f"{base}-{uuid.uuid4().hex[:8].upper()}"
-        if not db.query_one("SELECT id FROM products WHERE sku = %s", [candidate]):
+        if not db.query_one("SELECT id FROM products WHERE sku = ?", [candidate]):
             return candidate
     return f"{base}-{uuid.uuid4().hex[:12].upper()}"
 
@@ -30,9 +30,9 @@ def generate_unique_variation_sku(base_sku=None, exclude_id=None):
     for _ in range(8):
         candidate = f"{base}-{uuid.uuid4().hex[:6].upper()}"
         params = [candidate]
-        sql = "SELECT id FROM product_variations WHERE sku = %s"
+        sql = "SELECT id FROM product_variations WHERE sku = ?"
         if exclude_id:
-            sql += " AND id <> %s"
+            sql += " AND id <> ?"
             params.append(exclude_id)
         if not db.query_one(sql, params):
             return candidate
@@ -52,14 +52,14 @@ def generate_variations(product_id):
     is recognized as having variations.
     """
     existing = db.query_one(
-        "SELECT id FROM product_variations WHERE product_id = %s LIMIT 1",
+        "SELECT id FROM product_variations WHERE product_id = ? LIMIT 1",
         [product_id],
     )
     if existing:
         return  # already has at least one variation row
 
     product = db.query_one(
-        "SELECT price, sale_price, stock_quantity, sku FROM products WHERE id = %s",
+        "SELECT price, sale_price, stock_quantity, sku FROM products WHERE id = ?",
         [product_id],
     )
     if not product:
@@ -73,7 +73,7 @@ def generate_variations(product_id):
     var_sku = generate_unique_variation_sku(base_sku)
     db.execute(
         "INSERT INTO product_variations (id, product_id, sku, price, stock_quantity) "
-        "VALUES (%s,%s,%s,%s,%s)",
+        "VALUES (?,?,?,?,?)",
         [var_id, product_id, var_sku, base_price, base_stock],
     )
     print(f"DEBUG: Created 1 placeholder variation for product {product_id}")
@@ -109,7 +109,7 @@ def register(app):
                    ORDER BY o.created_at DESC LIMIT 10"""
             )
             recent_products = db.query(
-                f"{PRODUCTS_SELECT} WHERE p.is_active=TRUE ORDER BY p.created_at DESC LIMIT 8"
+                f"{PRODUCTS_SELECT} WHERE p.is_active=1 ORDER BY p.created_at DESC LIMIT 8"
             )
             chart_rows      = db.query("""
                 SELECT TO_CHAR(created_at, 'Mon DD') as day, SUM(total_amount) as amount
@@ -167,7 +167,7 @@ def register(app):
         all_attributes = db.query("SELECT * FROM attributes ORDER BY name ASC")
         for attr in all_attributes:
             attr["options"] = db.query(
-                "SELECT * FROM attribute_values WHERE attribute_id = %s ORDER BY value ASC", [attr["id"]]
+                "SELECT * FROM attribute_values WHERE attribute_id = ? ORDER BY value ASC", [attr["id"]]
             )
         
         if request.method == "POST":
@@ -189,7 +189,7 @@ def register(app):
                        (id, name, slug, sku, type, description, short_description,
                         price, sale_price, stock_quantity, stock_status, manage_stock,
                         category_id, brand_id, is_featured, is_active)
-                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id""",
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING id""",
                     [
                         str(uuid.uuid4()), name, slug, sku,
                         f.get("type", "simple"), f.get("description"), f.get("short_description"),
@@ -207,8 +207,8 @@ def register(app):
                     print(f"DEBUG [{_t.time()-t0:.2f}s]: Uploading primary image to Cloudinary...")
                     url = handle_upload(primary_file)
                     mid = str(uuid.uuid4())
-                    db.execute("INSERT INTO media (id, file_url) VALUES (%s,%s)", [mid, url])
-                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (%s,%s,%s,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
+                    db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
+                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
                     print(f"DEBUG [{_t.time()-t0:.2f}s]: Primary image done.")
 
                 # Handle Gallery Images
@@ -219,15 +219,15 @@ def register(app):
                         if gfile and gfile.filename:
                             url = handle_upload(gfile)
                             mid = str(uuid.uuid4())
-                            db.execute("INSERT INTO media (id, file_url) VALUES (%s,%s)", [mid, url])
-                            db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (%s,%s,%s,FALSE,%s)", [str(uuid.uuid4()), product_id, mid, i+1])
+                            db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
+                            db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,FALSE,?)", [str(uuid.uuid4()), product_id, mid, i+1])
                     print(f"DEBUG [{_t.time()-t0:.2f}s]: Gallery images done.")
 
                 # Batch-insert attribute associations (1 query instead of N)
                 print(f"DEBUG [{_t.time()-t0:.2f}s]: Saving attributes...")
                 attr_ids = request.form.getlist("attribute_ids")
                 if attr_ids:
-                    values_sql = ",".join(["(%s,%s,%s)"] * len(attr_ids))
+                    values_sql = ",".join(["(?,?,?)"] * len(attr_ids))
                     params = []
                     for attr_id in attr_ids:
                         params.extend([str(uuid.uuid4()), product_id, attr_id])
@@ -238,7 +238,7 @@ def register(app):
 
                 val_ids = request.form.getlist("attribute_value_ids")
                 if val_ids:
-                    values_sql = ",".join(["(%s,%s,%s)"] * len(val_ids))
+                    values_sql = ",".join(["(?,?,?)"] * len(val_ids))
                     params = []
                     for val_id in val_ids:
                         params.extend([str(uuid.uuid4()), product_id, val_id])
@@ -264,14 +264,14 @@ def register(app):
     @app.route("/admin/products/<product_id>/edit", methods=["GET", "POST"])
     @require_admin
     def admin_product_edit(product_id):
-        product = db.query_one("SELECT * FROM products WHERE id=%s", [product_id])
+        product = db.query_one("SELECT * FROM products WHERE id=?", [product_id])
         if not product: abort(404)
         
         categories = get_categories()
         brands = get_brands()
         all_attributes = db.query("SELECT * FROM attributes ORDER BY name ASC")
         for attr in all_attributes:
-            attr["options"] = db.query("SELECT * FROM attribute_values WHERE attribute_id = %s ORDER BY value ASC", [attr["id"]])
+            attr["options"] = db.query("SELECT * FROM attribute_values WHERE attribute_id = ? ORDER BY value ASC", [attr["id"]])
         
         if request.method == "POST":
             f = request.form
@@ -281,9 +281,9 @@ def register(app):
                 sku_input = (f.get("sku") or "").strip()
                 updated_sku = sku_input or product.get("sku") or generate_unique_product_sku(name)
                 db.execute(
-                    """UPDATE products SET name=%s, slug=%s, sku=%s, type=%s, description=%s,
-                       short_description=%s, price=%s, sale_price=%s, stock_quantity=%s, stock_status=%s,
-                       category_id=%s, brand_id=%s, is_featured=%s, is_active=%s WHERE id=%s""",
+                    """UPDATE products SET name=?, slug=?, sku=?, type=?, description=?,
+                       short_description=?, price=?, sale_price=?, stock_quantity=?, stock_status=?,
+                       category_id=?, brand_id=?, is_featured=?, is_active=? WHERE id=?""",
                     [
                         name, slug, updated_sku, f.get("type"), f.get("description"),
                         f.get("short_description"), float(f.get("price") or 0), float(f.get("sale_price") or 0) or None,
@@ -298,9 +298,9 @@ def register(app):
                 if primary_file and primary_file.filename:
                     url = handle_upload(primary_file)
                     mid = str(uuid.uuid4())
-                    db.execute("INSERT INTO media (id, file_url) VALUES (%s,%s)", [mid, url])
-                    db.execute("DELETE FROM product_images WHERE product_id=%s AND is_primary=TRUE", [product_id])
-                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (%s,%s,%s,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
+                    db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
+                    db.execute("DELETE FROM product_images WHERE product_id=? AND is_primary=TRUE", [product_id])
+                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
 
                 # Handle New Gallery Images
                 gallery_files = request.files.getlist("gallery_images")
@@ -308,22 +308,22 @@ def register(app):
                     if gfile and gfile.filename:
                         url = handle_upload(gfile)
                         mid = str(uuid.uuid4())
-                        db.execute("INSERT INTO media (id, file_url) VALUES (%s,%s)", [mid, url])
-                        db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (%s,%s,%s,FALSE)", [str(uuid.uuid4()), product_id, mid])
+                        db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
+                        db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,FALSE)", [str(uuid.uuid4()), product_id, mid])
 
                 # Handle Deletions
                 for key in request.form:
                     if key.startswith("delete_image_"):
                         img_id = key.replace("delete_image_", "")
-                        db.execute("DELETE FROM product_images WHERE id=%s", [img_id])
+                        db.execute("DELETE FROM product_images WHERE id=?", [img_id])
 
-                db.execute("DELETE FROM product_attributes WHERE product_id=%s", [product_id])
+                db.execute("DELETE FROM product_attributes WHERE product_id=?", [product_id])
                 for aid in request.form.getlist("attribute_ids"):
-                    db.execute("INSERT INTO product_attributes (id, product_id, attribute_id) VALUES (%s,%s,%s)", [str(uuid.uuid4()), product_id, aid])
+                    db.execute("INSERT INTO product_attributes (id, product_id, attribute_id) VALUES (?,?,?)", [str(uuid.uuid4()), product_id, aid])
                 
-                db.execute("DELETE FROM product_attribute_values WHERE product_id=%s", [product_id])
+                db.execute("DELETE FROM product_attribute_values WHERE product_id=?", [product_id])
                 for vid in request.form.getlist("attribute_value_ids"):
-                    db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (%s,%s,%s)", [str(uuid.uuid4()), product_id, vid])
+                    db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (?,?,?)", [str(uuid.uuid4()), product_id, vid])
 
                 get_products.cache_clear()
                 flash("Product updated successfully.", "success")
@@ -336,11 +336,11 @@ def register(app):
             SELECT pi.id, pi.is_primary, m.file_url as image_url 
             FROM product_images pi 
             JOIN media m ON m.id = pi.media_id 
-            WHERE pi.product_id=%s ORDER BY pi.is_primary DESC, pi.display_order ASC
+            WHERE pi.product_id=? ORDER BY pi.is_primary DESC, pi.display_order ASC
         """, [product_id])
         
-        product_attribute_ids = [r["attribute_id"] for r in db.query("SELECT attribute_id FROM product_attributes WHERE product_id=%s", [product_id])]
-        product_value_ids = [r["attribute_value_id"] for r in db.query("SELECT attribute_value_id FROM product_attribute_values WHERE product_id=%s", [product_id])]
+        product_attribute_ids = [r["attribute_id"] for r in db.query("SELECT attribute_id FROM product_attributes WHERE product_id=?", [product_id])]
+        product_value_ids = [r["attribute_value_id"] for r in db.query("SELECT attribute_value_id FROM product_attribute_values WHERE product_id=?", [product_id])]
         
         return render_template(
             "admin/product_form.html",
@@ -354,7 +354,7 @@ def register(app):
     @require_admin
     def admin_product_delete(product_id):
         try:
-            db.execute("UPDATE products SET is_active=FALSE WHERE id=%s", [product_id])
+            db.execute("UPDATE products SET is_active=FALSE WHERE id=?", [product_id])
             get_products.cache_clear()
             flash("Product deleted (deactivated).", "success")
         except Exception as e:
@@ -387,7 +387,7 @@ def register(app):
             
             try:
                 db.execute(
-                    "INSERT INTO categories (id, name, slug, parent_id, image_url, is_featured) VALUES (%s,%s,%s,%s,%s,%s)",
+                    "INSERT INTO categories (id, name, slug, parent_id, image_url, is_featured) VALUES (?,?,?,?,?,?)",
                     [str(uuid.uuid4()), name, slug, parent_id, image_url, is_featured]
                 )
                 get_categories.cache_clear()
@@ -401,7 +401,7 @@ def register(app):
     @app.route("/admin/categories/<cat_id>/edit", methods=["GET", "POST"])
     @require_admin
     def admin_category_edit(cat_id):
-        category = db.query_one("SELECT * FROM categories WHERE id = %s", [cat_id])
+        category = db.query_one("SELECT * FROM categories WHERE id = ?", [cat_id])
         if not category:
             abort(404)
         if request.method == "POST":
@@ -410,7 +410,7 @@ def register(app):
             
             try:
                 db.execute(
-                    "UPDATE categories SET name=%s, slug=%s, parent_id=%s, image_url=%s, is_featured=%s WHERE id=%s",
+                    "UPDATE categories SET name=?, slug=?, parent_id=?, image_url=?, is_featured=? WHERE id=?",
                     [request.form.get("name"), request.form.get("slug"),
                      request.form.get("parent_id") or None, image_url,
                      request.form.get("is_featured") == "on", cat_id]
@@ -428,10 +428,10 @@ def register(app):
     def admin_category_delete(cat_id):
         try:
             # Manually decouple products and subcategories before deletion
-            db.execute("UPDATE products SET category_id = NULL WHERE category_id = %s", [cat_id])
-            db.execute("UPDATE categories SET parent_id = NULL WHERE parent_id = %s", [cat_id])
+            db.execute("UPDATE products SET category_id = NULL WHERE category_id = ?", [cat_id])
+            db.execute("UPDATE categories SET parent_id = NULL WHERE parent_id = ?", [cat_id])
             
-            db.execute("DELETE FROM categories WHERE id=%s", [cat_id])
+            db.execute("DELETE FROM categories WHERE id=?", [cat_id])
             get_categories.cache_clear()
             get_featured_categories.cache_clear()
             flash("Category deleted.", "success")
@@ -468,7 +468,7 @@ def register(app):
             image_url = handle_upload(request.files.get("image_file")) or None
             try:
                 db.execute(
-                    "INSERT INTO brands (id, name, slug, image_url) VALUES (%s,%s,%s,%s)",
+                    "INSERT INTO brands (id, name, slug, image_url) VALUES (?,?,?,?)",
                     [str(uuid.uuid4()), name, slug, image_url]
                 )
                 flash("Brand created.", "success")
@@ -480,7 +480,7 @@ def register(app):
     @app.route("/admin/brands/<brand_id>/edit", methods=["GET", "POST"])
     @require_admin
     def admin_brand_edit(brand_id):
-        brand = db.query_one("SELECT * FROM brands WHERE id = %s", [brand_id])
+        brand = db.query_one("SELECT * FROM brands WHERE id = ?", [brand_id])
         if not brand: abort(404)
         if request.method == "POST":
             name = request.form.get("name")
@@ -488,7 +488,7 @@ def register(app):
             image_url = handle_upload(request.files.get("image_file")) or brand["image_url"]
             try:
                 db.execute(
-                    "UPDATE brands SET name=%s, slug=%s, image_url=%s WHERE id=%s",
+                    "UPDATE brands SET name=?, slug=?, image_url=? WHERE id=?",
                     [name, slug, image_url, brand_id]
                 )
                 flash("Brand updated.", "success")
@@ -502,9 +502,9 @@ def register(app):
     def admin_brand_delete(brand_id):
         try:
             # Manually decouple products before deletion
-            db.execute("UPDATE products SET brand_id = NULL WHERE brand_id = %s", [brand_id])
+            db.execute("UPDATE products SET brand_id = NULL WHERE brand_id = ?", [brand_id])
             
-            db.execute("DELETE FROM brands WHERE id=%s", [brand_id])
+            db.execute("DELETE FROM brands WHERE id=?", [brand_id])
             flash("Brand deleted.", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -528,7 +528,7 @@ def register(app):
                    LEFT JOIN users u  ON u.id = o.user_id
                    LEFT JOIN order_items oi ON oi.order_id = o.id
                    GROUP BY o.id, o.created_at, o.total_amount, o.status, u.first_name, u.last_name, u.email
-                   ORDER BY o.created_at DESC LIMIT %s OFFSET %s""",
+                   ORDER BY o.created_at DESC LIMIT ? OFFSET ?""",
                 [per_page, offset]
             )
             total       = (db.query_one("SELECT COUNT(*) AS cnt FROM orders") or {}).get("cnt", 0)
@@ -546,14 +546,14 @@ def register(app):
         try:
             order = db.query_one(
                 """SELECT o.*, (u.first_name || ' ' || u.last_name) AS customer_name, u.email AS customer_email
-                   FROM orders o LEFT JOIN users u ON u.id = o.user_id WHERE o.id=%s""",
+                   FROM orders o LEFT JOIN users u ON u.id = o.user_id WHERE o.id=?""",
                 [order_id]
             )
             if not order:
                 abort(404)
             items = db.query(
                 "SELECT oi.*, p.name AS product_name, p.sku FROM order_items oi "
-                "LEFT JOIN products p ON p.id = oi.product_id WHERE oi.order_id=%s",
+                "LEFT JOIN products p ON p.id = oi.product_id WHERE oi.order_id=?",
                 [order_id]
             )
         except Exception as e:
@@ -570,7 +570,7 @@ def register(app):
             flash("Invalid status.", "error")
             return redirect(url_for("admin_order_detail", order_id=order_id))
         try:
-            db.execute("UPDATE orders SET status=%s WHERE id=%s", [status, order_id])
+            db.execute("UPDATE orders SET status=? WHERE id=?", [status, order_id])
             flash(f"Order status updated to '{status}'.", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -627,7 +627,7 @@ def register(app):
             else:
                 try:
                     db.execute(
-                        "INSERT INTO attributes (id, name, slug, image_url, is_featured) VALUES (%s,%s,%s,%s,%s)",
+                        "INSERT INTO attributes (id, name, slug, image_url, is_featured) VALUES (?,?,?,?,?)",
                         [str(uuid.uuid4()), name, slug, image_url, is_featured]
                     )
                     flash("Attribute created", "success")
@@ -639,14 +639,14 @@ def register(app):
     @app.route("/admin/attributes/<attr_id>/edit", methods=["GET", "POST"])
     @require_admin
     def admin_attribute_edit(attr_id):
-        attribute = db.query_one("SELECT * FROM attributes WHERE id = %s", [attr_id])
+        attribute = db.query_one("SELECT * FROM attributes WHERE id = ?", [attr_id])
         if not attribute:
             abort(404)
         if request.method == "POST":
             image_url = handle_upload(request.files.get("image_file")) or attribute["image_url"]
             try:
                 db.execute(
-                    "UPDATE attributes SET name=%s, slug=%s, image_url=%s, is_featured=%s WHERE id=%s",
+                    "UPDATE attributes SET name=?, slug=?, image_url=?, is_featured=? WHERE id=?",
                     [request.form.get("name"), request.form.get("slug"),
                      image_url,
                      request.form.get("is_featured") == "on", attr_id]
@@ -661,7 +661,7 @@ def register(app):
     @require_admin
     def admin_attribute_delete(attr_id):
         try:
-            db.execute("DELETE FROM attributes WHERE id = %s", [attr_id])
+            db.execute("DELETE FROM attributes WHERE id = ?", [attr_id])
             flash("Attribute deleted", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -670,7 +670,7 @@ def register(app):
     @app.route("/admin/attributes/<attr_id>/values", methods=["GET", "POST"])
     @require_admin
     def admin_attribute_values(attr_id):
-        attribute = db.query_one("SELECT * FROM attributes WHERE id = %s", [attr_id])
+        attribute = db.query_one("SELECT * FROM attributes WHERE id = ?", [attr_id])
         if not attribute:
             flash("Attribute not found", "error")
             return redirect(url_for("admin_attributes"))
@@ -680,7 +680,7 @@ def register(app):
             if value:
                 try:
                     db.execute(
-                        "INSERT INTO attribute_values (id, attribute_id, value, image_url) VALUES (%s,%s,%s,%s)",
+                        "INSERT INTO attribute_values (id, attribute_id, value, image_url) VALUES (?,?,?,?)",
                         [str(uuid.uuid4()), attr_id, value, image_url]
                     )
                     get_trending_shapes.cache_clear()
@@ -688,7 +688,7 @@ def register(app):
                 except Exception as e:
                     flash(f"Error: {e}", "error")
         values = db.query(
-            "SELECT * FROM attribute_values WHERE attribute_id = %s ORDER BY value ASC", [attr_id]
+            "SELECT * FROM attribute_values WHERE attribute_id = ? ORDER BY value ASC", [attr_id]
         )
         return render_template("admin/attribute_values.html", attribute=attribute, values=values)
 
@@ -697,12 +697,12 @@ def register(app):
     def admin_attribute_values_bulk_update(attr_id):
         f = request.form
         try:
-            values = db.query("SELECT id FROM attribute_values WHERE attribute_id = %s", [attr_id])
+            values = db.query("SELECT id FROM attribute_values WHERE attribute_id = ?", [attr_id])
             for v in values:
                 v_id = v["id"]
                 new_value = (f.get(f"value_{v_id}") or "").strip()
                 if new_value:
-                    db.execute("UPDATE attribute_values SET value=%s WHERE id=%s", [new_value, v_id])
+                    db.execute("UPDATE attribute_values SET value=? WHERE id=?", [new_value, v_id])
             get_trending_shapes.cache_clear()
             flash("Attribute values updated.", "success")
         except Exception as e:
@@ -714,7 +714,7 @@ def register(app):
     def admin_attribute_value_delete(val_id):
         attr_id = request.form.get("attribute_id")
         try:
-            db.execute("DELETE FROM attribute_values WHERE id = %s", [val_id])
+            db.execute("DELETE FROM attribute_values WHERE id = ?", [val_id])
             get_trending_shapes.cache_clear()
             flash("Value deleted", "success")
         except Exception as e:
@@ -724,11 +724,11 @@ def register(app):
     @app.route("/admin/attributes/values/<val_id>/edit", methods=["GET", "POST"])
     @require_admin
     def admin_attribute_value_edit(val_id):
-        value = db.query_one("SELECT * FROM attribute_values WHERE id = %s", [val_id])
+        value = db.query_one("SELECT * FROM attribute_values WHERE id = ?", [val_id])
         if not value:
             abort(404)
         
-        attribute = db.query_one("SELECT * FROM attributes WHERE id = %s", [value["attribute_id"]])
+        attribute = db.query_one("SELECT * FROM attributes WHERE id = ?", [value["attribute_id"]])
         
         if request.method == "POST":
             new_value = request.form.get("value")
@@ -736,7 +736,7 @@ def register(app):
             
             try:
                 db.execute(
-                    "UPDATE attribute_values SET value=%s, image_url=%s WHERE id=%s",
+                    "UPDATE attribute_values SET value=?, image_url=? WHERE id=?",
                     [new_value, image_url, val_id]
                 )
                 get_trending_shapes.cache_clear()
@@ -752,7 +752,7 @@ def register(app):
     @app.route("/admin/products/<product_id>/variations")
     @require_admin
     def admin_product_variations(product_id):
-        product = db.query_one("SELECT id, name, type FROM products WHERE id = %s", [product_id])
+        product = db.query_one("SELECT id, name, type FROM products WHERE id = ?", [product_id])
         if not product:
             abort(404)
         variations = db.query("""
@@ -761,22 +761,22 @@ def register(app):
                     FROM variation_attribute_values vav
                     JOIN attribute_values av ON av.id = vav.attribute_value_id
                     WHERE vav.variation_id = v.id) as option_names
-            FROM product_variations v WHERE v.product_id = %s ORDER BY v.sku ASC
+            FROM product_variations v WHERE v.product_id = ? ORDER BY v.sku ASC
         """, [product_id])
         linked_attributes = db.query("""
             SELECT a.id, a.name FROM attributes a
             JOIN product_attributes pa ON pa.attribute_id = a.id
-            WHERE pa.product_id = %s ORDER BY pa.display_order ASC
+            WHERE pa.product_id = ? ORDER BY pa.display_order ASC
         """, [product_id])
         for attr in linked_attributes:
             attr["options"] = db.query("""
                 SELECT av.* FROM attribute_values av
                 JOIN product_attribute_values pav ON pav.attribute_value_id = av.id
-                WHERE av.attribute_id = %s AND pav.product_id = %s ORDER BY av.value ASC
+                WHERE av.attribute_id = ? AND pav.product_id = ? ORDER BY av.value ASC
             """, [attr["id"], product_id])
             if not attr["options"]:
                 attr["options"] = db.query(
-                    "SELECT * FROM attribute_values WHERE attribute_id = %s ORDER BY value ASC", [attr["id"]]
+                    "SELECT * FROM attribute_values WHERE attribute_id = ? ORDER BY value ASC", [attr["id"]]
                 )
         return render_template(
             "admin/variations.html", product=product, variations=variations, attributes=linked_attributes
@@ -787,14 +787,14 @@ def register(app):
     def admin_variation_new(product_id):
         f = request.form
         try:
-            product = db.query_one("SELECT price, sale_price, stock_quantity, sku FROM products WHERE id = %s", [product_id]) or {}
+            product = db.query_one("SELECT price, sale_price, stock_quantity, sku FROM products WHERE id = ?", [product_id]) or {}
             variation_sku = (f.get("sku") or "").strip() or generate_unique_variation_sku(
                 (product or {}).get("sku")
             )
             var_id = str(uuid.uuid4())
             db.execute(
                 "INSERT INTO product_variations (id, product_id, sku, price, sale_price, stock_quantity) "
-                "VALUES (%s,%s,%s,%s,%s,%s)",
+                "VALUES (?,?,?,?,?,?)",
                 [var_id, product_id, variation_sku,
                  float(product.get("sale_price") or product.get("price") or 0), None,
                  int(product.get("stock_quantity") or 0)]
@@ -802,7 +802,7 @@ def register(app):
             for key, val_id in f.items():
                 if key.startswith("attr_") and val_id:
                     db.execute(
-                        "INSERT INTO variation_attribute_values (id, variation_id, attribute_value_id) VALUES (%s,%s,%s)",
+                        "INSERT INTO variation_attribute_values (id, variation_id, attribute_value_id) VALUES (?,?,?)",
                         [str(uuid.uuid4()), var_id, val_id]
                     )
             flash("Variation created", "success")
@@ -815,7 +815,7 @@ def register(app):
     def admin_variation_delete(var_id):
         product_id = request.form.get("product_id")
         try:
-            db.execute("DELETE FROM product_variations WHERE id = %s", [var_id])
+            db.execute("DELETE FROM product_variations WHERE id = ?", [var_id])
             flash("Variation deleted", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -825,12 +825,12 @@ def register(app):
     @require_admin
     def admin_variations_bulk_update(product_id):
         try:
-            product = db.query_one("SELECT sku, price, sale_price, stock_quantity FROM products WHERE id = %s", [product_id]) or {}
+            product = db.query_one("SELECT sku, price, sale_price, stock_quantity FROM products WHERE id = ?", [product_id]) or {}
             base_sku = product.get("sku")
             base_price = float(product.get("sale_price") or product.get("price") or 0)
             base_stock = int(product.get("stock_quantity") or 0)
             # First, fetch all variation IDs for this product to validate
-            rows = db.query("SELECT id FROM product_variations WHERE product_id = %s", [product_id])
+            rows = db.query("SELECT id FROM product_variations WHERE product_id = ?", [product_id])
             var_ids = [r["id"] for r in rows]
             
             for vid in var_ids:
@@ -838,7 +838,7 @@ def register(app):
                 final_sku = sku or generate_unique_variation_sku(base_sku, exclude_id=vid)
                 
                 db.execute(
-                    "UPDATE product_variations SET sku=%s, price=%s, sale_price=%s, stock_quantity=%s WHERE id=%s",
+                    "UPDATE product_variations SET sku=?, price=?, sale_price=?, stock_quantity=? WHERE id=?",
                     [final_sku, base_price, None, base_stock, vid]
                 )
             flash("All variations updated successfully.", "success")
@@ -871,7 +871,7 @@ def register(app):
         action = request.form.get("action", "approve")
         try:
             approved = action == "approve"
-            db.execute("UPDATE product_reviews SET is_approved=%s WHERE id=%s", [approved, review_id])
+            db.execute("UPDATE product_reviews SET is_approved=? WHERE id=?", [approved, review_id])
             flash("Review " + ("approved." if approved else "rejected."), "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -881,7 +881,7 @@ def register(app):
     @require_admin
     def admin_review_delete(review_id):
         try:
-            db.execute("DELETE FROM product_reviews WHERE id=%s", [review_id])
+            db.execute("DELETE FROM product_reviews WHERE id=?", [review_id])
             flash("Review deleted.", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -900,15 +900,15 @@ def register(app):
                 for key in toggle_keys:
                     value = "true" if request.form.get(key) == "on" else "false"
                     db.execute(
-                        "INSERT INTO store_settings (key, value) VALUES (%s,%s) "
-                        "ON CONFLICT (key) DO UPDATE SET value=%s, updated_at=NOW()",
+                        "INSERT INTO store_settings (key, value) VALUES (?,?) "
+                        "ON CONFLICT (key) DO UPDATE SET value=?, updated_at=NOW()",
                         [key, value, value]
                     )
                 for key in text_keys:
                     value = request.form.get(key, "").strip()
                     db.execute(
-                        "INSERT INTO store_settings (key, value) VALUES (%s,%s) "
-                        "ON CONFLICT (key) DO UPDATE SET value=%s, updated_at=NOW()",
+                        "INSERT INTO store_settings (key, value) VALUES (?,?) "
+                        "ON CONFLICT (key) DO UPDATE SET value=?, updated_at=NOW()",
                         [key, value, value]
                     )
                 for key in numeric_keys:
@@ -918,8 +918,8 @@ def register(app):
                     except ValueError:
                         value = "99" if key == "shipping_fee" else "999"
                     db.execute(
-                        "INSERT INTO store_settings (key, value) VALUES (%s,%s) "
-                        "ON CONFLICT (key) DO UPDATE SET value=%s, updated_at=NOW()",
+                        "INSERT INTO store_settings (key, value) VALUES (?,?) "
+                        "ON CONFLICT (key) DO UPDATE SET value=?, updated_at=NOW()",
                         [key, value, value]
                     )
                 get_cached_store_settings.cache_clear()
@@ -950,7 +950,7 @@ def register(app):
                     """INSERT INTO coupons 
                        (id, code, type, value, min_order_amount, usage_limit, 
                         usage_limit_per_user, max_discount, expires_at, is_active)
-                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                       VALUES (?,?,?,?,?,?,?,?,?,?)""",
                     [
                         str(uuid.uuid4()), f.get("code").upper(), f.get("type"),
                         float(f.get("value") or 0), float(f.get("min_order_amount") or 0),
@@ -971,7 +971,7 @@ def register(app):
     @require_admin
     def admin_coupon_delete(coupon_id):
         try:
-            db.execute("DELETE FROM coupons WHERE id=%s", [coupon_id])
+            db.execute("DELETE FROM coupons WHERE id=?", [coupon_id])
             flash("Coupon deleted successfully.", "success")
         except Exception as e:
             flash(f"Error deleting coupon: {e}", "error")
@@ -1007,19 +1007,19 @@ def register(app):
                         if not name:
                             skipped += 1
                             continue
-                        if db.query_one("SELECT id FROM products WHERE sku=%s OR slug=%s", [sku, slug]):
+                        if db.query_one("SELECT id FROM products WHERE sku=? OR slug=?", [sku, slug]):
                             skipped += 1
                             continue
                         result = db.execute_returning(
                             """INSERT INTO products (name, slug, sku, price, sale_price,
                                stock_quantity, stock_status, description, short_description, is_active)
-                               VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,TRUE) RETURNING id""",
+                               VALUES (?,?,?,?,?,?,?,?,?,TRUE) RETURNING id""",
                             [name, slug, sku, price, sale, stock,
                              "in_stock" if stock > 0 else "out_of_stock", desc, short]
                         )
                         if result and img:
                             db.execute(
-                                "INSERT INTO product_images (product_id, image_url, is_primary) VALUES (%s,%s,TRUE)",
+                                "INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?,?,TRUE)",
                                 [result["id"], img]
                             )
                         imported += 1

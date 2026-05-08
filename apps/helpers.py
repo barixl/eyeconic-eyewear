@@ -37,10 +37,10 @@ def get_unique_slug(table, base_slug, exclude_id=None):
     slug = base_slug or "item"
     counter = 1
     while True:
-        query = f"SELECT id FROM {table} WHERE slug = %s"
+        query = f"SELECT id FROM {table} WHERE slug = ?"
         params = [slug]
         if exclude_id:
-            query += " AND id != %s"
+            query += " AND id != ?"
             params.append(exclude_id)
         if not db.query_one(query, params):
             return slug
@@ -72,7 +72,7 @@ def refresh_cart_prices(cart):
     if not product_ids:
         return refreshed, subtotal
 
-    placeholders = ",".join(["%s"] * len(product_ids))
+    placeholders = ",".join(["?"] * len(product_ids))
     rows = db.query(
         f"SELECT id, name, sku, price, sale_price, stock_quantity, stock_status "
         f"FROM products WHERE id IN ({placeholders})",

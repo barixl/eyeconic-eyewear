@@ -33,7 +33,7 @@ def cart_add():
         return redirect(request.referrer or url_for("public.shop"))
 
     try:
-        product = db.query_one(f"{PRODUCTS_SELECT} WHERE p.id = %s", [product_id])
+        product = db.query_one(f"{PRODUCTS_SELECT} WHERE p.id = ?", [product_id])
         if not product:
             flash("Product not found.", "error")
             return redirect(request.referrer or url_for("public.shop"))
@@ -45,13 +45,13 @@ def cart_add():
 
         if variation_id:
             # Traditional variation — look up the combo label from the DB
-            var = db.query_one("SELECT * FROM product_variations WHERE id = %s", [variation_id])
+            var = db.query_one("SELECT * FROM product_variations WHERE id = ?", [variation_id])
             if var:
                 sku  = var.get("sku", sku)
                 opts = db.query("""
                     SELECT av.value FROM attribute_values av
                     JOIN variation_attribute_values vav ON vav.attribute_value_id = av.id
-                    WHERE vav.variation_id = %s
+                    WHERE vav.variation_id = ?
                 """, [variation_id])
                 if opts:
                     display_name += f" ({' / '.join(o['value'] for o in opts)})"

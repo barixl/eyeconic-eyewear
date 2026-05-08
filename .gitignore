@@ -46,3 +46,6 @@ temp/
 
 # Uploads (stored in Cloudinary, local copies not needed in git)
 apps/static/uploads/
+
+# Databases
+*.db

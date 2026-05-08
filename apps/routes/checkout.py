@@ -35,7 +35,7 @@ def _validate_coupon(code, user_id, subtotal):
         return None, 0.0, "Please enter a coupon code."
 
     coupon = db.query_one(
-        "SELECT * FROM coupons WHERE UPPER(code) = %s AND is_active = TRUE", [code]
+        "SELECT * FROM coupons WHERE UPPER(code) = ? AND is_active = 1", [code]
     )
     if not coupon:
         return None, 0.0, "Invalid or inactive coupon code."
@@ -49,14 +49,14 @@ def _validate_coupon(code, user_id, subtotal):
 
     if coupon.get("usage_limit"):
         row = db.query_one(
-            "SELECT COUNT(*) AS cnt FROM coupon_usages WHERE coupon_id = %s", [coupon["id"]]
+            "SELECT COUNT(*) AS cnt FROM coupon_usages WHERE coupon_id = ?", [coupon["id"]]
         )
         if row and int(row["cnt"]) >= int(coupon["usage_limit"]):
             return None, 0.0, "This coupon has reached its usage limit."
 
     if user_id and coupon.get("usage_limit_per_user"):
         row = db.query_one(
-            "SELECT COUNT(*) AS cnt FROM coupon_usages WHERE coupon_id = %s AND user_id = %s",
+            "SELECT COUNT(*) AS cnt FROM coupon_usages WHERE coupon_id = ? AND user_id = ?",
             [coupon["id"], user_id],
         )
         if row and int(row["cnt"]) >= int(coupon["usage_limit_per_user"]):
@@ -174,7 +174,7 @@ def checkout():
 
     try:
         addresses = db.query(
-            "SELECT * FROM user_addresses WHERE user_id=%s ORDER BY is_default DESC, created_at DESC",
+            "SELECT * FROM user_addresses WHERE user_id=? ORDER BY is_default DESC, created_at DESC",
             [uid],
         )
     except Exception:
@@ -215,7 +215,7 @@ def checkout():
         shipping_addr = None
         if saved_address_id:
             shipping_addr = db.query_one(
-                "SELECT first_name, last_name, phone, address_line1, address_line2, city, state, pincode, country FROM user_addresses WHERE id=%s AND user_id=%s",
+                "SELECT first_name, last_name, phone, address_line1, address_line2, city, state, pincode, country FROM user_addresses WHERE id=? AND user_id=?",
                 [saved_address_id, uid],
             )
             if not shipping_addr:
@@ -294,7 +294,7 @@ def checkout():
                    (id, order_number, user_id, subtotal, shipping_amount, total_amount, status,
                     payment_method, payment_status, shipping_address_json, customer_name,
                     customer_email, customer_phone, notes, coupon_code, discount_amount)
-                   VALUES (%s,%s,%s,%s,%s,%s,'pending',%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                   VALUES (?,?,?,?,?,?,'pending',?,?,?,?,?,?,?,?,?)""",
                 [order_id, order_number, uid, subtotal, shipping, total,
                  payment_method, payment_status, json.dumps(shipping_addr),
                  customer_name, customer_email, addr_phone, notes,
@@ -308,19 +308,19 @@ def checkout():
                 vid        = item.get("variation_id")
 
                 db.execute(
-                    "UPDATE products SET stock_quantity = stock_quantity - %s WHERE id = %s", [qty, pid]
+                    "UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?", [qty, pid]
                 )
-                p_row = db.query_one("SELECT stock_quantity FROM products WHERE id = %s", [pid])
+                p_row = db.query_one("SELECT stock_quantity FROM products WHERE id = ?", [pid])
                 if p_row and p_row["stock_quantity"] <= 0:
                     db.execute(
-                        "UPDATE products SET stock_quantity = 0, stock_status = 'out_of_stock' WHERE id = %s", [pid]
+                        "UPDATE products SET stock_quantity = 0, stock_status = 'out_of_stock' WHERE id = ?", [pid]
                     )
 
                 db.execute(
                     """INSERT INTO order_items
                        (id, order_id, product_id, variation_id, quantity,
                         unit_price, total_price, product_name_snapshot)
-                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s)""",
+                       VALUES (?,?,?,?,?,?,?,?)""",
                     [str(uuid.uuid4()), order_id, pid, vid or None, qty,
                      unit_price, unit_price * qty, item.get("name", "")],
                 )
@@ -328,7 +328,7 @@ def checkout():
             # Record coupon usage
             if coupon:
                 db.execute(
-                    "INSERT INTO coupon_usages (id, coupon_id, user_id, order_id) VALUES (%s,%s,%s,%s)",
+                    "INSERT INTO coupon_usages (id, coupon_id, user_id, order_id) VALUES (?,?,?,?)",
                     [str(uuid.uuid4()), coupon["id"], uid, order_id],
                 )
 
@@ -336,12 +336,12 @@ def checkout():
                 try:
                     is_default = len(addresses) == 0
                     if is_default:
-                        db.execute("UPDATE user_addresses SET is_default=FALSE WHERE user_id=%s", [uid])
+                        db.execute("UPDATE user_addresses SET is_default=FALSE WHERE user_id=?", [uid])
                     db.execute(
                         """INSERT INTO user_addresses
                            (id, user_id, label, first_name, last_name, phone,
                             address_line1, address_line2, city, state, pincode, country, is_default)
-                           VALUES (%s,%s,'Home',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                           VALUES (?,?,'Home',?,?,?,?,?,?,?,?,?,?)""",
                         [str(uuid.uuid4()), uid, addr_first, addr_last, addr_phone,
                          addr_line1, addr_line2, addr_city, addr_state, addr_pin,
                          addr_country, is_default],
@@ -375,7 +375,7 @@ def order_success(order_id):
         return redirect(url_for("auth.login"))
     uid = session["user"]["id"]
     try:
-        order = db.query_one("SELECT * FROM orders WHERE id=%s AND user_id=%s", [order_id, uid])
+        order = db.query_one("SELECT * FROM orders WHERE id=? AND user_id=?", [order_id, uid])
         if not order:
             abort(404)
         items = db.query(
@@ -384,7 +384,7 @@ def order_success(order_id):
                LEFT JOIN products p ON p.id = oi.product_id
                LEFT JOIN product_images pi ON pi.product_id = oi.product_id AND pi.is_primary=TRUE
                LEFT JOIN media m ON m.id = pi.media_id
-               WHERE oi.order_id=%s""",
+               WHERE oi.order_id=?""",
             [order_id],
         )
         shipping_address = {}
@@ -405,10 +405,10 @@ def order_detail(order_id):
         return redirect(url_for("auth.login"))
     uid = session["user"]["id"]
     try:
-        order = db.query_one("SELECT * FROM orders WHERE id=%s AND user_id=%s", [order_id, uid])
+        order = db.query_one("SELECT * FROM orders WHERE id=? AND user_id=?", [order_id, uid])
         if not order:
             abort(404)
-        items = db.query("SELECT * FROM order_items WHERE order_id=%s", [order_id])
+        items = db.query("SELECT * FROM order_items WHERE order_id=?", [order_id])
     except Exception as e:
         flash(f"Error fetching order: {e}", "error")
         return redirect(url_for("auth.account"))
@@ -422,7 +422,7 @@ def order_cancel(order_id):
     uid = session["user"]["id"]
     try:
         order = db.query_one(
-            "SELECT id, status, payment_method, payment_status FROM orders WHERE id=%s AND user_id=%s",
+            "SELECT id, status, payment_method, payment_status FROM orders WHERE id=? AND user_id=?",
             [order_id, uid],
         )
         if not order:
@@ -442,7 +442,7 @@ def order_cancel(order_id):
                 return redirect(url_for("checkout.order_detail", order_id=order_id))
             cancel_reason = f"Other: {cancel_reason_other}"
 
-        items        = db.query("SELECT product_id, quantity FROM order_items WHERE order_id=%s", [order_id])
+        items        = db.query("SELECT product_id, quantity FROM order_items WHERE order_id=?", [order_id])
         stock_changes = {}
         for item in items:
             pid = item.get("product_id")
@@ -451,11 +451,11 @@ def order_cancel(order_id):
                 stock_changes[pid] = stock_changes.get(pid, 0) + qty
         for pid, qty in stock_changes.items():
             db.execute(
-                "UPDATE products SET stock_quantity = stock_quantity + %s, stock_status = 'in_stock' WHERE id = %s",
+                "UPDATE products SET stock_quantity = stock_quantity + ?, stock_status = 'in_stock' WHERE id = ?",
                 [qty, pid],
             )
         db.execute(
-            "UPDATE orders SET status='cancelled', payment_status='cancelled', cancelled_at=NOW(), cancel_reason=%s WHERE id=%s AND user_id=%s",
+            "UPDATE orders SET status='cancelled', payment_status='cancelled', cancelled_at=NOW(), cancel_reason=? WHERE id=? AND user_id=?",
             [cancel_reason, order_id, uid],
         )
         flash("Order cancelled successfully.", "success")
@@ -483,12 +483,12 @@ def submit_review(product_id):
             flash("Review must be at least 10 characters long.", "error")
             return redirect(url_for("public.product_detail", product_id=product_id))
         if db.query_one(
-            "SELECT id FROM product_reviews WHERE product_id=%s AND user_id=%s", [product_id, uid]
+            "SELECT id FROM product_reviews WHERE product_id=? AND user_id=?", [product_id, uid]
         ):
             flash("You have already submitted a review for this product.", "info")
             return redirect(url_for("public.product_detail", product_id=product_id))
         db.execute(
-            "INSERT INTO product_reviews (product_id, user_id, rating, comment, is_approved) VALUES (%s,%s,%s,%s,TRUE)",
+            "INSERT INTO product_reviews (product_id, user_id, rating, comment, is_approved) VALUES (?,?,?,?,TRUE)",
             [product_id, uid, rating, comment],
         )
         flash("Thank you! Your review has been submitted.", "success")
