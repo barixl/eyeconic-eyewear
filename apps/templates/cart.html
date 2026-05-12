@@ -1,177 +1,204 @@
-{% extends "base.html" %}
+{% extends 'eyeconic_base.html' %}
 
-{% block title %}Cart – ChasmaGallery{% endblock %}
+{% block title %}Your Cart – ChasmaGallery{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cart-page { max-width: 1200px; margin: 0 auto; padding: 3rem 5vw 6rem; }
+  .cart-grid { display: grid; grid-template-columns: 1fr 360px; gap: 3rem; align-items: start; }
+  @media (max-width: 960px) { .cart-grid { grid-template-columns: 1fr; } }
+
+  .cart-title { font-family: var(--font-display); font-size: 2.4rem; font-weight: 600; color: var(--charcoal); margin-bottom: 2.5rem; }
+
+  /* Item Row */
+  .cart-item { display: grid; grid-template-columns: 100px 1fr 140px; gap: 1.5rem; padding: 1.5rem 0; border-bottom: 1px solid var(--light-gray); align-items: center; }
+  @media (max-width: 600px) { .cart-item { grid-template-columns: 80px 1fr; gap: 1rem; } .cart-price-col { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem; } }
+
+  .cart-img { aspect-ratio: 1; background: var(--cream); border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 0.5rem; }
+  .cart-img img { width: 100%; height: 100%; object-fit: contain; }
+
+  .item-name { font-size: 1rem; font-weight: 600; color: var(--charcoal); margin-bottom: 4px; text-decoration: none; display: block; }
+  .item-name:hover { color: var(--gold); }
+  .item-meta { font-size: 0.75rem; color: var(--mid-gray); margin-bottom: 12px; }
+  .item-price-unit { font-size: 0.82rem; color: var(--mid-gray); margin-left: 10px; }
+
+  /* Qty Box */
+  .qty-box { display: flex; align-items: center; border: 1.5px solid var(--light-gray); background: #fff; width: fit-content; }
+  .qty-btn { width: 34px; height: 38px; background: none; border: none; font-size: 1.1rem; color: var(--charcoal); cursor: pointer; transition: background 0.15s; }
+  .qty-btn:hover { background: var(--cream); }
+  .qty-input { 
+    width: 50px; 
+    height: 38px; 
+    text-align: center; 
+    border: none; 
+    border-left: 1.5px solid var(--light-gray); 
+    border-right: 1.5px solid var(--light-gray); 
+    background: transparent; 
+    font-family: var(--font-body); 
+    font-size: 0.9rem; 
+    color: #111111 !important; 
+    outline: none; 
+    -moz-appearance: textfield;
+  }
+  .qty-input::-webkit-outer-spin-button,
+  .qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .cart-price-col { text-align: right; }
+  .item-total { display: block; font-size: 1.1rem; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; }
+  .btn-remove { background: none; border: none; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: #ef4444; font-weight: 700; cursor: pointer; padding: 4px 0; }
+  .btn-remove:hover { text-decoration: underline; }
+
+  /* Summary Box */
+  .summary-box { background: var(--cream); border: 1px solid var(--light-gray); padding: 2rem; position: sticky; top: 100px; }
+  .summary-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; color: var(--charcoal); margin-bottom: 1.5rem; }
+  .summary-row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-size: 0.9rem; color: var(--mid-gray); }
+  .summary-row.total { border-top: 1px solid var(--light-gray); padding-top: 1.25rem; margin-top: 1.25rem; font-weight: 700; color: var(--charcoal); font-size: 1.15rem; }
+  .summary-row.total span:last-child { color: var(--gold); }
+  .shipping-info { font-size: 0.72rem; color: var(--mid-gray); margin-bottom: 1.5rem; line-height: 1.5; }
+
+  .btn-checkout { display: block; width: 100%; background: var(--charcoal); color: #fff; text-align: center; padding: 16px; font-weight: 700; font-size: 0.8rem; letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; transition: background 0.2s; border: none; cursor: pointer; }
+  .btn-checkout:hover { background: var(--gold); }
+
+  .empty-cart { text-align: center; padding: 6rem 1rem; }
+  .empty-cart h2 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 1rem; }
+  .empty-cart p { color: var(--mid-gray); margin-bottom: 2.5rem; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div style="padding:2rem 2% 4rem; max-width:1100px; margin:0 auto;">
-  <h1 style="font-size:2.2rem; margin-bottom:2rem;">Shopping Cart</h1>
+<div class="cart-page">
+  <h1 class="cart-title">Your Cart</h1>
 
   {% if cart_items %}
-  <div class="cart-main-grid">
-
-    <!-- CART ITEMS -->
-    <div style="display:flex; flex-direction:column; gap:1rem;">
+  <div class="cart-grid">
+    <div>
       <form action="{{ url_for('cart.cart_update') }}" method="post" id="updateForm">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        {% for pid, item in cart_items.items() %}
-        <div class="glass cart-item-row">
-          <!-- Image -->
-          <div style="background:white; border-radius:0.75rem; overflow:hidden; height:80px; display:flex; align-items:center; justify-content:center; padding:0.5rem; flex-shrink:0; width:80px;">
-            <img src="{{ resolve_image(item.image) }}" alt="{{ item.name }}" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
-          </div>
-          <!-- Details -->
-          <div style="flex:1;">
-            <h4 style="font-size:1rem; font-weight:700; margin-bottom:0.25rem; color:white;">{{ item.name }}</h4>
-            {% if item.sku %}<p style="color:var(--text-muted); font-size:0.8rem; margin-bottom:0.5rem;">SKU: {{ item.sku }}</p>{% endif %}
-            <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-              <div style="display:flex; align-items:center; border:1px solid var(--border-glass); border-radius:0.5rem; overflow:hidden; background:rgba(0,0,0,0.2);">
-                  <button type="button" onclick="changeQty('{{ pid }}', -1)" style="padding:0.4rem 0.8rem; background:rgba(255,255,255,0.05); border:none; color:white; cursor:pointer; font-weight:bold;">−</button>
-                  <input type="number" name="qty_{{ pid }}" id="qty_{{ pid }}" value="{{ item.qty }}" min="1" 
-                       style="width:50px; text-align:center; background:transparent; border:none; color:white; font-size:1rem; font-weight:600; outline:none; -moz-appearance: textfield; appearance: none;" />
-                <button type="button" onclick="changeQty('{{ pid }}', 1)" style="padding:0.4rem 0.8rem; background:rgba(255,255,255,0.05); border:none; color:white; cursor:pointer; font-weight:bold;">+</button>
+        <div style="border-top: 1px solid var(--light-gray);">
+          {% for pid, item in cart_items.items() %}
+          <div class="cart-item">
+            <div class="cart-img">
+              <img src="{{ resolve_image(item.image) }}" alt="{{ item.name }}"
+                   onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
+            </div>
+            <div>
+              <a href="{{ url_for('public.product_detail', product_id=pid.split('|')[0]) }}" class="item-name">{{ item.name }}</a>
+              <div class="item-meta">
+                {% if item.sku %}SKU: {{ item.sku }}{% endif %}
+                {% if item.selected_options %}<br>{{ item.selected_options }}{% endif %}
               </div>
-              <span style="color:var(--text-muted); font-size:0.9rem; font-weight:500;">× ₹{{ "%.0f"|format(item.price) }}</span>
+              <div class="qty-box">
+                <button type="button" class="qty-btn" onclick="changeQty('{{ pid }}', -1)">−</button>
+                <input type="number" name="qty_{{ pid }}" id="qty_{{ pid }}" class="qty-input" value="{{ item.qty }}" min="1" onchange="changeQty('{{ pid }}', 0)" />
+                <button type="button" class="qty-btn" onclick="changeQty('{{ pid }}', 1)">+</button>
+              </div>
+            </div>
+            <div class="cart-price-col">
+              <span class="item-total" id="lineTotal_{{ pid }}">₹{{ "{:,.0f}".format(item.price * item.qty) }}</span>
+              <span class="item-price-unit">₹{{ "{:,.0f}".format(item.price) }} each</span>
+              <div style="margin-top: 10px;">
+                <button type="button" class="btn-remove" onclick="removeItem('{{ pid }}')">Remove</button>
+              </div>
             </div>
           </div>
-          <!-- Price + Remove -->
-          <div class="cart-price-col" style="display:flex; flex-direction:column; align-items:flex-end; gap:0.75rem; min-width:100px;">
-            <span id="lineTotal_{{ pid }}" style="font-weight:700; font-size:1.15rem; color:var(--primary);">₹{{ "%.0f"|format(item.price * item.qty) }}</span>
-            <button type="button" onclick="removeItem('{{ pid }}')" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:0.85rem; font-weight:600; padding:0.25rem; transition:0.2s;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Remove</button>
-          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
-
-        <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1.5rem;">
-          <button type="submit" style="padding:0.85rem 1.8rem; background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:white; border-radius:0.75rem; font-weight:700; cursor:pointer; font-size:0.95rem; transition:0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">Update Cart</button>
+        <div style="margin-top: 2rem; text-align: right;">
+          <button type="submit" class="btn-atc" style="width: auto; padding: 12px 30px; background: none; border: 1.5px solid var(--charcoal); color: var(--charcoal);">Update Cart</button>
         </div>
       </form>
 
-      <!-- Hidden Removal Form (Outside main form to prevent nesting issues) -->
       <form id="removeForm" action="{{ url_for('cart.cart_remove') }}" method="post" style="display:none;">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <input type="hidden" name="product_id" id="removePid" value="" />
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <input type="hidden" name="product_id" id="removePid" value="" />
       </form>
     </div>
 
-    <!-- ORDER SUMMARY -->
-    <div class="glass" style="border-radius:1.5rem; padding:1.75rem; position:sticky; top:90px;">
-      <h3 style="font-size:1.3rem; margin-bottom:1.5rem;">Order Summary</h3>
-      <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1.5rem;">
-        <div style="display:flex; justify-content:space-between; color:var(--text-muted);">
+    <aside>
+      <div class="summary-box">
+        <h3 class="summary-title">Summary</h3>
+        <div class="summary-row">
           <span>Subtotal</span>
-          <span id="cartSubtotal" style="color:var(--text-main);">₹{{ "%.0f"|format(subtotal) }}</span>
+          <span id="cartSubtotal">₹{{ "%.0f"|format(subtotal) }}</span>
         </div>
-        <div style="display:flex; justify-content:space-between; color:var(--text-muted);">
+        <div class="summary-row">
           <span>Shipping</span>
-          <span id="cartShipping" style="color:{% if shipping == 0 %}#22c55e{% else %}var(--text-main){% endif %};">
-            {% if shipping == 0 %}Free{% else %}₹{{ "%.0f"|format(shipping) }}{% endif %}
-          </span>
+          <span id="cartShipping">{% if shipping == 0 %}Free{% else %}₹{{ "%.0f"|format(shipping) }}{% endif %}</span>
         </div>
-        <p id="shippingNote" style="font-size:0.8rem; color:var(--text-muted); {% if shipping == 0 %}display:none;{% endif %}">Add ₹{{ "%.0f"|format(999 - subtotal) }} more for free shipping</p>
-        <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:0.75rem; display:flex; justify-content:space-between; font-weight:700; font-size:1.1rem;">
+        <div class="shipping-info" id="shippingNote">
+          {% if shipping != 0 %}Add ₹{{ "%.0f"|format(999 - subtotal) }} more for free shipping.{% else %}You qualify for free shipping!{% endif %}
+        </div>
+        <div class="summary-row total">
           <span>Total</span>
-          <span id="cartTotal" style="color:var(--primary);">₹{{ "%.0f"|format(total) }}</span>
+          <span id="cartTotal">₹{{ "%.0f"|format(total) }}</span>
+        </div>
+        <div style="margin-top: 2rem;">
+          <a href="{{ url_for('checkout.checkout') }}" class="btn-checkout">Checkout</a>
+        </div>
+        <div style="margin-top: 1rem; text-align: center;">
+          <a href="{{ url_for('public.shop') }}" style="font-size: 0.72rem; color: var(--mid-gray); text-decoration: none; border-bottom: 1px solid var(--mid-gray);">Continue Shopping</a>
         </div>
       </div>
-      <a href="{{ url_for('checkout.checkout') }}" style="display:block; width:100%; padding:1rem; background:var(--primary); color:white; text-align:center; border-radius:0.75rem; font-weight:700; font-size:1rem; text-decoration:none;">Proceed to Checkout →</a>
-      <a href="{{ url_for('public.shop') }}" style="display:block; text-align:center; margin-top:0.75rem; color:var(--text-muted); font-size:0.9rem;">← Continue Shopping</a>
-    </div>
+    </aside>
   </div>
-
   {% else %}
-  <div class="glass" style="padding:4rem; border-radius:1.5rem; text-align:center;">
-    <div style="font-size:4rem; margin-bottom:1.5rem;">🛒</div>
-    <h2 style="margin-bottom:1rem;">Your cart is empty</h2>
-    <p style="color:var(--text-muted); margin-bottom:2rem;">Looks like you haven't added anything yet.</p>
-    <a href="{{ url_for('public.shop') }}" style="display:inline-block; padding:1rem 2.5rem; background:var(--primary); color:white; border-radius:0.75rem; font-weight:700; text-decoration:none;">Start Shopping</a>
+  <div class="empty-cart">
+    <h2>Your cart is empty</h2>
+    <p>Browse our collection to find your perfect pair.</p>
+    <a href="{{ url_for('public.shop') }}" class="btn-primary">Shop Now</a>
   </div>
   {% endif %}
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  let qtyUpdateTimer = null;
-
-  function formatMoney(value) {
-    return '₹' + Math.round(value).toLocaleString('en-IN');
-  }
+  function formatMoney(v) { return '₹' + Math.round(v).toLocaleString('en-IN'); }
 
   function changeQty(pid, delta) {
     const inp = document.getElementById('qty_' + pid);
-    const current = parseInt(inp.value || '0', 10) || 0;
-    inp.value = Math.max(1, current + delta);
-    recalculateCartTotals();
-    scheduleCartUpdate();
-  }
-
-  function recalculateCartTotals() {
-    let subtotal = 0;
-    document.querySelectorAll('[id^="qty_"]').forEach(input => {
-      const pid = input.id.replace('qty_', '');
-      const rowQty = Math.max(1, parseInt(input.value || '1', 10) || 1);
-      const priceLabel = input.closest('.cart-item-row').querySelector('span[style*="× ₹"]');
-      const unitPriceText = priceLabel ? priceLabel.textContent.replace('× ₹', '').replace(/,/g, '').trim() : '0';
-      const unitPrice = parseFloat(unitPriceText) || 0;
-      const lineTotal = unitPrice * rowQty;
-      subtotal += lineTotal;
-      const totalEl = document.getElementById('lineTotal_' + pid);
-      if (totalEl) totalEl.textContent = formatMoney(lineTotal);
+    const newVal = Math.max(1, (parseInt(inp.value) || 0) + delta);
+    if (inp.value == newVal && delta !== 0) return;
+    inp.value = newVal;
+    
+    recalculate();
+    
+    // Update server via AJAX
+    const formData = new FormData(document.getElementById('updateForm'));
+    fetch("{{ url_for('cart.cart_update') }}", {
+      method: "POST",
+      body: formData,
+      headers: { "X-Requested-With": "XMLHttpRequest" }
     });
-
-    const shipping = subtotal >= 999 ? 0 : 99;
-    const total = subtotal + shipping;
-    const subtotalEl = document.getElementById('cartSubtotal');
-    const shippingEl = document.getElementById('cartShipping');
-    const totalEl = document.getElementById('cartTotal');
-    const shippingNote = document.getElementById('shippingNote');
-
-    if (subtotalEl) subtotalEl.textContent = formatMoney(subtotal);
-    if (shippingEl) {
-      shippingEl.textContent = shipping === 0 ? 'Free' : formatMoney(shipping);
-      shippingEl.style.color = shipping === 0 ? '#22c55e' : 'var(--text-main)';
-    }
-    if (totalEl) totalEl.textContent = formatMoney(total);
-
-    if (shippingNote) {
-      if (shipping === 0) {
-        shippingNote.style.display = 'none';
-      } else {
-        shippingNote.style.display = '';
-        shippingNote.textContent = 'Add ' + formatMoney(999 - subtotal) + ' more for free shipping';
-      }
-    }
   }
-
-  function scheduleCartUpdate() {
-    if (qtyUpdateTimer) clearTimeout(qtyUpdateTimer);
-    qtyUpdateTimer = setTimeout(() => {
-      document.getElementById('updateForm').submit();
-    }, 150);
-  }
-
-  document.querySelectorAll('[id^="qty_"]').forEach(input => {
-    input.addEventListener('change', () => {
-      input.value = Math.max(1, parseInt(input.value || '1', 10) || 1);
-      recalculateCartTotals();
-      scheduleCartUpdate();
-    });
-  });
 
   function removeItem(pid) {
-    if (confirm('Are you sure you want to remove this item?')) {
+    if(confirm('Remove this item?')) {
       document.getElementById('removePid').value = pid;
       document.getElementById('removeForm').submit();
     }
   }
-</script>
-<style>
-  /* Hide spin buttons for cleaner quantity input */
-  input[type=number]::-webkit-inner-spin-button, 
-  input[type=number]::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-    margin: 0; 
+
+  function recalculate() {
+    let sub = 0;
+    document.querySelectorAll('.cart-item').forEach(row => {
+      const qty = parseInt(row.querySelector('.qty-input').value) || 1;
+      const priceText = row.querySelector('.item-price-unit').textContent.replace('₹', '').replace(/,/g, '').split(' ')[0];
+      const price = parseFloat(priceText) || 0;
+      const line = price * qty;
+      sub += line;
+      row.querySelector('.item-total').textContent = formatMoney(line);
+    });
+    const ship = sub >= 999 ? 0 : 99;
+    document.getElementById('cartSubtotal').textContent = formatMoney(sub);
+    document.getElementById('cartShipping').textContent = ship === 0 ? 'Free' : formatMoney(ship);
+    document.getElementById('cartTotal').textContent = formatMoney(sub + ship);
+    const note = document.getElementById('shippingNote');
+    if(ship === 0) { note.textContent = 'You qualify for free shipping!'; }
+    else { note.textContent = 'Add ' + formatMoney(999 - sub) + ' more for free shipping.'; }
   }
-</style>
+</script>
 {% endblock %}

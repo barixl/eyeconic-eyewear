@@ -1,107 +1,202 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ product.name }} – ChasmaGallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #F7F2EA;
+      --warm-white: #FAFAF7;
+      --charcoal: #111111;
+      --mid-gray: #666666;
+      --light-gray: #E0DBD3;
+      --gold: #C9A455;
+      --gold-light: #E2C07A;
+      --font-display: 'Playfair Display', serif;
+      --font-body: 'Outfit', sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--warm-white); color: var(--charcoal); font-family: var(--font-body); padding-top: 76px; }
+    
+    /* NAVBAR */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: 76px; background: rgba(250,250,247,0.98); border-bottom: 1px solid rgba(0,0,0,0.07); display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; }
+    .nav-logo { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: var(--charcoal); letter-spacing: 0.08em; text-decoration: none; display: flex; align-items: center; gap: 2px; }
+    .nav-logo span { color: var(--gold); }
+    .nav-logo small { font-family: var(--font-body); font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--mid-gray); font-weight: 600; margin-left: 6px; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { color: var(--charcoal); text-decoration: none; font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-icons { display: flex; gap: 1.25rem; align-items: center; }
+    .nav-icons a, .nav-icons button { color: var(--charcoal); background: none; border: none; cursor: pointer; transition: color 0.2s; }
+    .nav-icons a:hover, .nav-icons button:hover { color: var(--gold); }
+    .cart-badge { position: absolute; top: -6px; right: -8px; background: var(--gold); color: #fff; font-size: 0.6rem; font-weight: 800; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    
+    @media (max-width: 900px) { .nav-links { display: none; } }
 
-{% block title %}{{ product.name }} – ChasmaGallery | Eyewear Sitapur UP{% endblock %}
-{% block meta_description %}{{ (product.short_description or product.description or '') | striptags | truncate(160) or product.name }} – Available at ChasmaGallery, Sitapur.{% endblock %}
-{% block meta_keywords %}{{ product.name }}, {{ product.brand_name or '' }}, {{ product.category_name or '' }}, eyewear Sitapur, glasses shop UP, ChasmaGallery{% endblock %}
-{% block og_type %}product{% endblock %}
-{% block og_image %}{% if images and images[0] %}{{ images[0].image_url }}{% elif product.image_url %}{{ product.image_url }}{% else %}{{ request.host_url.rstrip('/') }}{{ url_for('static', filename='images/logo.png') }}{% endif %}{% endblock %}
 
-{% block extra_css %}
-<style>
-  .desc-content { font-size: 1.05rem; line-height: 1.85; color: var(--text-muted); }
-  .desc-para { margin: 0 0 0.75rem; }
-  .desc-table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; }
-  .desc-table tr:nth-child(even) { background: rgba(255,255,255,0.03); }
-  .desc-key { padding: 0.55rem 1rem 0.55rem 0; font-weight: 600; color: var(--text-main); white-space: nowrap; vertical-align: top; width: 40%; border-bottom: 1px solid var(--border-glass); font-size: 0.93rem; }
-  .desc-val { padding: 0.55rem 0; color: var(--text-muted); vertical-align: top; border-bottom: 1px solid var(--border-glass); font-size: 0.93rem; }
-  .short-desc-line { margin: 0 0 0.3rem; }
-  .related-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
-  .related-card { display: flex; flex-direction: column; gap: 0.9rem; padding: 1rem; border-radius: 1rem; background: rgba(255,255,255,0.04); border: 1px solid var(--border-glass); text-decoration: none; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease; }
-  .related-card:hover { transform: translateY(-2px); border-color: rgba(99,102,241,0.45); background: rgba(255,255,255,0.06); }
-  .related-img { width: 100%; aspect-ratio: 1 / 1; border-radius: 0.85rem; background: white; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 0.75rem; }
-  .related-img img { width: 100%; height: 100%; object-fit: contain; }
-  .related-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); }
-  .related-title { margin: 0; font-size: 1rem; line-height: 1.35; color: var(--text-main); font-weight: 700; }
-  .related-price { display: flex; align-items: baseline; gap: 0.65rem; color: #4ade80; font-weight: 800; font-size: 1.05rem; }
-  .related-old-price { color: var(--text-muted); text-decoration: line-through; font-weight: 600; font-size: 0.9rem; }
-  @media (max-width: 1100px) { .related-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  @media (max-width: 800px) { .related-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 560px) { .related-grid { grid-template-columns: 1fr; } }
-  /* Reviews text sizing */
-  #tab-reviews .glass p { font-size: 1rem; color: var(--text-muted); line-height: 1.75; }
-  #tab-reviews strong { font-size: 1rem; color: var(--text-main); }
-  #tab-reviews .star-label { font-size: 2.2rem; }
-</style>
-{% endblock %}
+    /* PRODUCT LAYOUT */
+    .product-container { max-width: 1200px; margin: 0 auto; padding: 1rem 5vw 5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    @media (max-width: 860px) { .product-container { grid-template-columns: 1fr; gap: 2rem; } }
 
-{% block content %}
-<div style="padding:2rem 2% 4rem; max-width:1200px; margin:0 auto; color:var(--text-main);">
+    /* GALLERY */
+    .gallery-main { aspect-ratio: 1; background: var(--cream); border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem; }
+    .gallery-main img { width: 100%; height: 100%; object-fit: contain; padding: 2rem; transition: transform 0.4s; }
+    .gallery-main:hover img { transform: scale(1.05); }
+    .gallery-thumbs { display: flex; gap: 0.8rem; overflow-x: auto; scrollbar-width: none; }
+    .gallery-thumbs::-webkit-scrollbar { display: none; }
+    .thumb { width: 80px; height: 80px; border-radius: 4px; background: var(--cream); border: 2px solid transparent; cursor: pointer; flex-shrink: 0; padding: 0.5rem; transition: border-color 0.2s; }
+    .thumb.active, .thumb:hover { border-color: var(--gold); }
+    .thumb img { width: 100%; height: 100%; object-fit: contain; }
 
-  <!-- Breadcrumb -->
-  <nav style="margin-bottom:1.5rem; color:var(--text-muted); font-size:0.9rem;">
-    <a href="{{ url_for('public.index') }}" style="color:var(--text-muted);">Home</a>
-    <span style="margin:0 0.5rem;">›</span>
-    <a href="{{ url_for('public.shop') }}" style="color:var(--text-muted);">Shop</a>
-    {% if product.category_name %}
-    <span style="margin:0 0.5rem;">›</span>
-    <a href="{{ url_for('public.shop', category=product.category_slug) }}" style="color:var(--text-muted);">{{ product.category_name }}</a>
-    {% endif %}
-    <span style="margin:0 0.5rem;">›</span>
-    <span>{{ product.name }}</span>
+    /* INFO */
+    .product-brand { font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 0.5rem; }
+    .product-title { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 600; color: var(--charcoal); line-height: 1.15; margin-bottom: 1.25rem; }
+    .price-row { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.5rem; }
+    .price-main { font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--charcoal); }
+    .price-old { font-size: 1.2rem; color: var(--mid-gray); text-decoration: line-through; }
+    .price-save { background: #E8F5E9; color: #2E7D32; font-size: 0.7rem; font-weight: 700; padding: 4px 12px; border-radius: 100px; letter-spacing: 0.08em; }
+    
+    .meta-row { display: flex; gap: 1.5rem; font-size: 0.85rem; color: var(--mid-gray); margin-bottom: 1.5rem; }
+    .in-stock { color: #22c55e; font-weight: 700; }
+    .out-stock { color: #ef4444; font-weight: 700; }
+
+    .short-desc { color: var(--mid-gray); font-size: 0.95rem; line-height: 1.7; margin-bottom: 2rem; }
+
+    /* VARIATIONS */
+    .variation-box { background: var(--cream); border: 1px solid var(--light-gray); padding: 1.5rem; margin-bottom: 2rem; border-radius: 4px; }
+    .attr-label { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--charcoal); margin-bottom: 0.6rem; display: block; }
+    .attr-select { width: 100%; padding: 0.8rem 1rem; background: #fff; border: 1.5px solid var(--light-gray); color: var(--charcoal); font-family: var(--font-body); font-size: 0.9rem; outline: none; border-radius: 0; cursor: pointer; transition: border-color 0.2s; margin-bottom: 1rem; }
+    .attr-select:focus { border-color: var(--gold); }
+
+    /* ADD TO CART */
+    .atc-row { display: flex; gap: 1rem; align-items: stretch; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .qty-box { display: flex; align-items: center; border: 1.5px solid var(--light-gray); background: #fff; border-radius: 4px; overflow: hidden; }
+    .qty-btn { width: 45px; height: 50px; background: none; border: none; font-size: 1.4rem; color: var(--charcoal); cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; }
+    .qty-btn:hover { background: var(--cream); }
+    .qty-input { width: 55px; height: 50px; text-align: center; border: none; border-left: 1.5px solid var(--light-gray); border-right: 1.5px solid var(--light-gray); background: transparent; font-family: var(--font-body); font-size: 1.1rem; color: #111111 !important; outline: none; -moz-appearance: textfield; }
+    .qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    
+    .btn-atc { flex: 1; min-width: 200px; background: var(--charcoal); color: #fff; font-family: var(--font-body); font-size: 0.85rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; padding: 0 2rem; height: 50px; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+    .btn-atc:hover:not(:disabled) { background: var(--gold); }
+    .btn-atc:disabled { background: var(--light-gray); color: var(--mid-gray); cursor: not-allowed; }
+
+    /* POLICY PILLS */
+    .policy-pills { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 2rem; }
+    .policy-pill { display: flex; align-items: center; gap: 6px; background: var(--cream); border: 1px solid var(--light-gray); padding: 8px 14px; font-size: 0.75rem; font-weight: 600; color: var(--charcoal); border-radius: 100px; }
+
+    /* TABS */
+    .tabs-container { max-width: 1200px; margin: 0 auto 5rem; padding: 0 5vw; }
+    .tabs-bar { display: flex; gap: 2rem; border-bottom: 2px solid var(--light-gray); margin-bottom: 2rem; }
+    .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; padding: 1rem 0; font-family: var(--font-body); font-size: 0.85rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; color: var(--mid-gray); cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { color: var(--charcoal); border-bottom-color: var(--charcoal); }
+    .tab-pane { display: none; animation: fadeIn 0.4s ease; }
+    .tab-pane.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .desc-content { font-size: 1rem; line-height: 1.8; color: var(--mid-gray); max-width: 800px; }
+    .desc-content p { margin-bottom: 1rem; }
+
+    /* FOOTER */
+    footer { background: var(--charcoal); color: rgba(255,255,255,0.65); padding: 5rem 5vw 2rem; text-align: center; }
+    .footer-logo { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; color: #fff; letter-spacing: 0.08em; text-decoration: none; margin-bottom: 1rem; display: inline-block; }
+    .footer-logo span { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="{{ url_for('public.index') }}" class="nav-logo">CHASMA<span>GALLERY</span><small>Eyewear</small></a>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('public.shop', category='men') }}">Men</a></li>
+      <li><a href="{{ url_for('public.shop', category='women') }}">Women</a></li>
+      <li><a href="{{ url_for('public.shop', category='kids') }}">Kids</a></li>
+      <li><a href="{{ url_for('public.shop', category='sunglasses') }}">Sunglasses</a></li>
+      <li><a href="{{ url_for('public.shop') }}">Collections</a></li>
+    </ul>
+    <div class="nav-icons">
+      <a href="{{ url_for('auth.account') if current_user else url_for('auth.login') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </a>
+      <a href="{{ url_for('cart.view_cart') }}" style="position:relative;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        {% if session.get('cart') %}
+          {% set cnt = namespace(val=0) %}
+          {% for k,v in session.get('cart').items() %}{% set cnt.val = cnt.val + v.qty %}{% endfor %}
+          {% if cnt.val > 0 %}<span class="cart-badge">{{ cnt.val }}</span>{% endif %}
+        {% endif %}
+      </a>
+    </div>
   </nav>
 
-  <!-- Product Main -->
-  <div class="product-detail-grid">
 
-    <!-- IMAGE GALLERY -->
+  <!-- PRODUCT LAYOUT -->
+  <div class="product-container">
+    
+    <!-- GALLERY -->
     <div>
-      <div class="glass" style="border-radius:1.5rem; overflow:hidden; background:white; aspect-ratio:1; display:flex; align-items:center; justify-content:center; padding:1rem; margin-bottom:1rem;" id="mainImgWrap">
-        {% if images %}
-        <img src="{{ resolve_image(images[0].image_url) }}" alt="{{ product.name }}" id="mainImg" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
-        {% else %}
-        <img src="{{ resolve_image(product.image_url) }}" alt="{{ product.name }}" id="mainImg" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
-        {% endif %}
+      <div class="gallery-main">
+        {% set main_img = (images[0].image_url if images else product.image_url) %}
+        <img src="{{ resolve_image(main_img) }}" alt="{{ product.name }}" id="mainImg"
+             onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
       </div>
-
       {% if images|length > 1 %}
-      <div style="display:flex; gap:0.75rem; overflow-x:auto; padding-bottom:0.5rem;">
+      <div class="gallery-thumbs">
         {% for img in images %}
-        <div class="glass thumb-img" onclick="document.getElementById('mainImg').src='{{ resolve_image(img.image_url) }}'" style="width:80px; height:80px; border-radius:0.75rem; overflow:hidden; cursor:pointer; background:white; padding:0.3rem; flex-shrink:0; border:2px solid {% if loop.first %}var(--primary){% else %}transparent{% endif %};">
-          <img src="{{ resolve_image(img.image_url) }}" alt="{{ img.alt_text or product.name }}" loading="lazy" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
+        <div class="thumb {% if loop.first %}active{% endif %}" onclick="setMainImg(this, '{{ resolve_image(img.image_url) }}')">
+          <img src="{{ resolve_image(img.image_url) }}" alt="{{ img.alt_text or product.name }}" loading="lazy" />
         </div>
         {% endfor %}
       </div>
       {% endif %}
     </div>
 
-    <!-- PRODUCT INFO -->
-    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+    <!-- INFO -->
+    <div>
       {% if product.brand_name %}
-      <span style="color:var(--primary); font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:1px;">{{ product.brand_name }}</span>
+        <div class="product-brand">{{ product.brand_name }}</div>
       {% endif %}
-
-      <h1 style="font-size:2.2rem; line-height:1.2; font-family:var(--font-heading);">{{ product.name }}</h1>
-
-      <!-- Price Display -->
-      <div style="display:flex; align-items:baseline; gap:1rem;">
-        <span id="displayPrice" style="font-size:2.25rem; font-weight:800; color:#4ade80;">
-          ₹{{ "%.0f"|format(product.sale_price or product.price) }}
-        </span>
+      
+      <h1 class="product-title">{{ product.name }}</h1>
+      
+      <div class="price-row">
+        <span class="price-main">₹{{ "%.0f"|format(product.sale_price or product.price) }}</span>
         {% if product.sale_price and product.sale_price < product.price %}
-        <span id="displayOriginalPrice" style="text-decoration:line-through; color:var(--text-muted); font-size:1.3rem;">₹{{ "%.0f"|format(product.price) }}</span>
+          <span class="price-old">₹{{ "%.0f"|format(product.price) }}</span>
+          {% set pct = ((product.price - product.sale_price) / product.price * 100) | round | int %}
+          <span class="price-save">{{ pct }}% OFF</span>
         {% endif %}
       </div>
 
-      <!-- Attributes / Variations (Dropdowns) -->
+      <div class="meta-row">
+        <span>SKU: {{ product.sku or 'N/A' }}</span>
+        {% if product.stock_status == 'in_stock' %}
+          <span class="in-stock">✓ In Stock</span>
+        {% else %}
+          <span class="out-stock">✗ Out of Stock</span>
+        {% endif %}
+      </div>
+
+      {% if product.short_description %}
+        <div class="short-desc">{{ product.short_description | format_short_desc }}</div>
+      {% endif %}
+
+      <!-- VARIATIONS -->
       {% if product.type == 'variable' and attributes %}
-      <div id="variationManager" style="display:flex; flex-direction:column; gap:1.5rem; background:rgba(255,255,255,0.02); padding:1.75rem; border-radius:1.25rem; border:1px solid var(--border-glass); margin:1rem 0;">
+      <div class="variation-box">
         {% for attr in attributes %}
-        <div class="attr-group">
-          <label style="display:block; font-weight:600; margin-bottom:0.75rem; color:var(--text-muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.075em;">{{ attr.name }}</label>
-          <select class="variant-select" data-attribute="{{ attr.id }}" 
-                  style="width:100%; padding:0.875rem 1rem; background:rgba(15,23,42,0.9); border:1px solid var(--border-glass); border-radius:0.75rem; color:var(--text-main); font-size:0.95rem; outline:none;" 
-                  onchange="updateVariation()">
-            <option value="">Choose an option</option>
+        <div>
+          <label class="attr-label">{{ attr.name }}</label>
+          <select class="attr-select" data-attribute="{{ attr.id }}" onchange="updateVariation()">
+            <option value="">Choose {{ attr.name }}…</option>
             {% for val in attr['values'] %}
             <option value="{{ val.id }}">{{ val.value }}</option>
             {% endfor %}
@@ -111,336 +206,117 @@
       </div>
       {% endif %}
 
-      <!-- SKU & Stock -->
-      <div style="font-size:0.9rem; display:flex; flex-direction:column; gap:0.5rem;">
-        <div id="displaySku" style="color:var(--text-muted);">SKU: {{ product.sku or 'N/A' }}</div>
-        <div id="displayStock">
-          {% if product.stock_status == 'in_stock' %}
-          <span style="color:#4ade80; font-weight:600;">✓ In Stock</span>
-          {% else %}
-          <span style="color:#f87171; font-weight:600;">✗ Out of Stock</span>
-          {% endif %}
-        </div>
-      </div>
-
-      {% if product.short_description %}
-      <div style="color:var(--text-muted); line-height:1.7; font-size:1rem;">{{ product.short_description | format_short_desc }}</div>
-      {% endif %}
-
-      <!-- Qty + Add to Cart -->
+      <!-- ADD TO CART FORM -->
       {% if product.stock_status != 'out_of_stock' %}
-      <form action="{{ url_for('cart.cart_add') }}" method="post" id="addToCartForm" style="display:flex; gap:1.25rem; align-items:center; flex-wrap:wrap; margin-top:1rem;">
+      <form action="{{ url_for('cart.cart_add') }}" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <input type="hidden" name="product_id" id="cartProductId" value="{{ product.id }}" />
+        <input type="hidden" name="product_id" value="{{ product.id }}" />
         <input type="hidden" name="variation_id" id="cartVariationId" value="" />
         <input type="hidden" name="selected_options" id="cartSelectedOptions" value="" />
         
-        <div style="display:flex; align-items:center; border:1px solid var(--border-glass); border-radius:0.75rem; overflow:hidden; background:rgba(255,255,255,0.05);">
-          <button type="button" onclick="qtyChange(-1)" style="padding:1rem 1.25rem; background:transparent; border:none; color:var(--text-main); cursor:pointer; font-size:1.2rem; transition:0.2s;">−</button>
-          <input type="number" name="qty" id="qtyInput" value="1" min="1" max="99" style="width:60px; text-align:center; background:transparent; border:none; color:var(--text-main); font-size:1.1rem; outline:none;" />
-          <button type="button" onclick="qtyChange(1)" style="padding:1rem 1.25rem; background:transparent; border:none; color:var(--text-main); cursor:pointer; font-size:1.2rem; transition:0.2s;">+</button>
+        <div class="atc-row">
+          <div class="qty-box">
+            <button type="button" class="qty-btn" onclick="qtyChange(-1)">−</button>
+            <input type="number" name="qty" id="qtyInput" class="qty-input" value="1" min="1" max="99" readonly />
+            <button type="button" class="qty-btn" onclick="qtyChange(1)">+</button>
+          </div>
+          <button type="submit" class="btn-atc" id="addToCartBtn" {% if product.type == 'variable' and attributes|length > 0 %}disabled{% endif %}>
+            {% if product.type == 'variable' and attributes|length > 0 %}Select Options{% else %}Add to Cart{% endif %}
+          </button>
         </div>
-        
-        <button type="submit" id="addToCartBtn" 
-                style="flex:1; padding:1.1rem 2.5rem; background:var(--primary); color:white; border:none; border-radius:0.75rem; font-weight:700; font-size:1.1rem; cursor:pointer; transition:all 0.3s; box-shadow:0 10px 15px -3px rgba(99,102,241,0.3);"
-                {% if product.type == 'variable' and attributes|length > 0 %}disabled{% endif %}>
-          {% if product.type == 'variable' and attributes|length > 0 %}Select Options{% else %}Add to Cart 🛒{% endif %}
-        </button>
       </form>
+      {% else %}
+      <div style="padding:1.5rem; background:var(--cream); color:var(--mid-gray); text-align:center; border-radius:4px; margin-bottom:2rem;">
+        This product is currently out of stock.
+      </div>
       {% endif %}
 
-      <!-- Categories & Metadata -->
-      <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1.5rem; margin-top:2rem; display:flex; flex-direction:column; gap:0.625rem; color:var(--text-muted); font-size:0.9rem; font-weight:500;">
-        {% if product.category_name %}
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span style="color:var(--text-muted); opacity:0.6;">CATEGORY:</span>
-          <a href="{{ url_for('public.shop', category=product.category_slug) }}" style="color:var(--text-main); text-decoration:none; border-bottom:1px solid var(--primary);">{{ product.category_name }}</a>
-        </div>
-        {% endif %}
+      <!-- POLICIES -->
+      <div class="policy-pills">
+        <span class="policy-pill">🚚 Free shipping ₹1499+</span>
+        <span class="policy-pill">↩ 7-day returns</span>
+        <span class="policy-pill">🛡 1 Year warranty</span>
       </div>
     </div>
   </div>
 
-  <!-- Tabs / Full Description -->
-  <div style="margin-top:2rem;">
-    <div style="border-bottom:1px solid var(--border-glass); margin-bottom:2rem; display:flex; gap:2.5rem;">
-        <button class="tab-link active" onclick="switchTab('desc')" style="background:none; border:none; padding:1.25rem 0; color:var(--text-main); border-bottom:2px solid var(--primary); cursor:pointer; font-weight:700; font-family:var(--font-heading); font-size:1.25rem;">Description</button>
-        <button class="tab-link" onclick="switchTab('reviews')" style="background:none; border:none; padding:1.25rem 0; color:var(--text-muted); cursor:pointer; font-weight:700; font-family:var(--font-heading); font-size:1.25rem;">Reviews ({{ reviews|length }})</button>
+  <!-- TABS -->
+  <div class="tabs-container">
+    <div class="tabs-bar">
+      <button class="tab-btn active" onclick="switchTab('desc', this)">Description</button>
+      <button class="tab-btn" onclick="switchTab('reviews', this)">Reviews ({{ reviews|length }})</button>
     </div>
     
-    <div id="tab-desc" class="tab-content desc-content">
-        {{ product.description | format_description if product.description else "<p class='desc-para'>No detailed description available.</p>" | safe }}
+    <div class="tab-pane active" id="tab-desc">
+      <div class="desc-content">
+        {{ product.description | format_description if product.description else '<p>No description available.</p>' | safe }}
+      </div>
     </div>
     
-    <div id="tab-reviews" class="tab-content" style="display:none;">
-        {% if reviews %}
-        <div style="display:grid; gap:1.5rem; margin-bottom:2rem;">
-            {% for r in reviews %}
-            <div class="glass" style="padding:1.5rem; border-radius:1rem;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
-                    <strong>{{ r.reviewer_name }}</strong>
-                    <span style="color:#fbbf24;">{{ "★" * r.rating }}{{ "☆" * (5 - r.rating) }}</span>
-                </div>
-                <p style="color:var(--text-muted); font-size:1rem; line-height:1.75; margin-top:0.5rem;">{{ r.comment }}</p>
-                <span style="font-size:0.82rem; color:var(--text-muted);">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '' }}</span>
-            </div>
-            {% endfor %}
+    <div class="tab-pane" id="tab-reviews">
+      {% if reviews %}
+        {% for r in reviews %}
+        <div style="padding:1.5rem; border:1px solid var(--light-gray); border-radius:4px; margin-bottom:1rem;">
+          <div style="color:var(--gold); margin-bottom:0.5rem;">{{ "★" * r.rating }}{{ "☆" * (5 - r.rating) }}</div>
+          <strong>{{ r.reviewer_name }}</strong> <span style="color:var(--mid-gray); font-size:0.85rem; margin-left:10px;">{{ r.created_at.strftime('%d %b %Y') if r.created_at else '' }}</span>
+          <p style="margin-top:0.5rem; color:var(--mid-gray); line-height:1.6;">{{ r.comment }}</p>
         </div>
-        {% else %}
-        <p style="color:var(--text-muted); margin-bottom:2rem;">No reviews for this product yet. Be the first!</p>
-        {% endif %}
-
-        <!-- Write a Review -->
-        <div class="glass" style="border-radius:1.25rem; padding:1.75rem; max-width:600px;">
-            <h3 style="font-size:1.05rem; font-weight:700; margin-bottom:1.25rem;">Write a Review</h3>
-            {% if "user" in session %}
-                <form method="POST" action="{{ url_for('checkout.submit_review', product_id=product.id) }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                    <div style="margin-bottom:1.25rem;">
-                        <label style="display:block; font-size:0.82rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.6rem;">Your Rating *</label>
-                        <div style="display:flex; gap:0.5rem;" id="starRatingGroup">
-                            {% for i in range(1, 6) %}
-                            <label style="cursor:pointer; font-size:2rem; color:var(--text-muted); transition:color 0.15s;" class="star-label" data-val="{{ i }}">
-                                <input type="radio" name="rating" value="{{ i }}" style="display:none;" required />
-                                ★
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div style="margin-bottom:1.25rem;">
-                        <label for="reviewComment" style="display:block; font-size:0.82rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Your Review *</label>
-                        <textarea id="reviewComment" name="comment" rows="4" required minlength="10"
-                                  style="width:100%; box-sizing:border-box; padding:0.75rem 1rem; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:0.625rem; color:var(--text-main); font-size:0.95rem; outline:none; font-family:inherit; resize:vertical; transition:border-color 0.2s;"
-                                  placeholder="Share your experience with this product (at least 10 characters)..."
-                                  onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border-glass)'"></textarea>
-                    </div>
-                    <button type="submit" class="btn-primary" style="padding:0.875rem 2rem; border-radius:0.75rem; border:none; cursor:pointer; font-weight:700; font-size:0.95rem;">
-                        Submit Review
-                    </button>
-                    <p style="margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">Your review will appear after moderation.</p>
-                </form>
-            {% else %}
-                <div style="padding:1.25rem; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.2); border-radius:0.875rem; text-align:center;">
-                    <p style="color:var(--text-muted); margin-bottom:0.75rem;">Please log in to write a review.</p>
-                    <a href="{{ url_for('auth.login', next=request.url) }}" class="btn-primary" style="display:inline-block; padding:0.75rem 1.75rem; border-radius:0.75rem; text-decoration:none; font-weight:700; font-size:0.9rem;">Login to Review</a>
-                </div>
-            {% endif %}
-        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--mid-gray);">No reviews yet.</p>
+      {% endif %}
     </div>
   </div>
 
-  {% if related %}
-  <section style="margin-top:3rem;">
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.25rem;">
-      <h2 style="font-size:1.6rem; font-family:var(--font-heading);">You may also like</h2>
-      <a href="{{ url_for('public.shop') }}" style="color:var(--primary); font-weight:600; text-decoration:none;">View all</a>
-    </div>
+  <!-- FOOTER -->
+  <footer>
+    <a href="/" class="footer-logo">CHASMA<span>GALLERY</span></a>
+    <p style="font-size:0.85rem; max-width:400px; margin:0 auto;">Premium eyewear for the modern visionary. Experience unmatched quality and style with ChasmaGallery.</p>
+  </footer>
 
-    <div class="related-grid">
-      {% for item in related %}
-      <a href="{{ url_for('public.product_detail', product_id=item.id) }}" class="related-card">
-        <div class="related-img">
-          <img src="{{ resolve_image(item.image_url) }}" alt="{{ item.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
-        </div>
-        <div>
-          <div class="related-label">{{ item.brand_name or item.category_name or 'Collection' }}</div>
-          <h3 class="related-title">{{ item.name }}</h3>
-        </div>
-        <div class="related-price">
-          <span>₹{{ "%.0f"|format(item.sale_price or item.price) }}</span>
-          {% if item.sale_price and item.sale_price < item.price %}
-          <span class="related-old-price">₹{{ "%.0f"|format(item.price) }}</span>
-          {% endif %}
-        </div>
-      </a>
-      {% endfor %}
-    </div>
-  </section>
-  {% endif %}
-
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  function qtyChange(delta) {
-    const inp = document.getElementById('qtyInput');
-    inp.value = Math.max(1, Math.min(99, parseInt(inp.value) + delta));
-    // If in independent-attribute mode (no variation matched), update price display
-    if (!document.getElementById('cartVariationId').value) {
-      document.getElementById('displayPrice').textContent =
-        '₹' + Math.round(basePrice * parseInt(inp.value));
-    }
-  }
-
-  function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-    document.querySelectorAll('.tab-link').forEach(l => {
-        l.classList.remove('active');
-        l.style.borderBottomColor = 'transparent';
-        l.style.color = 'var(--text-muted)';
-    });
+  <!-- SCRIPTS -->
+  <script>
+    const variations = {{ variations | tojson | safe if variations else '[]' }};
     
-    document.getElementById('tab-' + tabId).style.display = 'block';
-    const activeBtn = event.currentTarget;
-    activeBtn.style.color = 'var(--text-main)';
-    activeBtn.style.borderBottomColor = 'var(--primary)';
-  }
-
-  // --- Star Rating UI ---
-  const starLabels = document.querySelectorAll('.star-label');
-  starLabels.forEach((label, idx) => {
-    label.addEventListener('mouseenter', () => {
-      starLabels.forEach((l, i) => { l.style.color = i <= idx ? '#fbbf24' : 'var(--text-muted)'; });
-    });
-    label.addEventListener('mouseleave', () => {
-      const checked = document.querySelector('.star-label input:checked');
-      const checkedVal = checked ? parseInt(checked.value) - 1 : -1;
-      starLabels.forEach((l, i) => { l.style.color = i <= checkedVal ? '#fbbf24' : 'var(--text-muted)'; });
-    });
-    label.addEventListener('click', () => {
-      label.querySelector('input').checked = true;
-      starLabels.forEach((l, i) => { l.style.color = i <= idx ? '#fbbf24' : 'var(--text-muted)'; });
-    });
-  });
-
-  // --- Variation Logic ---
-  const variations = {{ variations | tojson | safe }};
-  const basePrice   = {{ product.sale_price or product.price or 0 }};
-
-  function updateVariation() {
-    const selects       = Array.from(document.querySelectorAll('.variant-select'));
-    const btn           = document.getElementById('addToCartBtn');
-    const priceDisplay  = document.getElementById('displayPrice');
-    const skuDisplay    = document.getElementById('displaySku');
-    const qtyInput      = document.getElementById('qtyInput');
-    const variationInput = document.getElementById('cartVariationId');
-    const optionsInput  = document.getElementById('cartSelectedOptions');
-
-    const filled     = selects.filter(s => s.value !== '');
-    const allFilled  = filled.length === selects.length;
-    const selectedIds = filled.map(s => s.value);
-    
-    const isContacts = ["contacts", "contact-lenses"].includes("{{ product.category_slug }}");
-
-    // Defaults
-    btn.disabled = true;
-    btn.textContent = 'Select Options';
-    priceDisplay.textContent = '₹' + Math.round(basePrice);
-    variationInput.value = '';
-    if (optionsInput) optionsInput.value = '';
-    qtyInput.value = 1;
-
-    if (filled.length === 0) return;
-
-    let canAddToCart = false;
-    let calculatedQty = 1;
-
-    if (isContacts) {
-        let otherCount = 0;
-        let otherFilledCount = 0;
-        let eyePowerFilledCount = 0;
-
-        selects.forEach(s => {
-            const label = s.closest('.attr-group').querySelector('label').textContent.trim().toLowerCase();
-            if (label.includes("left eye") || label.includes("right eye")) {
-                if (s.value !== '') eyePowerFilledCount++;
-            } else {
-                otherCount++;
-                if (s.value !== '') otherFilledCount++;
-            }
-        });
-
-        if (otherFilledCount === otherCount && eyePowerFilledCount > 0) {
-            canAddToCart = true;
-            calculatedQty = eyePowerFilledCount;
-        } else if (eyePowerFilledCount === 0 && otherFilledCount === otherCount && otherCount > 0) {
-             canAddToCart = true;
-             calculatedQty = 1;
-        }
-    } else {
-        if (allFilled) {
-            canAddToCart = true;
-        }
+    function setMainImg(thumb, src) {
+      document.getElementById('mainImg').src = src;
+      document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
     }
 
-    if (!canAddToCart) {
-        // Build incomplete option string for display if needed
-        const optStr = filled.map(s => {
-            const label = s.closest('.attr-group').querySelector('label').textContent.trim();
-            return label + ': ' + s.options[s.selectedIndex].text;
-        }).join(' | ');
-        if (optionsInput) optionsInput.value = optStr;
-        return;
+    function qtyChange(delta) {
+      const inp = document.getElementById('qtyInput');
+      let val = parseInt(inp.value) || 1;
+      val = Math.max(1, Math.min(99, val + delta));
+      inp.value = val;
     }
 
-    // --- Add To Cart is Enabled ---
-
-    if (!isContacts && variations.length > 0) {
-        const match = variations.find(v =>
-            v.attribute_value_ids &&
-            selectedIds.every(id => v.attribute_value_ids.map(String).includes(String(id)))
-        );
-        if (match) {
-            variationInput.value = match.id;
-            qtyInput.value = 1;
-            priceDisplay.textContent = '₹' + Math.round(basePrice);
-            skuDisplay.textContent = 'SKU: ' + (match.sku || '{{ product.sku or "N/A" }}');
-            btn.disabled = false;
-            btn.textContent = 'Add to Cart 🛒';
-            return;
-        }
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      btn.classList.add('active');
     }
 
-    // Calculate options string
-    if (isContacts) {
-        let leftPowerStr = null;
-        let rightPowerStr = null;
-        let otherAttrs = [];
-
-        filled.forEach(s => {
-            const label = s.closest('.attr-group').querySelector('label').textContent.trim();
-            const val = s.options[s.selectedIndex].text;
-            const lower = label.toLowerCase();
-            if (lower.includes("left eye")) {
-                leftPowerStr = label + ': ' + val;
-            } else if (lower.includes("right eye")) {
-                rightPowerStr = label + ': ' + val;
-            } else {
-                otherAttrs.push(label + ': ' + val);
-            }
-        });
-
-        let optStr = '';
-        if (leftPowerStr && rightPowerStr) {
-            const leftBox = [leftPowerStr, ...otherAttrs].join(' | ');
-            const rightBox = [rightPowerStr, ...otherAttrs].join(' | ');
-            optStr = leftBox + " || " + rightBox;
-        } else if (leftPowerStr) {
-            optStr = [leftPowerStr, ...otherAttrs].join(' | ');
-        } else if (rightPowerStr) {
-            optStr = [rightPowerStr, ...otherAttrs].join(' | ');
-        } else {
-            optStr = otherAttrs.join(' | ');
-        }
-        if (optionsInput) optionsInput.value = optStr;
-    } else {
-        const optStr = filled.map(s => {
-            const label = s.closest('.attr-group').querySelector('label').textContent.trim();
-            return label + ': ' + s.options[s.selectedIndex].text;
-        }).join(' | ');
-        if (optionsInput) optionsInput.value = optStr;
+    function updateVariation() {
+      const selects = Array.from(document.querySelectorAll('.attr-select'));
+      const btn = document.getElementById('addToCartBtn');
+      const allFilled = selects.every(s => s.value !== '');
+      
+      btn.disabled = !allFilled;
+      btn.textContent = allFilled ? 'Add to Cart' : 'Select Options';
+      
+      document.getElementById('cartSelectedOptions').value = selects
+        .filter(s => s.value)
+        .map(s => s.closest('div').querySelector('.attr-label').textContent.trim() + ': ' + s.options[s.selectedIndex].text)
+        .join(' | ');
+        
+      if (allFilled && variations && variations.length > 0) {
+        const ids = selects.map(s => s.value);
+        const match = variations.find(v => v.attribute_value_ids && ids.every(id => v.attribute_value_ids.map(String).includes(id)));
+        if (match) document.getElementById('cartVariationId').value = match.id;
+      }
     }
-
-    qtyInput.value = calculatedQty;
-    priceDisplay.textContent = '₹' + Math.round(basePrice * calculatedQty);
-    
-    btn.disabled = false;
-    if (isContacts && calculatedQty > 1) {
-        btn.textContent = 'Add Both Eyes to Cart 🛒';
-    } else {
-        btn.textContent = 'Add to Cart 🛒';
-    }
-  }
-</script>
-{% endblock %}
+  </script>
+</body>
+</html>

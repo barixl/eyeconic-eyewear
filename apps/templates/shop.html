@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'eyeconic_base.html' %}
 
 {% block title %}Shop Eyewear Online – ChasmaGallery Sitapur{% endblock %}
 {% block meta_description %}Browse our full collection of eyewear, sunglasses, prescription glasses and contact lenses. Order online from ChasmaGallery – Sitapur's trusted optical store delivering across UP and India.{% endblock %}
@@ -6,120 +6,219 @@
 
 {% block extra_css %}
 <style>
-/* ── Sidebar checkbox items ─────────────────────────────────── */
-.cb-item {
-  display: flex; align-items: center; gap: 0.6rem;
-  padding: 0.45rem 0.5rem; border-radius: 0.5rem; cursor: pointer;
-  font-size: 0.875rem; color: var(--text-muted); transition: background 0.15s;
-  user-select: none; line-height: 1.3;
+  /* ── Page header ── */
+  .page-header {
+    background: var(--cream);
+    padding: 3rem 5vw 2.5rem;
+    border-bottom: 1px solid var(--light-gray);
+    text-align: center;
+  }
+  .page-header .breadcrumb {
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--mid-gray); margin-bottom: 0.8rem;
+  }
+  .page-header .breadcrumb a { color: var(--mid-gray); text-decoration: none; }
+  .page-header .breadcrumb a:hover { color: var(--gold); }
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 600; color: var(--charcoal); line-height: 1.2;
+  }
+  /* ── Light card ── */
+  .light-card {
+    background: #fff;
+    border: 1px solid var(--light-gray);
+    border-radius: 4px;
+    padding: 2rem;
+  }
+  /* ── Gold button ── */
+  .btn-gold {
+    display: inline-block;
+    background: var(--gold); color: #fff;
+    font-family: var(--font-body);
+    font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase;
+    font-weight: 600; padding: 14px 32px;
+    border: none; cursor: pointer; text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-gold:hover { background: #b8934e; transform: translateY(-1px); }
+  .btn-outline-dark {
+    display: inline-block;
+    border: 1.5px solid var(--charcoal); color: var(--charcoal);
+    font-family: var(--font-body);
+    font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase;
+    font-weight: 600; padding: 13px 32px;
+    background: transparent; cursor: pointer; text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-outline-dark:hover { background: var(--charcoal); color: #fff; }
+  /* ── Section wrapper ── */
+  .page-content { max-width: 1300px; margin: 0 auto; padding: 3rem 5vw; }
+  .page-content-sm { max-width: 560px; margin: 0 auto; padding: 3rem 5vw; }
+  /* ── Label/input group ── */
+  .form-group { margin-bottom: 1.25rem; }
+  .form-label {
+    display: block; font-size: 0.72rem; letter-spacing: 0.15em;
+    text-transform: uppercase; font-weight: 700; color: var(--charcoal);
+    margin-bottom: 0.5rem;
+  }
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+       color: var(--mid-gray); border-bottom: 1px solid var(--light-gray);
+       padding: 0.75rem 0; font-weight: 600; text-align: left; }
+  td { padding: 1rem 0; border-bottom: 1px solid var(--light-gray);
+       font-size: 0.9rem; vertical-align: middle; }
+  /* ── Status badges ── */
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 100px;
+    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+  }
+  .badge-green  { background: #E8F5E9; color: #2E7D32; }
+  .badge-gold   { background: #FFF8E7; color: #b8934e; }
+  .badge-gray   { background: var(--cream); color: var(--mid-gray); }
+  .badge-red    { background: #FFEBEE; color: #C62828; }
+</style>
+<style>
+/* ── Shop layout ── */
+.shop-layout { display: grid; grid-template-columns: 280px 1fr; gap: 2.5rem; max-width: 1300px; margin: 0 auto; padding: 2.5rem 5vw; align-items: start; }
+@media (max-width: 960px) { .shop-layout { grid-template-columns: 1fr; } }
+.shop-sidebar { position: sticky; top: 90px; }
+
+/* ── Top category nav ── */
+.shop-category-nav {
+  display: flex;
+  gap: 1.5rem;
+  overflow: visible; /* Prevent clipping on hover lift */
+  padding: 1.5rem 0 1rem; /* Space for hover lift */
+  scrollbar-width: none;
+  justify-content: center;
+  flex-wrap: wrap; /* Allow wrapping on small desktops */
 }
-.cb-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
-.cb-item input[type="checkbox"] { display: none; }
-.cb-box {
-  width: 17px; height: 17px; border: 2px solid rgba(255,255,255,0.25);
-  border-radius: 4px; flex-shrink: 0; display: flex; align-items: center;
-  justify-content: center; transition: border-color 0.15s, background 0.15s;
-}
-.cb-item input:checked ~ .cb-box {
-  background: var(--primary); border-color: var(--primary);
-}
-.cb-item input:checked ~ .cb-box::after {
-  content: ''; display: block; width: 5px; height: 9px;
-  border: 2px solid white; border-top: none; border-left: none;
-  transform: rotate(45deg) translate(-1px, -1px);
-}
-.cb-item input:checked ~ .cb-label { color: var(--text-main); font-weight: 600; }
-.cb-label { flex: 1; }
-.cb-count {
-  font-size: 0.75rem; color: var(--text-muted); background: rgba(255,255,255,0.07);
-  padding: 0.1rem 0.45rem; border-radius: 999px; flex-shrink: 0;
+.shop-category-nav::-webkit-scrollbar { display: none; }
+
+@media (max-width: 600px) {
+  .shop-category-nav {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem 0.5rem;
+    justify-items: center;
+    justify-content: center;
+  }
 }
 
-/* ── Category accordion ─────────────────────────────────────── */
-.cat-group { margin-bottom: 0.15rem; }
-.cat-parent-row {
-  display: flex; align-items: center; gap: 0.25rem;
+.shop-cat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 72px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  border: none;
+  background: none;
 }
+.shop-cat-item:hover { transform: translateY(-2px); }
+.shop-cat-img { width: 68px; height: 68px; border-radius: 50%; overflow: hidden; background: var(--cream); border: 2px solid var(--light-gray); display: flex; align-items: center; justify-content: center; transition: border-color 0.2s; }
+.shop-cat-item.active .shop-cat-img { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,164,85,0.2); }
+.shop-cat-img img { width: 100%; height: 100%; object-fit: cover; }
+.shop-cat-label { font-size: 0.72rem; font-weight: 600; color: var(--mid-gray); letter-spacing: 0.05em; transition: color 0.2s; }
+.shop-cat-item.active .shop-cat-label { color: var(--gold); font-weight: 700; }
+
+/* ── Sidebar panel ── */
+.sidebar-panel { background: #fff; border: 1px solid var(--light-gray); padding: 1.5rem; }
+.shop-filter-btn { display: none; width: 100%; background: var(--cream); border: 1px solid var(--light-gray); padding: 0.75rem 1rem; font-family: var(--font-body); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; text-align: left; justify-content: space-between; align-items: center; }
+@media (max-width: 960px) { .shop-filter-btn { display: flex; } .shop-sidebar-content { display: none; } .shop-sidebar-content.open { display: block; } }
+
+/* ── Sidebar checkbox items ── */
+.cb-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.25rem; cursor: pointer; font-size: 0.88rem; color: var(--mid-gray); transition: color 0.15s; user-select: none; }
+.cb-item:hover { color: var(--charcoal); }
+.cb-item input[type="checkbox"] { display: none; }
+.cb-box { width: 16px; height: 16px; border: 1.5px solid var(--light-gray); border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s, background 0.15s; }
+.cb-item input:checked ~ .cb-box { background: var(--gold); border-color: var(--gold); }
+.cb-item input:checked ~ .cb-box::after { content: ''; display: block; width: 4px; height: 8px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translate(-1px, -1px); }
+.cb-item input:checked ~ .cb-label { color: var(--charcoal); font-weight: 600; }
+.cb-label { flex: 1; }
+.cb-count { font-size: 0.72rem; color: var(--mid-gray); background: var(--cream); padding: 1px 7px; border-radius: 100px; flex-shrink: 0; border: 1px solid var(--light-gray); }
+
+/* ── Category accordion ── */
+.cat-group { margin-bottom: 0.1rem; }
+.cat-parent-row { display: flex; align-items: center; gap: 0.25rem; }
 .cat-parent-row .cb-item { flex: 1; }
-.cat-chevron {
-  width: 26px; height: 26px; flex-shrink: 0; border: none; background: none;
-  color: var(--text-muted); cursor: pointer; border-radius: 4px;
-  display: flex; align-items: center; justify-content: center;
-  transition: color 0.15s, background 0.15s; padding: 0;
-}
-.cat-chevron:hover { background: rgba(255,255,255,0.07); color: var(--text-main); }
+.cat-chevron { width: 24px; height: 24px; flex-shrink: 0; border: none; background: none; color: var(--mid-gray); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: color 0.15s; }
+.cat-chevron:hover { color: var(--charcoal); }
 .cat-chevron svg { transition: transform 0.2s; }
 .cat-chevron.open svg { transform: rotate(90deg); }
-.cat-children {
-  display: none; padding-left: 1.4rem; margin-top: 0.15rem;
-}
+.cat-children { display: none; padding-left: 1.2rem; }
 .cat-children.open { display: block; }
 
-/* ── Filter chips ───────────────────────────────────────────── */
-.filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
-.filter-chip {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.3);
-  color: var(--primary); border-radius: 999px; padding: 0.3rem 0.75rem;
-  font-size: 0.8rem; font-weight: 600;
-}
-.filter-chip button {
-  background: none; border: none; color: var(--primary); cursor: pointer;
-  font-size: 1rem; line-height: 1; padding: 0; opacity: 0.7;
-  display: flex; align-items: center;
-}
-.filter-chip button:hover { opacity: 1; }
+/* ── Filter chips ── */
+.filter-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem; }
+.filter-chip { display: inline-flex; align-items: center; gap: 0.35rem; background: #FFF8E7; border: 1px solid rgba(201,164,85,0.4); color: var(--gold); border-radius: 100px; padding: 3px 10px; font-size: 0.76rem; font-weight: 600; }
+.filter-chip button { background: none; border: none; color: var(--gold); cursor: pointer; font-size: 0.95rem; line-height: 1; padding: 0; }
 
-/* ── Apply / Clear buttons ──────────────────────────────────── */
-.sidebar-actions { display: flex; gap: 0.6rem; margin-top: 1.25rem; }
-.btn-apply {
-  flex: 1; padding: 0.7rem 0; background: var(--primary); color: white;
-  border: none; border-radius: 0.6rem; font-weight: 700; font-size: 0.875rem;
-  cursor: pointer; transition: opacity 0.2s;
-}
-.btn-apply:hover { opacity: 0.88; }
-.btn-clear {
-  padding: 0.7rem 0.9rem; background: rgba(239,68,68,0.1); color: #ef4444;
-  border: 1px solid rgba(239,68,68,0.25); border-radius: 0.6rem;
-  font-weight: 600; font-size: 0.875rem; cursor: pointer;
-  text-decoration: none; display: inline-flex; align-items: center;
-  transition: background 0.15s;
-}
-.btn-clear:hover { background: rgba(239,68,68,0.18); }
+/* ── Sidebar dividers and labels ── */
+.sidebar-divider { border: none; border-top: 1px solid var(--light-gray); margin: 1rem 0; }
+.sidebar-section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--charcoal); margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: space-between; }
 
-/* ── Section divider ────────────────────────────────────────── */
-.sidebar-divider {
-  border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 1.1rem 0;
-}
-.sidebar-section-label {
-  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.6rem;
-  display: flex; align-items: center; justify-content: space-between;
-}
+/* ── Sidebar buttons ── */
+.sidebar-actions { display: flex; gap: 0.5rem; margin-top: 1.25rem; }
+.btn-apply { flex: 1; padding: 0.7rem 0; background: var(--charcoal); color: #fff; border: none; font-family: var(--font-body); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+.btn-apply:hover { background: var(--gold); }
+.btn-clear { padding: 0.7rem 0.9rem; background: #fff; color: #ef4444; border: 1px solid rgba(239,68,68,0.3); font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: background 0.15s; }
+.btn-clear:hover { background: #FFEBEE; }
+
+/* ── Product grid ── */
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 1.5rem; }
+@media (max-width: 600px) { .product-grid { grid-template-columns: repeat(2,1fr); gap: 0.75rem; } }
+
+/* ── Shop product card ── */
+.shop-product-card { display: block; text-decoration: none; cursor: pointer; transition: transform 0.25s; }
+.shop-product-card:hover { transform: translateY(-3px); }
+.shop-product-img { width: 100%; aspect-ratio: 4/3; background: var(--cream); border-radius: 4px; overflow: hidden; position: relative; margin-bottom: 0.8rem; }
+.shop-product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.shop-product-card:hover .shop-product-img img { transform: scale(1.04); }
+.shop-product-brand { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 3px; }
+.shop-product-name { font-size: 0.92rem; font-weight: 600; color: var(--charcoal); line-height: 1.3; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.shop-product-price { font-size: 1rem; font-weight: 700; color: var(--charcoal); }
+.shop-product-old  { font-size: 0.78rem; color: var(--mid-gray); text-decoration: line-through; margin-left: 5px; }
+.shop-product-badge { display: inline-block; background: #E8F5E9; color: #2E7D32; font-size: 0.6rem; font-weight: 700; padding: 2px 7px; border-radius: 100px; margin-left: 5px; vertical-align: middle; }
+.shop-stock-badge { position: absolute; top: 8px; left: 8px; background: #ef4444; color: #fff; font-size: 0.6rem; font-weight: 800; padding: 3px 8px; letter-spacing: 0.05em; text-transform: uppercase; }
+.shop-sale-badge  { position: absolute; top: 8px; right: 8px; background: var(--gold); color: #fff; font-size: 0.6rem; font-weight: 800; padding: 3px 8px; letter-spacing: 0.05em; }
+
+/* ── Pagination ── */
+.pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 3rem; }
+.page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--light-gray); background: #fff; color: var(--charcoal); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border-radius: 0; }
+.page-btn:hover { border-color: var(--gold); color: var(--gold); }
+.page-btn.active { background: var(--charcoal); border-color: var(--charcoal); color: #fff; }
+
+/* ── No results ── */
+.no-results-card { text-align: center; padding: 5rem 2rem; border: 1px dashed var(--light-gray); background: var(--cream); border-radius: 4px; }
 </style>
 {% endblock %}
 
 {% block content %}
 
 <!-- Top category icon nav -->
-<div style="padding: 2.5rem 2% 0; max-width:1400px; margin:0 auto;">
+<div style="padding: 2.5rem 5vw 0; max-width:1300px; margin:0 auto; text-align: center;">
+  <div style="font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem;">Shop By Shape</div>
   <div class="shop-category-nav section-fade visible">
-    {% for cat in parent_cats %}
+    {% for shape in trending_shapes %}
     <button type="button"
-            onclick="topNavToggle('{{ cat.slug }}')"
-            class="shop-cat-item {% if cat.slug in current_categories %}active{% endif %}"
+            onclick="shapeNavToggle('{{ shape.label }}')"
+            class="shop-cat-item {% if shape.label == current_shape %}active{% endif %}"
             style="background:none; border:none; cursor:pointer;">
       <div class="shop-cat-img glass">
-        <img src="{{ resolve_image(cat.img) }}" alt="{{ cat.name }}"
+        <img src="{{ shape.img }}" alt="{{ shape.label }}"
              onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}';" />
       </div>
-      <span class="shop-cat-label">{{ cat.name }}</span>
+      <span class="shop-cat-label">{{ shape.label }}</span>
     </button>
     {% endfor %}
   </div>
 </div>
 
-<div class="shop-layout" style="padding-top:1rem;">
+<div class="shop-layout">
 
   <!-- ══ SIDEBAR ══ -->
   <aside class="shop-sidebar">
@@ -129,7 +228,7 @@
     </button>
 
     <div class="shop-sidebar-content" id="shopSidebarContent">
-    <div class="glass" style="border-radius:1.5rem; padding:1.6rem;">
+    <div class="sidebar-panel">
 
       <form method="get" action="{{ url_for('public.shop') }}" id="filterForm">
         <!-- Hidden fields preserved across submissions -->
@@ -143,8 +242,8 @@
           <input type="text" name="search" id="searchInput" value="{{ search or '' }}"
                  placeholder="Search products…"
                  style="width:100%; padding:0.6rem 0.85rem; background:rgba(255,255,255,0.05);
-                        border:1px solid var(--border-glass); border-radius:0.55rem;
-                        color:var(--text-main); font-size:0.9rem; outline:none;
+                        border:1px solid var(--light-gray); border-radius:0.55rem;
+                        color:var(--charcoal); font-size:0.9rem; outline:none;
                         font-family:inherit; box-sizing:border-box;"
                  onkeydown="if(event.key==='Enter'){applyFilters();}" />
         </div>
@@ -153,10 +252,7 @@
         <div style="margin-bottom:1.1rem;">
           <div class="sidebar-section-label">Sort By</div>
           <select id="sortSelect" onchange="document.getElementById('sortInput').value=this.value; applyFilters();"
-                  style="width:100%; padding:0.6rem 0.85rem; background:rgba(255,255,255,0.05);
-                         border:1px solid var(--border-glass); border-radius:0.55rem;
-                         color:var(--text-main); font-size:0.875rem; outline:none;
-                         font-family:inherit; box-sizing:border-box; cursor:pointer;">
+                  style="width:100%; padding:0.6rem 0.85rem; background:#fff; border:1px solid var(--light-gray); color:var(--charcoal); font-size:0.85rem; outline:none; font-family:inherit; box-sizing:border-box; cursor:pointer; border-radius:0;">
             <option value="created_at_desc" {% if current_sort=='created_at_desc' %}selected{% endif %}>Newest First</option>
             <option value="price_asc"       {% if current_sort=='price_asc'       %}selected{% endif %}>Price: Low to High</option>
             <option value="price_desc"      {% if current_sort=='price_desc'      %}selected{% endif %}>Price: High to Low</option>
@@ -171,8 +267,7 @@
           <div class="sidebar-section-label">
             Category
             {% if current_categories %}
-            <span style="background:var(--primary); color:white; border-radius:999px;
-                         padding:0.05rem 0.5rem; font-size:0.7rem;">{{ current_categories|length }}</span>
+            <span style="background:var(--gold); color:white; border-radius:999px; padding:0.05rem 0.5rem; font-size:0.7rem;">{{ current_categories|length }}</span>
             {% endif %}
           </div>
 
@@ -233,8 +328,7 @@
           <div class="sidebar-section-label">
             Brand
             {% if current_brands %}
-            <span style="background:var(--primary); color:white; border-radius:999px;
-                         padding:0.05rem 0.5rem; font-size:0.7rem;">{{ current_brands|length }}</span>
+            <span style="background:var(--gold); color:white; border-radius:999px; padding:0.05rem 0.5rem; font-size:0.7rem;">{{ current_brands|length }}</span>
             {% endif %}
           </div>
 
@@ -282,7 +376,7 @@
   <main>
     <!-- Page heading -->
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
-      <h1 style="font-size:2.2rem; font-family:var(--font-heading); margin:0;">
+      <h1 style="font-size:2.2rem; font-family:var(--font-display); margin:0;">
         {% if current_categories|length == 1 %}
           {% for c in categories %}{% if c.slug == current_categories[0] %}{{ c.name }}{% endif %}{% endfor %}
         {% elif current_categories|length > 1 %}
@@ -293,7 +387,7 @@
           Our Collection
         {% endif %}
       </h1>
-      <p style="color:var(--text-muted); font-size:0.95rem; margin:0;">
+      <p style="color:var(--mid-gray); font-size:0.88rem; margin:0;">
         Showing <strong>{{ products|length }}</strong> of <strong>{{ total_count }}</strong> items
       </p>
     </div>
@@ -343,29 +437,25 @@
     {% if products %}
     <div class="product-grid">
       {% for p in products %}
-      <a href="{{ url_for('public.product_detail', product_id=p.id) }}" class="glass product-card" style="min-width:unset;">
-        <div class="card-img-wrap">
+      <a href="{{ url_for('public.product_detail', product_id=p.id) }}" class="shop-product-card">
+        <div class="shop-product-img">
           <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy"
                onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}';" />
           {% if p.stock_status == 'out_of_stock' %}
-          <span style="position:absolute; top:1rem; left:1rem; background:#ef4444; color:white; font-size:0.7rem; font-weight:800; padding:0.3rem 0.6rem; border-radius:6px; letter-spacing:0.5px;">OUT OF STOCK</span>
+          <span class="shop-stock-badge">Out of Stock</span>
           {% endif %}
           {% if p.sale_price and p.sale_price < p.price %}
-          <span style="position:absolute; top:1rem; right:1rem; background:#22c55e; color:white; font-size:0.7rem; font-weight:800; padding:0.3rem 0.6rem; border-radius:6px; letter-spacing:0.5px;">SALE</span>
+          <span class="shop-sale-badge">Sale</span>
           {% endif %}
         </div>
-        <p style="color:var(--primary); font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:0.4rem;">{{ p.brand_name or p.category_name or 'Glasses' }}</p>
-        <h4 style="font-size:1.1rem; font-weight:700; margin-bottom:0.8rem; line-height:1.2; color:var(--text-main); display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ p.name }}</h4>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
-          <div style="display:flex; flex-direction:column;">
-            <span style="font-weight:800; font-size:1.2rem; color:var(--text-main);">₹{{ "%.0f"|format(p.sale_price or p.price) }}</span>
-            {% if p.sale_price and p.sale_price < p.price %}
-            <span style="text-decoration:line-through; color:var(--text-muted); font-size:0.8rem;">₹{{ "%.0f"|format(p.price) }}</span>
-            {% endif %}
-          </div>
-          <div class="glass" style="padding:0.5rem 0.8rem; border-radius:0.75rem; background:rgba(96,165,250,0.1); color:var(--primary); font-size:0.8rem; font-weight:700;">
-            View Details
-          </div>
+        <div class="shop-product-brand">{{ p.brand_name or p.category_name or 'ChasmaGallery' }}</div>
+        <div class="shop-product-name">{{ p.name }}</div>
+        <div>
+          <span class="shop-product-price">₹{{ "%.0f"|format(p.sale_price or p.price) }}</span>
+          {% if p.sale_price and p.sale_price < p.price %}
+          <span class="shop-product-old">₹{{ "%.0f"|format(p.price) }}</span>
+          <span class="shop-product-badge">SALE</span>
+          {% endif %}
         </div>
       </a>
       {% endfor %}
@@ -383,7 +473,7 @@
         <button type="button" class="page-btn {% if p_num == current_page %}active{% endif %}"
                 onclick="gotoPage({{ p_num }})">{{ p_num }}</button>
         {% elif p_num == current_page - 3 or p_num == current_page + 3 %}
-        <span style="color:var(--text-muted);">…</span>
+        <span style="color:var(--mid-gray);">…</span>
         {% endif %}
       {% endfor %}
 
@@ -396,9 +486,9 @@
     {% else %}
     <div class="no-results-card">
       <div class="no-results-icon">🔍</div>
-      <h2 style="font-family:var(--font-heading); margin-bottom:1rem;">No products found</h2>
-      <p style="color:var(--text-muted); margin-bottom:2rem;">We couldn't find any items matching your current filters.</p>
-      <a href="{{ url_for('public.shop') }}" class="btn-primary" style="padding:1rem 2.5rem; display:inline-block;">Reset All Filters</a>
+      <h2 style="font-family:var(--font-display); margin-bottom:1rem;">No products found</h2>
+      <p style="color:var(--mid-gray); margin-bottom:2rem;">We couldn't find any items matching your current filters.</p>
+      <a href="{{ url_for('public.shop') }}" class="btn-gold">Reset All Filters</a>
     </div>
     {% endif %}
   </main>
@@ -440,7 +530,18 @@ function gotoPage(n) {
   document.getElementById('filterForm').submit();
 }
 
-// ── Top-nav category toggle ────────────────────────────────────
+// ── Top-nav shape toggle ──────────────────────────────────────
+function shapeNavToggle(val) {
+  const input = document.getElementById('shapeInput');
+  if (input.value === val) {
+    input.value = ''; // Toggle off
+  } else {
+    input.value = val;
+  }
+  applyFilters();
+}
+
+// ── Top-nav category toggle (unused now, but kept for logic) ──
 function topNavToggle(slug) {
   const cb = document.querySelector(`input[name="category"][value="${slug}"]`);
   if (cb) {

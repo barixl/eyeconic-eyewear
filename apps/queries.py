@@ -138,27 +138,42 @@ def get_products(search=None, categories=(), brands=(), shape=None,
 def get_homepage_products():
     """Single query for all homepage product sections; partitioned in Python."""
     rows = db.query(
-        f"{PRODUCTS_MINIMAL_SELECT} WHERE p.is_active = 1 ORDER BY p.is_featured DESC, p.created_at DESC LIMIT 60"
+        f"{PRODUCTS_MINIMAL_SELECT} WHERE p.is_active = 1 ORDER BY p.is_featured DESC, p.created_at DESC LIMIT 100"
     )
     featured   = [r for r in rows if r.get("is_featured")][:10]
     if not featured:
         featured = rows[:10]
     latest     = sorted(rows, key=lambda r: r.get("created_at") or _EPOCH, reverse=True)[:10]
     popular    = sorted(rows, key=lambda r: (r.get("name") or "").lower())[:10]
+    
+    # Category-specific slices (using slugs from seed.py)
+    men_products    = [r for r in rows if r.get("category_slug") == "men"][:8]
+    women_products  = [r for r in rows if r.get("category_slug") == "women"][:8]
+    kids_products   = [r for r in rows if r.get("category_slug") == "kids"][:8]
+    sun_products    = [r for r in rows if r.get("category_slug") == "sunglasses"][:8]
+    blue_products   = [r for r in rows if r.get("category_slug") == "blue-light"][:8]
+    optical_products= [r for r in rows if r.get("category_slug") == "eyeglasses"][:8]
+
     price_asc  = sorted(rows, key=lambda r: float(r.get("price") or 0))
     promo1     = rows[:2]
     promo2     = price_asc[:2]
-    return featured, latest, popular, promo1, promo2
+    
+    return {
+        "featured": featured, "latest": latest, "popular": popular,
+        "promo1": promo1, "promo2": promo2,
+        "men": men_products, "women": women_products, "kids": kids_products,
+        "sunglasses": sun_products, "blue_light": blue_products, "optical": optical_products
+    }
 
 
-@ttl_cache(ttl_seconds=3600)
+@ttl_cache(ttl_seconds=60)
 def get_trending_shapes():
     return db.query("""
         SELECT av.value AS label, av.image_url AS img, av.id
         FROM attribute_values av
         JOIN attributes a ON a.id = av.attribute_id
         WHERE a.slug = 'frame-shape' AND av.image_url IS NOT NULL
-        LIMIT 6
+        LIMIT 9
     """) or []
 
 

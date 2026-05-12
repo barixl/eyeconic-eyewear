@@ -1,381 +1,70 @@
-{% extends "base.html" %}
-{% block title %}My Account – Chasma Gallery{% endblock %}
-
-{% block extra_css %}
-<style>
-  .account-layout { display: grid; grid-template-columns: 280px 1fr; gap: 3rem; align-items: start; }
-  .account-sidebar { display: flex; flex-direction: column; gap: 0.5rem; }
-  .account-nav-item {
-    padding: 1rem 1.5rem; border-radius: 1rem; color: var(--text-muted);
-    font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 1rem;
-    transition: all 0.2s; border: 1px solid transparent;
-  }
-  .account-nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
-  .account-nav-item.active { background: var(--bg-glass); border-color: var(--border-glass); color: var(--primary); box-shadow: var(--shadow-glass); }
-  
-  .logout-item { margin-top: 2rem; color: #f87171; border-top: 1px solid var(--border-glass); padding-top: 1.5rem; }
-  .logout-item:hover { background: rgba(239, 68, 68, 0.1); color: #f87171; }
-
-  .account-tab-panel { display: none; width: 100%; animate: fadeIn 0.3s ease; }
-  .account-tab-panel.active { display: block; }
-  
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  .addr-card { background: rgba(255,255,255,0.04); border: 1px solid var(--border-glass); border-radius: 1rem; padding: 1.25rem 1.5rem; position: relative; }
-  .addr-card.is-default { border-color: var(--primary); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-  .field-group { display: flex; flex-direction: column; gap: 0.5rem; }
-  .field-group label { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.05em; }
-  .field-input {
-    padding: 0.875rem 1.125rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);
-    border-radius: 0.75rem; color: var(--text-main); font-size: 1rem; outline: none; transition: 0.3s;
-  }
-  .field-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.05); }
-  .status-badge {
-    display:inline-flex; align-items:center; padding:0.3rem 0.75rem; border-radius:999px;
-    font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
-  }
-  .status-pending { background:rgba(251,191,36,0.15); color:#fbbf24; }
-  .status-processing { background:rgba(96,165,250,0.15); color:#60a5fa; }
-  .status-shipped { background:rgba(167,139,250,0.15); color:#a78bfa; }
-  .status-delivered { background:rgba(34,197,94,0.15); color:#22c55e; }
-  .status-cancelled { background:rgba(239,68,68,0.15); color:#ef4444; }
-  .status-refunded { background:rgba(148,163,184,0.15); color:#cbd5e1; }
-
-  @media(max-width: 991px) {
-    .account-layout { grid-template-columns: 1fr; }
-    .account-sidebar { flex-direction: row; overflow-x: auto; padding-bottom: 1rem; border-bottom: 1px solid var(--border-glass); margin-bottom: 2rem; }
-    .account-nav-item { white-space: nowrap; padding: 0.75rem 1.25rem; }
-    .logout-item { margin-top: 0; border-top: none; padding-top: 0; }
-  }
-</style>
-{% endblock %}
-
+{% extends 'eyeconic_base.html' %}
+{% block title %}My Account – ChasmaGallery{% endblock %}
 {% block content %}
-<div class="section-padding" style="padding-top: 120px; padding-bottom: 5rem;">
-  <div class="container" style="max-width: 1300px; margin: 0 auto; padding: 0 2rem;">
-
-    <!-- Centered Heading -->
-    <div style="text-align: center; margin-bottom: 4rem;">
-      <h1 style="font-size: 3.5rem; font-weight: 800; font-family: var(--font-heading); color: var(--text-main); line-height: 1;">My Account</h1>
-      <p style="color: var(--text-muted); margin-top: 1rem; font-size: 1.1rem;">Manage your profile, addresses, and order history.</p>
+<div style="max-width:1100px; margin:0 auto; padding:3rem 5vw 6rem;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3rem; border-bottom:1px solid var(--light-gray); padding-bottom:1.5rem;">
+    <div>
+      <h1 style="font-family:var(--font-display); font-size:2.4rem; color:var(--charcoal);">My Account</h1>
+      <p style="color:var(--mid-gray); margin-top:0.5rem;">Hello, {{ current_user.first_name }}! Welcome back.</p>
     </div>
-
-    <div class="account-layout">
-      
-      <!-- Left Sidebar -->
-      <aside class="account-sidebar">
-        <div class="account-nav-item active" onclick="switchAccountTab('profile', this)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          Profile Details
-        </div>
-        <div class="account-nav-item" onclick="switchAccountTab('addresses', this)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-          Saved Addresses
-        </div>
-        <div class="account-nav-item" onclick="switchAccountTab('orders', this)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M9 14h.01"/><path d="M15 14h.01"/><path d="M9 18h.01"/><path d="M15 18h.01"/></svg>
-          Order History
-        </div>
-        
-        <a href="{{ url_for('auth.logout') }}" class="account-nav-item logout-item">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sign Out
-        </a>
-      </aside>
-
-      <!-- Right Content area -->
-      <main class="account-content">
-        
-        <div id="tab-profile" class="account-tab-panel active">
-          <div class="glass" style="border-radius: 2rem; padding: 3.5rem; max-width: 720px;">
-            <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 2.5rem; color: var(--text-main);">Personal Profile</h2>
-            <form method="POST" action="{{ url_for('auth.account') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <input type="hidden" name="action" value="update_profile" />
-        <div style="display:flex; flex-direction:column; gap:1.25rem;">
-          <div class="form-row">
-            <div class="field-group">
-              <label for="fname">First Name</label>
-              <input type="text" id="fname" name="first_name" class="field-input" required
-                     value="{{ user.first_name if user else current_user.name.split(' ')[0] }}" />
-            </div>
-            <div class="field-group">
-              <label for="lname">Last Name</label>
-              <input type="text" id="lname" name="last_name" class="field-input"
-                     value="{{ user.last_name if user else '' }}" />
-            </div>
-          </div>
-          <div class="field-group">
-            <label>Email Address</label>
-            <input type="email" class="field-input" readonly
-                   value="{{ user.email if user else current_user.email }}" />
-          </div>
-          {% if user and user.created_at %}
-          <p style="font-size:0.82rem; color:var(--text-muted);">
-            Member since {{ user.created_at.strftime('%B %Y') if user.created_at else '' }}
-          </p>
-          {% endif %}
-          <div>
-            <button type="submit" class="btn-primary" style="padding:0.875rem 2.5rem; border-radius:0.75rem; border:none; cursor:pointer; font-weight:700; font-size:1rem;">
-              Save Changes
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
+    <a href="{{ url_for('auth.logout') }}" style="color:#ef4444; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; text-decoration:none;">Sign Out</a>
   </div>
 
-    <div id="tab-addresses" class="account-tab-panel">
-      {% if addresses %}
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; max-width: 720px;">
-        {% for addr in addresses %}
-      <div class="addr-card {% if addr.is_default %}is-default{% endif %}">
-        {% if addr.is_default %}
-        <span style="position:absolute; top:0.75rem; right:0.75rem; font-size:0.7rem; background:var(--primary); color:white; padding:0.2rem 0.6rem; border-radius:999px; font-weight:700;">Default</span>
-        {% endif %}
-        <div style="font-weight:700; font-size:0.95rem; margin-bottom:0.25rem; color:var(--primary);">{{ addr.label }}</div>
-        <div style="font-weight:600; margin-bottom:0.5rem;">{{ addr.first_name }} {{ addr.last_name }}</div>
-        <div style="color:var(--text-muted); font-size:0.88rem; line-height:1.6;">
-          <div>{{ addr.address_line1 }}{% if addr.address_line2 %}, {{ addr.address_line2 }}{% endif %}</div>
-          <div>{{ addr.city }}{% if addr.state %}, {{ addr.state }}{% endif %} – {{ addr.pincode }}</div>
-          <div>{{ addr.country }}</div>
-          {% if addr.phone %}<div style="margin-top:0.35rem;">{{ addr.phone }}</div>{% endif %}
+  <div style="display:grid; grid-template-columns:1fr 280px; gap:4rem; align-items:start;">
+    <div>
+      <h3 style="font-family:var(--font-display); font-size:1.4rem; margin-bottom:1.5rem;">Recent Orders</h3>
+      {% if orders %}
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th style="text-align:left; font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid-gray); padding:1rem 0; border-bottom:1.5px solid var(--light-gray);">Order #</th>
+              <th style="text-align:left; font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid-gray); padding:1rem 0; border-bottom:1.5px solid var(--light-gray);">Date</th>
+              <th style="text-align:left; font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid-gray); padding:1rem 0; border-bottom:1.5px solid var(--light-gray);">Total</th>
+              <th style="text-align:left; font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid-gray); padding:1rem 0; border-bottom:1.5px solid var(--light-gray);">Status</th>
+              <th style="text-align:right; font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid-gray); padding:1rem 0; border-bottom:1.5px solid var(--light-gray);">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for o in orders %}
+            <tr>
+              <td style="padding:1.25rem 0; font-weight:600; font-size:0.88rem;">#{{ o.id[:8].upper() }}</td>
+              <td style="padding:1.25rem 0; color:var(--mid-gray); font-size:0.88rem;">{{ o.created_at.strftime('%d %b %Y') }}</td>
+              <td style="padding:1.25rem 0; font-weight:600; font-size:0.88rem;">₹{{ "%.0f"|format(o.total_amount) }}</td>
+              <td style="padding:1.25rem 0;">
+                <span style="font-size:0.65rem; font-weight:700; text-transform:uppercase; padding:4px 10px; border-radius:100px; 
+                  {% if o.status == 'delivered' %} background:#E8F5E9; color:#2E7D32; 
+                  {% elif o.status == 'cancelled' %} background:#FFEBEE; color:#C62828;
+                  {% else %} background:var(--cream); color:var(--gold); {% endif %}">{{ o.status }}</span>
+              </td>
+              <td style="padding:1.25rem 0; text-align:right;">
+                <a href="{{ url_for('public.order_detail', order_id=o.id) }}" style="color:var(--charcoal); font-size:0.75rem; font-weight:700; text-decoration:none; border-bottom:1.5px solid var(--gold);">View Details</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div style="background:var(--cream); padding:3rem; text-align:center; border:1px dashed var(--light-gray);">
+          <p style="color:var(--mid-gray); font-size:0.9rem;">You haven't placed any orders yet.</p>
+          <a href="{{ url_for('public.shop') }}" style="display:inline-block; margin-top:1.25rem; color:var(--gold); font-weight:700; text-decoration:none;">Start Shopping →</a>
         </div>
-        <div style="display:flex; gap:0.75rem; margin-top:1rem; flex-wrap:wrap;">
-          {% if not addr.is_default %}
-          <form method="POST" action="{{ url_for('auth.account_address_default', addr_id=addr.id) }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-            <button type="submit" style="background:none; border:1px solid var(--border-glass); color:var(--text-muted); padding:0.4rem 0.9rem; border-radius:0.5rem; cursor:pointer; font-size:0.82rem; font-family:inherit;">Set Default</button>
-          </form>
-          {% endif %}
-          <form method="POST" action="{{ url_for('auth.account_address_delete', addr_id=addr.id) }}" onsubmit="return confirm('Remove this address?');">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-            <button type="submit" style="background:none; border:1px solid rgba(239,68,68,0.4); color:#f87171; padding:0.4rem 0.9rem; border-radius:0.5rem; cursor:pointer; font-size:0.82rem; font-family:inherit;">Delete</button>
-          </form>
-        </div>
-      </div>
-      {% endfor %}
+      {% endif %}
     </div>
-    {% else %}
-    <p style="color:var(--text-muted); margin-bottom:2rem;">No saved addresses yet.</p>
-    {% endif %}
 
-    <!-- Add New Address Form -->
-    <div class="glass" style="border-radius: 2.5rem; padding: 3.5rem; max-width: 720px;">
-      <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; color: var(--text-main);">Add New Address</h3>
-      <form method="POST" action="{{ url_for('auth.account') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-        <input type="hidden" name="action" value="add_address" />
-        <div style="display:flex; flex-direction:column; gap:1.1rem;">
-          <div class="field-group">
-            <label for="addr_label">Label (e.g. Home, Work)</label>
-            <input type="text" id="addr_label" name="label" class="field-input" placeholder="Home" value="Home" />
-          </div>
-          <div class="form-row">
-            <div class="field-group">
-              <label for="addr_fname">First Name</label>
-              <input type="text" id="addr_fname" name="first_name" class="field-input" placeholder="Riya" />
-            </div>
-            <div class="field-group">
-              <label for="addr_lname">Last Name</label>
-              <input type="text" id="addr_lname" name="last_name" class="field-input" placeholder="Sharma" />
-            </div>
-          </div>
-          <div class="field-group">
-            <label for="addr_phone">Phone Number</label>
-            <input type="tel" id="addr_phone" name="phone" class="field-input" placeholder="+91 98765 43210" />
-          </div>
-          <div class="field-group">
-            <label for="addr_line1">Address Line 1 *</label>
-            <input type="text" id="addr_line1" name="address_line1" class="field-input" placeholder="Flat / House No., Street" required />
-          </div>
-          <div class="field-group">
-            <label for="addr_line2">Address Line 2</label>
-            <input type="text" id="addr_line2" name="address_line2" class="field-input" placeholder="Area / Locality (optional)" />
-          </div>
-          <div class="form-row">
-            <div class="field-group">
-              <label for="addr_city">City *</label>
-              <input type="text" id="addr_city" name="city" class="field-input" placeholder="Mumbai" required />
-            </div>
-            <div class="field-group">
-              <label for="addr_state">State</label>
-              <input type="text" id="addr_state" name="state" class="field-input" placeholder="Maharashtra" />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="field-group">
-              <label for="addr_pincode">Pincode *</label>
-              <input type="text" id="addr_pincode" name="pincode" class="field-input" placeholder="400001" required />
-            </div>
-            <div class="field-group">
-              <label for="addr_country">Country</label>
-              <input type="text" id="addr_country" name="country" class="field-input" value="India" />
-            </div>
-          </div>
-          <div style="display:flex; align-items:center; gap:0.75rem;">
-            <input type="checkbox" id="addr_default" name="is_default" style="width:16px; height:16px; accent-color:var(--primary);" />
-            <label for="addr_default" style="font-size:0.9rem; cursor:pointer;">Set as default address</label>
-          </div>
-          <div>
-            <button type="submit" class="btn-primary" style="padding:0.875rem 2rem; border-radius:0.75rem; border:none; cursor:pointer; font-weight:700; font-size:0.95rem;">
-              Save Address
-            </button>
-          </div>
+    <aside>
+      <div style="background:#fff; border:1px solid var(--light-gray); padding:2rem;">
+        <h4 style="font-family:var(--font-display); font-size:1.1rem; margin-bottom:1.25rem;">Account Details</h4>
+        <div style="margin-bottom:1.5rem;">
+          <p style="font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:4px;">Full Name</p>
+          <p style="font-size:0.9rem; font-weight:600;">{{ current_user.first_name }} {{ current_user.last_name }}</p>
         </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ── TAB: ORDERS ── -->
-  <div id="tab-orders" class="account-tab-panel">
-    {% if orders %}
-    <div class="glass" style="border-radius:1.5rem; overflow:hidden;">
-      <!-- Header row -->
-      <div style="display:grid; grid-template-columns:2fr 1.5fr 1fr 1fr 1fr; gap:1rem; padding:0.875rem 1.25rem; background:rgba(255,255,255,0.04); font-size:0.78rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">
-        <div>Order ID</div>
-        <div>Date</div>
-        <div>Status</div>
-        <div>Total</div>
-        <div>Payment</div>
+        <div style="margin-bottom:1.5rem;">
+          <p style="font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid-gray); margin-bottom:4px;">Email Address</p>
+          <p style="font-size:0.9rem; font-weight:600;">{{ current_user.email }}</p>
+        </div>
+        <a href="#" style="display:block; padding:12px; background:var(--cream); text-align:center; color:var(--charcoal); font-size:0.75rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; text-decoration:none; margin-top:2rem;">Edit Profile</a>
       </div>
-      {% for order in orders %}
-      <div style="display:grid; grid-template-columns:2fr 1.5fr 1fr 1fr 1fr; gap:1rem; align-items:center; padding:1rem 1.25rem; border-top:1px solid var(--border-glass); font-size:0.88rem;" class="order-list-row">
-        <div>
-          <a href="{{ url_for('checkout.order_detail', order_id=order.id) }}" style="color:var(--primary); font-weight:700; font-family:monospace; font-size:0.85rem;">
-            #{{ order.id | string | upper | truncate(8, True, '') }}
-          </a>
-        </div>
-        <div style="color:var(--text-muted);">
-          {{ order.created_at.strftime('%d %b %Y') if order.created_at else '—' }}
-        </div>
-        <div>
-          <span class="status-badge status-{{ order.status }}">{{ order.status }}</span>
-        </div>
-        <div style="font-weight:700;">₹{{ "%.0f"|format(order.total_amount) }}</div>
-        <div style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-start;">
-          <div style="color:var(--text-muted); text-transform:uppercase; font-size:0.8rem;">{{ 'Pay on Delivery' if order.payment_method == 'cod' else (order.payment_method or 'COD') }}</div>
-          {% if order.status not in ['shipped', 'delivered', 'cancelled', 'refunded'] %}
-          <button type="button" style="background:none; color:#f87171; padding:0; font-size:0.8rem; font-weight:700; border:none; text-align:left;" onclick="openCancelModal('{{ order.id }}')">Cancel</button>
-          {% endif %}
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="glass" style="border-radius:1.5rem; padding:3rem; text-align:center;">
-      <div style="font-size:3rem; margin-bottom:1rem;">📦</div>
-      <h3 style="margin-bottom:0.75rem;">No orders yet</h3>
-      <p style="color:var(--text-muted); margin-bottom:1.5rem;">Start shopping to see your orders here.</p>
-      <a href="{{ url_for('public.shop') }}" class="btn-primary" style="display:inline-block; padding:0.875rem 2rem; border-radius:0.75rem; text-decoration:none; font-weight:700;">Browse Shop</a>
-    </div>
-    {% endif %}
-    </main>
-    </div>
+    </aside>
   </div>
 </div>
-
-  <div id="cancelModal" style="display:none; position:fixed; inset:0; z-index:3000; background:rgba(2,6,23,0.72); backdrop-filter:blur(8px); align-items:center; justify-content:center; padding:1.5rem;">
-    <div class="glass" style="width:min(100%, 520px); border-radius:1.25rem; padding:1.5rem;">
-      <div id="cancelStep1">
-        <h3 style="font-size:1.25rem; font-weight:800; margin-bottom:0.75rem;">Do you really want to cancel this order?</h3>
-        <p style="color:var(--text-muted); margin-bottom:1.25rem;">This will cancel the order only if it has not been shipped yet.</p>
-        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
-          <button type="button" class="btn-primary" style="background:rgba(255,255,255,0.08);" onclick="closeCancelModal()">No, keep it</button>
-          <button type="button" class="btn-primary" style="background:#ef4444;" onclick="showCancelStep2()">Yes, continue</button>
-        </div>
-      </div>
-      <div id="cancelStep2" style="display:none;">
-        <h3 style="font-size:1.25rem; font-weight:800; margin-bottom:0.75rem;">Reason for cancellation</h3>
-        <p style="color:var(--text-muted); margin-bottom:1rem;">Please choose the reason for cancelling.</p>
-        <form id="cancelForm" method="POST" action="{{ url_for('checkout.order_cancel', order_id='__ORDER_ID__') }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-          <input type="hidden" name="cancel_reason" id="cancelReasonInput" value="" />
-          <div id="cancelOtherWrap" style="display:none; margin-bottom:1rem;">
-            <label style="display:block; font-size:0.82rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Please specify</label>
-            <textarea id="cancelReasonOther" name="cancel_reason_other" rows="3" class="field-input" style="width:100%; resize:vertical;" placeholder="Tell us why you want to cancel..."></textarea>
-          </div>
-          <div style="display:grid; gap:0.75rem; margin-bottom:1.25rem;">
-              <button type="button" class="cancel-reason-option glass" style="text-align:left; padding:0.9rem 1rem; border-radius:0.75rem; color:var(--text-main);" onclick="selectCancelReason(this, 'Ordered by mistake')">Ordered by mistake</button>
-              <button type="button" class="cancel-reason-option glass" style="text-align:left; padding:0.9rem 1rem; border-radius:0.75rem; color:var(--text-main);" onclick="selectCancelReason(this, 'Found a better price elsewhere')">Found a better price elsewhere</button>
-              <button type="button" class="cancel-reason-option glass" style="text-align:left; padding:0.9rem 1rem; border-radius:0.75rem; color:var(--text-main);" onclick="selectCancelReason(this, 'Delivery taking too long')">Delivery taking too long</button>
-              <button type="button" class="cancel-reason-option glass" style="text-align:left; padding:0.9rem 1rem; border-radius:0.75rem; color:var(--text-main);" onclick="selectCancelReason(this, 'Need to change the order')">Need to change the order</button>
-              <button type="button" class="cancel-reason-option glass" style="text-align:left; padding:0.9rem 1rem; border-radius:0.75rem; color:var(--text-main);" onclick="selectCancelReason(this, 'Other')">Other</button>
-          </div>
-          <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
-            <button type="button" class="btn-primary" style="background:rgba(255,255,255,0.08);" onclick="backToCancelStep1()">Back</button>
-            <button type="submit" id="confirmCancelBtn" class="btn-primary" style="background:#ef4444;" disabled>Cancel Order</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let cancelTargetOrderId = null;
-    function openCancelModal(orderId) {
-      cancelTargetOrderId = orderId;
-      const form = document.getElementById('cancelForm');
-      form.action = `{{ url_for('checkout.order_cancel', order_id='__ORDER_ID__') }}`.replace('__ORDER_ID__', orderId);
-      document.getElementById('cancelModal').style.display = 'flex';
-      document.getElementById('cancelStep1').style.display = 'block';
-      document.getElementById('cancelStep2').style.display = 'none';
-      document.getElementById('cancelReasonInput').value = '';
-      document.getElementById('confirmCancelBtn').disabled = true;
-    }
-    function closeCancelModal() {
-      document.getElementById('cancelModal').style.display = 'none';
-    }
-    function showCancelStep2() {
-      document.getElementById('cancelStep1').style.display = 'none';
-      document.getElementById('cancelStep2').style.display = 'block';
-    }
-    function backToCancelStep1() {
-      document.getElementById('cancelStep2').style.display = 'none';
-      document.getElementById('cancelStep1').style.display = 'block';
-    }
-    function selectCancelReason(button, reason) {
-      document.getElementById('cancelReasonInput').value = reason;
-      document.getElementById('confirmCancelBtn').disabled = false;
-      document.querySelectorAll('.cancel-reason-option').forEach(el => {
-        el.style.outline = 'none';
-        el.style.borderColor = 'var(--border-glass)';
-      });
-      button.style.outline = '2px solid var(--primary)';
-      button.style.borderColor = 'var(--primary)';
-      const otherWrap = document.getElementById('cancelOtherWrap');
-      const otherField = document.getElementById('cancelReasonOther');
-      if (reason === 'Other') {
-        otherWrap.style.display = 'block';
-        otherField.required = true;
-        otherField.focus();
-      } else {
-        otherWrap.style.display = 'none';
-        otherField.required = false;
-        otherField.value = '';
-      }
-    }
-    document.getElementById('cancelModal')?.addEventListener('click', function(event) {
-      if (event.target === this) closeCancelModal();
-    });
-  </script>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  function switchAccountTab(tabId, btn) {
-    document.querySelectorAll('.account-tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.account-nav-item').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + tabId).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  // Auto-open tab from hash
-  const hash = location.hash.replace('#', '');
-  if (['profile','addresses','orders'].includes(hash)) {
-    const btn = document.querySelector(`.account-nav-item[onclick*="${hash}"]`);
-    if (btn) switchAccountTab(hash, btn);
-  }
-</script>
 {% endblock %}

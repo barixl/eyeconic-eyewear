@@ -100,31 +100,53 @@ def register(app):
     @app.route("/admin")
     @require_admin
     def admin_dashboard():
+        _empty_stats = {
+            "total_products": 0, "total_orders": 0, "total_revenue": 0.0,
+            "total_customers": 0, "pending_orders": 0, "low_stock": 0,
+        }
         try:
-            stats           = get_admin_stats()
-            recent_orders   = db.query(
+            stats = get_admin_stats()
+        except Exception as e:
+            stats = _empty_stats
+            flash(f"Stats error: {e}", "error")
+        # Ensure all keys exist even if get_admin_stats returns a partial dict
+        for k, v in _empty_stats.items():
+            stats.setdefault(k, v)
+
+        try:
+            recent_orders = db.query(
                 """SELECT o.id, o.created_at, o.total_amount, o.status,
                           (u.first_name || ' ' || u.last_name) AS customer_name, u.email AS customer_email
                    FROM orders o LEFT JOIN users u ON u.id = o.user_id
                    ORDER BY o.created_at DESC LIMIT 10"""
             )
+        except Exception:
+            recent_orders = []
+
+        try:
             recent_products = db.query(
                 f"{PRODUCTS_SELECT} WHERE p.is_active=1 ORDER BY p.created_at DESC LIMIT 8"
             )
-            chart_rows      = db.query("""
-                SELECT TO_CHAR(created_at, 'Mon DD') as day, SUM(total_amount) as amount
+        except Exception:
+            recent_products = []
+
+        try:
+            # SQLite-compatible: strftime instead of TO_CHAR / INTERVAL
+            chart_rows = db.query("""
+                SELECT strftime('%d %b', created_at) AS day,
+                       SUM(total_amount) AS amount
                 FROM orders
-                WHERE created_at >= CURRENT_DATE - INTERVAL '7 days' AND status != 'cancelled'
-                GROUP BY day, DATE(created_at) ORDER BY DATE(created_at)
+                WHERE created_at >= date('now', '-7 days')
+                  AND status != 'cancelled'
+                GROUP BY strftime('%Y-%m-%d', created_at)
+                ORDER BY strftime('%Y-%m-%d', created_at)
             """)
             chart_data = {
                 "labels": [r["day"] for r in chart_rows],
                 "values": [float(r["amount"]) for r in chart_rows],
             }
-        except Exception as e:
-            stats, recent_orders, recent_products = {}, [], []
+        except Exception:
             chart_data = {"labels": [], "values": []}
-            flash(f"Error: {e}", "error")
         return render_template(
             "admin/dashboard.html",
             stats=stats, recent_orders=recent_orders,

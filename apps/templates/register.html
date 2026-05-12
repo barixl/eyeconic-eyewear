@@ -1,66 +1,35 @@
-{% extends "base.html" %}
-
+{% extends 'eyeconic_base.html' %}
 {% block title %}Register – ChasmaGallery{% endblock %}
-
 {% block content %}
-<div style="min-height:80vh; display:flex; align-items:center; justify-content:center; padding:2rem;">
-  <div class="glass" style="width:100%; max-width:460px; padding:2.5rem; border-radius:2rem;">
-    <h2 style="text-align:center; margin-bottom:0.5rem; font-size:1.8rem;">Create Account</h2>
-    <p style="text-align:center; color:var(--text-muted); margin-bottom:2rem; font-size:0.95rem;">Join ChasmaGallery today</p>
-
-    <form method="post" action="{{ url_for('auth.register') }}" novalidate>
+<div style="min-height:70vh; display:flex; align-items:center; justify-content:center; padding:3rem 5vw;">
+  <div style="background:#fff; border:1px solid var(--light-gray); width:100%; max-width:500px; padding:3rem 2.5rem; text-align:center;">
+    <h2 style="font-family:var(--font-display); font-size:2rem; font-weight:600; color:var(--charcoal); margin-bottom:0.5rem;">Create Account</h2>
+    <p style="color:var(--mid-gray); font-size:0.9rem; margin-bottom:2.5rem;">Join the ChasmaGallery family today.</p>
+    <form method="post" action="{{ url_for('auth.register') }}" style="text-align:left;">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.5rem;">
         <div>
-          <label style="display:block; font-weight:600; margin-bottom:0.5rem; font-size:0.9rem; color:var(--text-muted);">First Name</label>
-          <input type="text" name="first_name" required placeholder="John"
-            style="width:100%; padding:0.875rem 1rem; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:0.75rem; color:var(--text-main); font-size:1rem; outline:none;" />
+          <label style="display:block; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; font-weight:700; color:var(--charcoal); margin-bottom:0.5rem;">First Name</label>
+          <input type="text" name="first_name" required />
         </div>
         <div>
-          <label style="display:block; font-weight:600; margin-bottom:0.5rem; font-size:0.9rem; color:var(--text-muted);">Last Name</label>
-          <input type="text" name="last_name" required placeholder="Doe"
-            style="width:100%; padding:0.875rem 1rem; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:0.75rem; color:var(--text-main); font-size:1rem; outline:none;" />
+          <label style="display:block; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; font-weight:700; color:var(--charcoal); margin-bottom:0.5rem;">Last Name</label>
+          <input type="text" name="last_name" required />
         </div>
       </div>
-
-      <div style="margin-bottom:1.25rem;">
-        <label style="display:block; font-weight:600; margin-bottom:0.5rem; font-size:0.9rem; color:var(--text-muted);">Email</label>
-        <input type="email" name="email" required autocomplete="email" placeholder="you@example.com"
-          style="width:100%; padding:0.875rem 1rem; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:0.75rem; color:var(--text-main); font-size:1rem; outline:none;" />
+      <div style="margin-bottom:1.5rem;">
+        <label style="display:block; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; font-weight:700; color:var(--charcoal); margin-bottom:0.5rem;">Email Address</label>
+        <input type="email" name="email" required />
       </div>
-
-      <div style="margin-bottom:1.25rem;">
-        <label style="display:block; font-weight:600; margin-bottom:0.5rem; font-size:0.9rem; color:var(--text-muted);">Password</label>
-        <div style="position:relative;">
-          <input type="password" name="password" id="pwdInput" required placeholder="At least 8 characters"
-            style="width:100%; padding:0.875rem 1rem; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:0.75rem; color:var(--text-main); font-size:1rem; outline:none; padding-right:3rem;" />
-          <button type="button" onclick="togglePwd()" style="position:absolute; right:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1rem;">👁</button>
-        </div>
+      <div style="margin-bottom:2rem;">
+        <label style="display:block; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; font-weight:700; color:var(--charcoal); margin-bottom:0.5rem;">Password</label>
+        <input type="password" name="password" required placeholder="At least 6 characters" />
       </div>
-
-      <div style="margin-bottom:1.75rem;">
-        <label style="display:block; font-weight:600; margin-bottom:0.5rem; font-size:0.9rem; color:var(--text-muted);">Confirm Password</label>
-        <input type="password" name="confirm_password" required placeholder="Repeat password"
-          style="width:100%; padding:0.875rem 1rem; background:rgba(255,255,255,0.05); border:1px solid var(--border-glass); border-radius:0.75rem; color:var(--text-main); font-size:1rem; outline:none;" />
-      </div>
-
-      <button type="submit" style="width:100%; padding:1rem; background:var(--primary); color:white; border:none; border-radius:0.75rem; font-weight:700; font-size:1rem; cursor:pointer; transition:background 0.3s;">Create Account</button>
+      <button type="submit" class="btn-atc" style="width:100%;">Create Account</button>
     </form>
-
-    <p style="text-align:center; margin-top:1.5rem; color:var(--text-muted); font-size:0.9rem;">
-      Already have an account?
-      <a href="{{ url_for('auth.login') }}" style="color:var(--primary); font-weight:600;">Sign in</a>
+    <p style="margin-top:2rem; font-size:0.85rem; color:var(--mid-gray);">
+      Already have an account? <a href="{{ url_for('auth.login') }}" style="color:var(--gold); font-weight:700; text-decoration:none;">Sign in</a>
     </p>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  function togglePwd() {
-    const inp = document.getElementById('pwdInput');
-    inp.type = inp.type === 'password' ? 'text' : 'password';
-  }
-</script>
 {% endblock %}

@@ -44,7 +44,10 @@ def login():
         if next_url:
             return redirect(next_url)
         if user.get("role") in ("admin", "manager"):
-            return redirect(url_for("admin_dashboard"))
+            try:
+                return redirect(url_for("admin_dashboard"))
+            except Exception:
+                return redirect("/admin")
         return redirect(url_for("public.index"))
     return render_template("login.html")
 

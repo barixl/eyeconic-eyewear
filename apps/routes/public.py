@@ -12,17 +12,33 @@ bp = Blueprint("public", __name__)
 @bp.route("/")
 def index():
     try:
-        featured, latest, popular, promo1, promo2 = get_homepage_products()
+        data = get_homepage_products()
+        featured            = data["featured"]
+        latest              = data["latest"]
+        popular             = data["popular"]
+        promo1              = data["promo1"]
+        promo2              = data["promo2"]
+        men_products        = data["men"]
+        women_products      = data["women"]
+        kids_products       = data["kids"]
+        sun_products        = data["sunglasses"]
+        blue_products       = data["blue_light"]
+        optical_products    = data["optical"]
+        
         trending_shapes     = get_trending_shapes()
         featured_categories = get_featured_categories()
     except Exception as e:
         featured = latest = popular = promo1 = promo2 = []
+        men_products = women_products = kids_products = sun_products = blue_products = optical_products = []
         trending_shapes = featured_categories = []
         flash(f"Data loading error: {e}", "error")
     return render_template(
         "index.html",
         featured=featured, latest=latest, popular=popular,
         promo1=promo1, promo2=promo2,
+        men_products=men_products, women_products=women_products,
+        kids_products=kids_products, sun_products=sun_products,
+        blue_products=blue_products, optical_products=optical_products,
         trending_shapes=trending_shapes,
         featured_categories=featured_categories,
     )
@@ -37,16 +53,19 @@ def shop():
     shape           = request.args.get("shape", "").strip()
     page            = max(1, int(request.args.get("page", 1)))
     on_sale         = bool(request.args.get("on_sale", ""))
+    featured        = bool(request.args.get("featured", ""))
     try:
         products, total, total_pages = get_products(
             search=search, categories=selected_cats, brands=selected_brands,
             shape=shape, sort=sort, page=page, per_page=16, on_sale=on_sale,
+            featured=featured,
         )
         all_categories = get_categories()
         all_brands     = get_brands()
+        trending_shapes = get_trending_shapes()
     except Exception as e:
         products, total, total_pages = [], 0, 1
-        all_categories = all_brands = []
+        all_categories = all_brands = trending_shapes = []
         flash(f"Database error: {e}", "error")
 
     # Build parent → children tree for the sidebar accordion
@@ -68,6 +87,7 @@ def shop():
         current_brands=selected_brands,
         current_sort=sort, current_shape=shape,
         on_sale=on_sale,
+        trending_shapes=trending_shapes,
     )
 
 

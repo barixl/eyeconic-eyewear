@@ -124,9 +124,24 @@ def cart_add():
 @bp.route("/cart/remove", methods=["POST"])
 def cart_remove():
     cart = session.get("cart", {})
-    cart.pop(str(request.form.get("product_id", "")), None)
-    session["cart"] = cart
-    flash("Item removed from cart.", "info")
+    item_key = str(request.form.get("product_id", "")).strip()
+    if item_key in cart:
+        cart.pop(item_key)
+        session["cart"] = cart
+        flash("Item removed from cart.", "info")
+    else:
+        # Fallback for complex keys if they were somehow mutated
+        removed = False
+        for key in list(cart.keys()):
+            if str(key).strip() == item_key:
+                cart.pop(key)
+                removed = True
+                break
+        if removed:
+            session["cart"] = cart
+            flash("Item removed from cart.", "info")
+        else:
+            flash("Item not found in cart.", "error")
     return redirect(url_for("cart.view_cart"))
 
 
@@ -142,5 +157,9 @@ def cart_update():
             new_qty = current_qty
         cart[key]["qty"] = max(1, new_qty)
     session["cart"] = cart
+    
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return jsonify({"success": True})
+        
     flash("Cart updated.", "success")
     return redirect(url_for("cart.view_cart"))
