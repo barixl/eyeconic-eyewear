@@ -1,0 +1,241 @@
+<style>
+  /* FOOTER CSS */
+  footer {
+    background: var(--charcoal, #111111);
+    color: rgba(255, 255, 255, 0.65);
+    padding: 6rem 5vw 2.5rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+    gap: 3rem;
+    max-width: 1300px;
+    margin: 0 auto 5rem;
+  }
+
+  .footer-logo {
+    font-family: var(--font-display, 'Playfair Display', serif);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.08em;
+    margin-bottom: 1.2rem;
+    display: block;
+    text-decoration: none;
+  }
+
+  .footer-logo span {
+    color: var(--gold, #C9A455);
+  }
+
+  .footer-tagline {
+    font-size: 0.82rem;
+    line-height: 1.8;
+    max-width: 260px;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 12px;
+    margin-top: 1.8rem;
+  }
+
+  .social-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.55);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+
+  .social-icon:hover {
+    border-color: var(--gold, #C9A455);
+    color: var(--gold, #C9A455);
+  }
+
+  .footer-col h4 {
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+
+  .footer-col ul {
+    list-style: none;
+  }
+
+  .footer-col ul li {
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-col ul li a {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.45);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-col ul li a:hover {
+    color: var(--gold, #C9A455);
+  }
+
+  .footer-newsletter h4 {
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 0.9rem;
+    font-weight: 700;
+  }
+
+  .footer-newsletter p {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    margin-bottom: 1.4rem;
+  }
+
+  .newsletter-form {
+    display: flex;
+  }
+
+  .newsletter-form input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: none;
+    padding: 12px 16px;
+    color: #fff;
+    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-size: 0.8rem;
+    outline: none;
+  }
+
+  .newsletter-form input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .newsletter-form button {
+    background: var(--gold, #C9A455);
+    border: none;
+    color: #fff;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-family: var(--font-body, 'Outfit', sans-serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+
+  .newsletter-form button:hover {
+    background: #b8934e;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding-top: 2.2rem;
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.73rem;
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .footer-bottom a {
+    color: rgba(255, 255, 255, 0.25);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-bottom a:hover {
+    color: var(--gold, #C9A455);
+  }
+
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      text-align: center;
+    }
+    .footer-tagline {
+      margin: 0 auto 1.2rem;
+    }
+    .footer-social {
+      justify-content: center;
+    }
+    .newsletter-form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  }
+</style>
+
+<footer>
+  <div class="footer-grid">
+    <div><a href="{{ url_for('public.index') }}" class="footer-logo">CHASMA<span>GALLERY</span></a>
+      <p class="footer-tagline">Elevate your style and protect your vision with premium eyewear crafted for every
+        face, every moment, every you.</p>
+      <div class="footer-social"><a href="#" class="social-icon">IG</a><a href="#" class="social-icon">FB</a><a
+          href="#" class="social-icon">YT</a><a href="#" class="social-icon">PI</a></div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="{{ url_for('public.shop', category='eye-glasses') }}">Eye Glasses</a></li>
+        <li><a href="{{ url_for('public.shop', category='sunglasses') }}">Sunglasses</a></li>
+        <li><a href="{{ url_for('public.shop') }}">Collections</a></li>
+        <li><a href="{{ url_for('public.shop', on_sale='1') }}">Sale</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <ul>
+        <li><a href="{{ url_for('auth.account') }}">Track Order</a></li>
+        <li><a href="{{ url_for('public.contact') }}">Returns</a></li>
+        <li><a href="{{ url_for('public.contact') }}">Shipping</a></li>
+        <li><a href="{{ url_for('public.contact') }}">FAQs</a></li>
+        <li><a href="{{ url_for('public.contact') }}">Warranty</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>About</h4>
+      <ul>
+        <li><a href="{{ url_for('public.about') }}">Our Story</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Stores</a></li>
+        <li><a href="{{ url_for('public.contact') }}">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-newsletter">
+      <h4>Stay in the Loop</h4>
+      <p>Subscribe for exclusive offers and new arrivals.</p>
+      <form class="newsletter-form" action="{{ url_for('public.subscribe') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 ChasmaGallery. All Rights Reserved.</span>
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;"><a href="#">Privacy Policy</a><a href="#">Terms</a><a
+        href="{{ url_for('public.about') }}">About</a></div>
+  </div>
+</footer>

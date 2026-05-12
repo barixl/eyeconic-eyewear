@@ -183,49 +183,7 @@
 </head>
 <body>
 
-  <!-- NAVBAR -->
-  <nav>
-    <a href="{{ url_for('public.index') }}" class="nav-logo">CHASMA<span>GALLERY</span><small>Eyewear</small></a>
-    <ul class="nav-links">
-      <li><a href="{{ url_for('public.shop', category='men') }}">Men</a></li>
-      <li><a href="{{ url_for('public.shop', category='women') }}">Women</a></li>
-      <li><a href="{{ url_for('public.shop', category='kids') }}">Kids</a></li>
-      <li><a href="{{ url_for('public.shop', category='sunglasses') }}">Sunglasses</a></li>
-      <li><a href="{{ url_for('public.shop') }}">Collections</a></li>
-    </ul>
-    <div class="nav-icons">
-      <a href="{{ url_for('auth.account') if current_user else url_for('auth.login') }}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-        </svg>
-      </a>
-      <a href="{{ url_for('cart.view_cart') }}" style="position:relative;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-        {% if session.get('cart') %}
-          {% set cnt = namespace(val=0) %}
-          {% for k,v in session.get('cart').items() %}{% set cnt.val = cnt.val + v.qty %}{% endfor %}
-          {% if cnt.val > 0 %}<span class="cart-badge">{{ cnt.val }}</span>{% endif %}
-        {% endif %}
-      </a>
-    </div>
-    <button class="hamburger" id="hamburger2"><span></span><span></span><span></span></button>
-  </nav>
-  <div class="mobile-overlay" id="mobile-overlay"></div>
-  <div class="mobile-nav" id="mobile-nav">
-    <div style="font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; font-weight: 700;">Menu</div>
-    <a href="{{ url_for('public.index') }}">Home</a>
-    <a href="{{ url_for('public.shop', category='eye-glasses') }}">Eye Glasses</a>
-    <a href="{{ url_for('public.shop', category='sunglasses') }}">Sunglasses</a>
-    <a href="{{ url_for('public.shop') }}">Collections</a>
-    <a href="{{ url_for('public.shop', on_sale='1') }}">Sale</a>
-    <div style="margin-top: auto; padding-top: 2rem;">
-      <a href="{{ url_for('auth.account') if current_user else url_for('auth.login') }}" style="font-size: 1rem; border: none;">
-        {{ 'My Account' if current_user else 'Login / Register' }}
-      </a>
-    </div>
-  </div>
+  {% include 'partials/_navbar.html' %}
 
 
   <!-- PRODUCT LAYOUT -->
@@ -358,45 +316,7 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-grid">
-      <div>
-        <a href="{{ url_for('public.index') }}" class="footer-logo">CHASMA<span>GALLERY</span></a>
-        <p class="footer-tagline">Elevate your style and protect your vision with premium eyewear crafted for every face, every moment, every you.</p>
-        <div class="footer-social"><a href="#" class="social-icon">IG</a><a href="#" class="social-icon">FB</a><a href="#" class="social-icon">YT</a></div>
-      </div>
-      <div class="footer-col">
-        <h4>Shop</h4>
-        <ul>
-          <li><a href="{{ url_for('public.shop', category='eye-glasses') }}">Eye Glasses</a></li>
-          <li><a href="{{ url_for('public.shop', category='sunglasses') }}">Sunglasses</a></li>
-          <li><a href="{{ url_for('public.shop') }}">Collections</a></li>
-          <li><a href="{{ url_for('public.shop', on_sale='1') }}">Sale</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Help</h4>
-        <ul>
-          <li><a href="{{ url_for('auth.account') }}">Track Order</a></li>
-          <li><a href="{{ url_for('public.contact') }}">Returns</a></li>
-          <li><a href="{{ url_for('public.contact') }}">Shipping</a></li>
-          <li><a href="{{ url_for('public.contact') }}">FAQs</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>About</h4>
-        <ul>
-          <li><a href="{{ url_for('public.about') }}">Our Story</a></li>
-          <li><a href="{{ url_for('public.contact') }}">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>&copy; 2025 ChasmaGallery. All Rights Reserved.</span>
-      <div style="display:flex;gap:1.5rem;flex-wrap:wrap;"><a href="#">Privacy Policy</a><a href="#">Terms</a><a href="{{ url_for('public.about') }}">About</a></div>
-    </div>
-  </footer>
+  {% include 'partials/_footer.html' %}
 
   <!-- SCRIPTS -->
   <script>
@@ -441,22 +361,7 @@
         if (match) document.getElementById('cartVariationId').value = match.id;
       }
     }
-    // Mobile nav — side drawer
-    const ham = document.getElementById('hamburger2');
-    const mobileNav = document.getElementById('mobile-nav');
-    const mobileOverlay = document.getElementById('mobile-overlay');
-    let navOpen = false;
-    function toggleNav() {
-      navOpen = !navOpen;
-      mobileNav.classList.toggle('open', navOpen);
-      mobileOverlay.classList.toggle('open', navOpen);
-      document.body.style.overflow = navOpen ? 'hidden' : '';
-      const spans = ham.querySelectorAll('span');
-      if (navOpen) { spans[0].style.transform = 'translateY(6.5px) rotate(45deg)'; spans[1].style.opacity = '0'; spans[2].style.transform = 'translateY(-6.5px) rotate(-45deg)'; }
-      else { spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; }); }
-    }
-    ham.addEventListener('click', toggleNav);
-    mobileOverlay.addEventListener('click', toggleNav);
+
   </script>
 </body>
 </html>
