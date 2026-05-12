@@ -204,40 +204,7 @@
       transition: all 0.3s;
     }
 
-    .mobile-nav {
-      display: none;
-      position: fixed;
-      top: var(--nav-h);
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--warm-white);
-      z-index: 999;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
 
-    .mobile-nav.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .mobile-nav a {
-      font-family: var(--font-display);
-      font-size: clamp(2rem, 6vw, 3rem);
-      font-weight: 700;
-      color: var(--charcoal);
-      text-decoration: none;
-    }
-
-    .mobile-nav a:hover {
-      color: var(--gold);
-    }
 
     /* DESKTOP HERO */
     .hero-desktop {
@@ -1564,6 +1531,54 @@
       color: var(--gold);
     }
 
+    .mobile-nav {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100%;
+      background: #fff;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      padding: 5rem 2rem 2rem;
+      transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -10px 0 40px rgba(0,0,0,0.1);
+    }
+    .mobile-nav.open {
+      right: 0;
+    }
+    .mobile-nav a {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      text-decoration: none;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    .mobile-nav a:last-child {
+      border-bottom: none;
+    }
+    .mobile-nav a:hover {
+      color: var(--gold);
+    }
+
+    .mobile-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      z-index: 1999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .mobile-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 900px) {
       .hero-desktop {
@@ -1613,20 +1628,22 @@
         display: flex;
       }
 
-      .mobile-nav {
-        display: flex;
-      }
 
-      .hero-price-tag {
-        display: none;
-      }
 
       .footer-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        text-align: center;
       }
-
-      .insta-grid {
-        grid-template-columns: repeat(3, 1fr);
+      .footer-tagline {
+        margin: 0 auto 1.2rem;
+      }
+      .footer-social {
+        justify-content: center;
+      }
+      .newsletter-form {
+        max-width: 400px;
+        margin: 0 auto;
       }
 
       .insta-item:nth-child(n+4) {
@@ -1816,11 +1833,20 @@
     </div>
     <button class="hamburger" id="hamburger2"><span></span><span></span><span></span></button>
   </nav>
+  <div class="mobile-overlay" id="mobile-overlay"></div>
   <div class="mobile-nav" id="mobile-nav">
+    <div style="font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; font-weight: 700;">Menu</div>
+    <a href="{{ url_for('public.index') }}">Home</a>
     <a href="{{ url_for('public.shop', category='eye-glasses') }}">Eye Glasses</a>
     <a href="{{ url_for('public.shop', category='sunglasses') }}">Sunglasses</a>
     <a href="{{ url_for('public.shop') }}">Collections</a>
     <a href="{{ url_for('public.shop', on_sale='1') }}">Sale</a>
+    
+    <div style="margin-top: auto; padding-top: 2rem;">
+        <a href="{{ url_for('auth.account') if current_user else url_for('auth.login') }}" style="font-size: 1rem; border: none;">
+            {{ 'My Account' if current_user else 'Login / Register' }}
+        </a>
+    </div>
   </div>
 
 
@@ -1892,12 +1918,16 @@
     // Mobile nav toggle
     const ham = document.getElementById('hamburger2');
     const mobileNav = document.getElementById('mobile-nav');
-    if (ham && mobileNav) {
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    
+    if (ham && mobileNav && mobileOverlay) {
       let navOpen = false;
-      ham.addEventListener('click', () => {
+      const toggleNav = () => {
         navOpen = !navOpen;
         mobileNav.classList.toggle('open', navOpen);
+        mobileOverlay.classList.toggle('open', navOpen);
         document.body.style.overflow = navOpen ? 'hidden' : '';
+        
         const spans = ham.querySelectorAll('span');
         if (navOpen) {
           spans[0].style.transform = 'translateY(6.5px) rotate(45deg)';
@@ -1906,7 +1936,10 @@
         } else {
           spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
         }
-      });
+      };
+
+      ham.addEventListener('click', toggleNav);
+      mobileOverlay.addEventListener('click', toggleNav);
     }
 
     // Flash auto-dismiss

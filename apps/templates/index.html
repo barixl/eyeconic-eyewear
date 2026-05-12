@@ -129,7 +129,7 @@
       background: #fff;
       width: 240px;
       border-color: var(--gold);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     .search-box svg {
@@ -226,38 +226,51 @@
     }
 
     .mobile-nav {
-      display: none;
       position: fixed;
-      top: var(--nav-h);
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--warm-white);
-      z-index: 999;
+      top: 0;
+      right: -300px;
+      width: 300px;
+      height: 100%;
+      background: #fff;
+      z-index: 2000;
+      display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
+      padding: 5rem 2rem 2rem;
+      transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -10px 0 40px rgba(0,0,0,0.1);
     }
-
     .mobile-nav.open {
-      opacity: 1;
-      pointer-events: all;
+      right: 0;
     }
-
     .mobile-nav a {
       font-family: var(--font-display);
-      font-size: clamp(2rem, 6vw, 3rem);
-      font-weight: 700;
+      font-size: 1.5rem;
+      font-weight: 600;
       color: var(--charcoal);
       text-decoration: none;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--light-gray);
     }
-
+    .mobile-nav a:last-child {
+      border-bottom: none;
+    }
     .mobile-nav a:hover {
       color: var(--gold);
+    }
+
+    .mobile-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      z-index: 1999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .mobile-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     /* DESKTOP HERO */
@@ -826,7 +839,7 @@
       align-items: center;
       padding: 0;
       cursor: pointer;
-      border: 1px solid rgba(0,0,0,0.05);
+      border: 1px solid rgba(0, 0, 0, 0.05);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border-radius: 12px;
       background: #fff;
@@ -1638,8 +1651,20 @@
         display: flex;
       }
 
-      .mobile-nav {
-        display: flex;
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        text-align: center;
+      }
+      .footer-tagline {
+        margin: 0 auto 1.2rem;
+      }
+      .footer-social {
+        justify-content: center;
+      }
+      .newsletter-form {
+        max-width: 400px;
+        margin: 0 auto;
       }
 
       .hero-price-tag {
@@ -1787,11 +1812,19 @@
     </div>
     <button class="hamburger" id="hamburger2"><span></span><span></span><span></span></button>
   </nav>
+  <div class="mobile-overlay" id="mobile-overlay"></div>
   <div class="mobile-nav" id="mobile-nav">
+    <div style="font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; font-weight: 700;">Menu</div>
+    <a href="{{ url_for('public.index') }}">Home</a>
     <a href="{{ url_for('public.shop', category='eye-glasses') }}">Eye Glasses</a>
     <a href="{{ url_for('public.shop', category='sunglasses') }}">Sunglasses</a>
     <a href="{{ url_for('public.shop') }}">Collections</a>
     <a href="{{ url_for('public.shop', on_sale='1') }}">Sale</a>
+    <div style="margin-top: auto; padding-top: 2rem;">
+      <a href="{{ url_for('auth.account') if current_user else url_for('auth.login') }}" style="font-size: 1rem; border: none;">
+        {{ 'My Account' if current_user else 'Login / Register' }}
+      </a>
+    </div>
   </div>
 
   <!-- DESKTOP HERO -->
@@ -1943,42 +1976,54 @@
     <div class="section-line"></div>
     <div class="cat-grid-desktop">
       <div class="cat-card" onclick="window.location.href='{{ url_for('public.shop', category='men') }}'">
-        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80&auto=format&fit=crop&crop=face"
+        <img
+          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80&auto=format&fit=crop&crop=face"
           alt="Men">
         <div class="cat-overlay"></div>
-        <div class="cat-label"><strong>Men</strong><a href="{{ url_for('public.shop', category='men') }}">Explore Now</a></div>
+        <div class="cat-label"><strong>Men</strong><a href="{{ url_for('public.shop', category='men') }}">Explore
+            Now</a></div>
       </div>
       <div class="cat-card" onclick="window.location.href='{{ url_for('public.shop', category='women') }}'">
-        <img src="https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?w=500&q=80&auto=format&fit=crop&crop=face"
+        <img
+          src="https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?w=500&q=80&auto=format&fit=crop&crop=face"
           alt="Women">
         <div class="cat-overlay"></div>
-        <div class="cat-label"><strong>Women</strong><a href="{{ url_for('public.shop', category='women') }}">Explore Now</a></div>
+        <div class="cat-label"><strong>Women</strong><a href="{{ url_for('public.shop', category='women') }}">Explore
+            Now</a></div>
       </div>
       <div class="cat-card" onclick="window.location.href='{{ url_for('public.shop', category='kids') }}'">
-        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=500&q=80&auto=format&fit=crop&crop=face"
+        <img
+          src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=500&q=80&auto=format&fit=crop&crop=face"
           alt="Kids">
         <div class="cat-overlay"></div>
-        <div class="cat-label"><strong>Kids</strong><a href="{{ url_for('public.shop', category='kids') }}">Explore Now</a></div>
+        <div class="cat-label"><strong>Kids</strong><a href="{{ url_for('public.shop', category='kids') }}">Explore
+            Now</a></div>
       </div>
     </div>
     <div class="cat-scroll-mobile" id="cat-scroll">
       <div class="cat-card" onclick="window.location.href='{{ url_for('public.shop', category='men') }}'">
-        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80&auto=format&fit=crop&crop=face"
+        <img
+          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80&auto=format&fit=crop&crop=face"
           alt="Men">
         <div class="cat-overlay"></div>
-        <div class="cat-label"><strong>Men</strong><a href="{{ url_for('public.shop', category='men') }}">Explore</a></div>
+        <div class="cat-label"><strong>Men</strong><a href="{{ url_for('public.shop', category='men') }}">Explore</a>
+        </div>
       </div>
       <div class="cat-card" onclick="window.location.href='{{ url_for('public.shop', category='women') }}'">
-        <img src="https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?w=500&q=80&auto=format&fit=crop&crop=face"
+        <img
+          src="https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?w=500&q=80&auto=format&fit=crop&crop=face"
           alt="Women">
         <div class="cat-overlay"></div>
-        <div class="cat-label"><strong>Women</strong><a href="{{ url_for('public.shop', category='women') }}">Explore</a></div>
+        <div class="cat-label"><strong>Women</strong><a
+            href="{{ url_for('public.shop', category='women') }}">Explore</a></div>
       </div>
       <div class="cat-card" onclick="window.location.href='{{ url_for('public.shop', category='kids') }}'">
-        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=500&q=80&auto=format&fit=crop&crop=face"
+        <img
+          src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=500&q=80&auto=format&fit=crop&crop=face"
           alt="Kids">
         <div class="cat-overlay"></div>
-        <div class="cat-label"><strong>Kids</strong><a href="{{ url_for('public.shop', category='kids') }}">Explore</a></div>
+        <div class="cat-label"><strong>Kids</strong><a href="{{ url_for('public.shop', category='kids') }}">Explore</a>
+        </div>
       </div>
     </div>
   </section>
@@ -2024,23 +2069,25 @@
     <div class="products-grid-2">
       {% for p in featured %}
       <div class="product-card">
-        <div class="product-img" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
+        <div class="product-img"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
           <img src="{{ p.image_url }}" alt="{{ p.name }}">
           <button class="product-wish">♡</button>
           {% if p.sale_price and p.price > 0 %}
-            {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
-            {% if discount > 0 %}
-              <div class="product-badge">-{{ discount }}%</div>
-            {% endif %}
+          {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
+          {% if discount > 0 %}
+          <div class="product-badge">-{{ discount }}%</div>
+          {% endif %}
           {% endif %}
         </div>
-        <div class="product-name" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
+        <div class="product-name"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
         <div class="product-pricing">
           {% if p.sale_price %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
-            <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
+          <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% else %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% endif %}
         </div>
       </div>
@@ -2050,7 +2097,8 @@
       </div>
       {% endfor %}
     </div>
-    <div class="section-top-bar"><a href="{{ url_for('public.shop', featured=1) }}" class="view-all">View All Best Sellers</a></div>
+    <div class="section-top-bar"><a href="{{ url_for('public.shop', featured=1) }}" class="view-all">View All Best
+        Sellers</a></div>
   </section>
 
   <!-- TRUST STATS -->
@@ -2099,27 +2147,30 @@
     <div class="products-grid-2">
       {% for p in men_products %}
       <div class="product-card">
-        <div class="product-img" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
+        <div class="product-img"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
           <img src="{{ p.image_url }}" alt="{{ p.name }}">
           <button class="product-wish">♡</button>
           {% if p.sale_price and p.price > 0 %}
-            {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
-            {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
+          {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
+          {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
           {% endif %}
         </div>
-        <div class="product-name" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
+        <div class="product-name"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
         <div class="product-pricing">
           {% if p.sale_price %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
-            <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
+          <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% else %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% endif %}
         </div>
       </div>
       {% endfor %}
     </div>
-    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='men') }}" class="view-all">View All Men's</a></div>
+    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='men') }}" class="view-all">View All
+        Men's</a></div>
   </section>
 
   <!-- WOMEN'S EYEWEAR -->
@@ -2136,27 +2187,30 @@
     <div class="products-grid-2">
       {% for p in women_products %}
       <div class="product-card">
-        <div class="product-img" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
+        <div class="product-img"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
           <img src="{{ p.image_url }}" alt="{{ p.name }}">
           <button class="product-wish">♡</button>
           {% if p.sale_price and p.price > 0 %}
-            {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
-            {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
+          {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
+          {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
           {% endif %}
         </div>
-        <div class="product-name" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
+        <div class="product-name"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
         <div class="product-pricing">
           {% if p.sale_price %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
-            <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
+          <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% else %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% endif %}
         </div>
       </div>
       {% endfor %}
     </div>
-    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='women') }}" class="view-all">View All Women's</a></div>
+    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='women') }}" class="view-all">View All
+        Women's</a></div>
   </section>
 
   <!-- KIDS EYEWEAR -->
@@ -2171,27 +2225,30 @@
     <div class="products-grid-2">
       {% for p in kids_products %}
       <div class="product-card">
-        <div class="product-img" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
+        <div class="product-img"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
           <img src="{{ p.image_url }}" alt="{{ p.name }}">
           <button class="product-wish">♡</button>
           {% if p.sale_price and p.price > 0 %}
-            {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
-            {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
+          {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
+          {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
           {% endif %}
         </div>
-        <div class="product-name" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
+        <div class="product-name"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
         <div class="product-pricing">
           {% if p.sale_price %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
-            <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
+          <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% else %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% endif %}
         </div>
       </div>
       {% endfor %}
     </div>
-    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='kids') }}" class="view-all">View All Kids'</a></div>
+    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='kids') }}" class="view-all">View All
+        Kids'</a></div>
   </section>
 
   <!-- BLUE LIGHT GLASSES SECTION -->
@@ -2206,27 +2263,30 @@
     <div class="products-grid-2">
       {% for p in blue_products %}
       <div class="product-card">
-        <div class="product-img" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
+        <div class="product-img"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
           <img src="{{ p.image_url }}" alt="{{ p.name }}">
           <button class="product-wish">♡</button>
           {% if p.sale_price and p.price > 0 %}
-            {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
-            {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
+          {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
+          {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
           {% endif %}
         </div>
-        <div class="product-name" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
+        <div class="product-name"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
         <div class="product-pricing">
           {% if p.sale_price %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
-            <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
+          <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% else %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% endif %}
         </div>
       </div>
       {% endfor %}
     </div>
-    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='blue-light') }}" class="view-all">View All</a></div>
+    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='blue-light') }}" class="view-all">View
+        All</a></div>
   </section>
 
   <!-- SUNGLASSES -->
@@ -2241,27 +2301,30 @@
     <div class="products-grid-2">
       {% for p in sun_products %}
       <div class="product-card">
-        <div class="product-img" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
+        <div class="product-img"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
           <img src="{{ p.image_url }}" alt="{{ p.name }}">
           <button class="product-wish">♡</button>
           {% if p.sale_price and p.price > 0 %}
-            {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
-            {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
+          {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
+          {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
           {% endif %}
         </div>
-        <div class="product-name" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
+        <div class="product-name"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
         <div class="product-pricing">
           {% if p.sale_price %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
-            <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
+          <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% else %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% endif %}
         </div>
       </div>
       {% endfor %}
     </div>
-    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='sunglasses') }}" class="view-all">View All Sunglasses</a></div>
+    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='sunglasses') }}" class="view-all">View All
+        Sunglasses</a></div>
   </section>
 
   <!-- EYEGLASSES / OPTICAL -->
@@ -2276,27 +2339,30 @@
     <div class="products-grid-2">
       {% for p in optical_products %}
       <div class="product-card">
-        <div class="product-img" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
+        <div class="product-img"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
           <img src="{{ p.image_url }}" alt="{{ p.name }}">
           <button class="product-wish">♡</button>
           {% if p.sale_price and p.price > 0 %}
-            {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
-            {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
+          {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
+          {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
           {% endif %}
         </div>
-        <div class="product-name" onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
+        <div class="product-name"
+          onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">{{ p.name }}</div>
         <div class="product-pricing">
           {% if p.sale_price %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
-            <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.sale_price) }}</span>
+          <span class="product-old">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% else %}
-            <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
+          <span class="product-price">₹{{ "{:,.0f}".format(p.price) }}</span>
           {% endif %}
         </div>
       </div>
       {% endfor %}
     </div>
-    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='eyeglasses') }}" class="view-all">View All Eyeglasses</a></div>
+    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='eyeglasses') }}" class="view-all">View All
+        Eyeglasses</a></div>
   </section>
 
   <!-- POLICY -->
@@ -2665,18 +2731,22 @@
     }
     checkMobile(); window.addEventListener('resize', checkMobile);
 
-    // Mobile nav
+    // Mobile nav — side drawer
     const ham = document.getElementById('hamburger2');
     const mobileNav = document.getElementById('mobile-nav');
+    const mobileOverlay = document.getElementById('mobile-overlay');
     let navOpen = false;
-    ham.addEventListener('click', () => {
+    function toggleNav() {
       navOpen = !navOpen;
       mobileNav.classList.toggle('open', navOpen);
+      mobileOverlay.classList.toggle('open', navOpen);
       document.body.style.overflow = navOpen ? 'hidden' : '';
       const spans = ham.querySelectorAll('span');
       if (navOpen) { spans[0].style.transform = 'translateY(6.5px) rotate(45deg)'; spans[1].style.opacity = '0'; spans[2].style.transform = 'translateY(-6.5px) rotate(-45deg)'; }
       else { spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; }); }
-    });
+    }
+    ham.addEventListener('click', toggleNav);
+    mobileOverlay.addEventListener('click', toggleNav);
 
     // Wishlist
     document.querySelectorAll('.product-wish').forEach(btn => {
