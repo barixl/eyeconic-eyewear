@@ -89,6 +89,12 @@
   .status-shipped { background:rgba(167,139,250,0.15); color:#a78bfa; }
   .status-delivered { background:rgba(34,197,94,0.15); color:#22c55e; }
   .status-cancelled { background:rgba(239,68,68,0.15); color:#ef4444; }
+
+  @media (max-width: 600px) {
+    .success-details-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
 </style>
 {% endblock %}
 
@@ -112,7 +118,7 @@
     </div>
   </div>
 
-  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+  <div class="success-details-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
 
     <!-- Order Details -->
     <div class="glass section-fade" style="border-radius:1.25rem; padding:1.5rem;">

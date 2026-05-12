@@ -1,8 +1,31 @@
 {% extends 'eyeconic_base.html' %}
 {% block title %}My Account – ChasmaGallery{% endblock %}
 {% block content %}
+<style>
+  .account-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 4rem;
+    align-items: start;
+  }
+  .order-table-wrap {
+    overflow-x: auto;
+  }
+  @media (max-width: 960px) {
+    .account-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+    .account-header {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 1.5rem;
+    }
+  }
+</style>
+
 <div style="max-width:1100px; margin:0 auto; padding:3rem 5vw 6rem;">
-  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3rem; border-bottom:1px solid var(--light-gray); padding-bottom:1.5rem;">
+  <div class="account-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3rem; border-bottom:1px solid var(--light-gray); padding-bottom:1.5rem;">
     <div>
       <h1 style="font-family:var(--font-display); font-size:2.4rem; color:var(--charcoal);">My Account</h1>
       <p style="color:var(--mid-gray); margin-top:0.5rem;">Hello, {{ current_user.first_name }}! Welcome back.</p>
@@ -10,11 +33,12 @@
     <a href="{{ url_for('auth.logout') }}" style="color:#ef4444; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; text-decoration:none;">Sign Out</a>
   </div>
 
-  <div style="display:grid; grid-template-columns:1fr 280px; gap:4rem; align-items:start;">
+  <div class="account-grid">
     <div>
       <h3 style="font-family:var(--font-display); font-size:1.4rem; margin-bottom:1.5rem;">Recent Orders</h3>
       {% if orders %}
-        <table style="width:100%; border-collapse:collapse;">
+        <div class="order-table-wrap">
+          <table style="width:100%; border-collapse:collapse; min-width: 600px;">
           <thead>
             <tr>
               <th style="text-align:left; font-size:0.68rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid-gray); padding:1rem 0; border-bottom:1.5px solid var(--light-gray);">Order #</th>
@@ -43,6 +67,7 @@
             {% endfor %}
           </tbody>
         </table>
+        </div>
       {% else %}
         <div style="background:var(--cream); padding:3rem; text-align:center; border:1px dashed var(--light-gray);">
           <p style="color:var(--mid-gray); font-size:0.9rem;">You haven't placed any orders yet.</p>
