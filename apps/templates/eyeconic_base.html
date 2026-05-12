@@ -1750,16 +1750,21 @@
 
 <body>
 
+  <style>
+    .flash-container { position:fixed; top:80px; right:1rem; z-index:9999; display:flex; flex-direction:column; gap:0.5rem; max-width:360px; }
+    .flash-msg { padding:0.9rem 1.25rem; border-radius:4px; display:flex; justify-content:space-between; align-items:center; gap:1rem; background:#fff; box-shadow:0 4px 20px rgba(0,0,0,0.12); border-left:3px solid var(--gold); }
+    .flash-msg.error   { border-left-color: #ef4444; }
+    .flash-msg.success { border-left-color: #22c55e; }
+  </style>
+
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-  <div
-    style="position:fixed;top:80px;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;max-width:360px;">
+  <div class="flash-container">
     {% for category, message in messages %}
-    <div
-      style="padding:0.9rem 1.25rem;border-radius:4px;display:flex;justify-content:space-between;align-items:center;gap:1rem;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.12);{% if category == 'error' %}border-left:3px solid #ef4444;{% elif category == 'success' %}border-left:3px solid #22c55e;{% else %}border-left:3px solid var(--gold);{% endif %}">
-      <span style="font-size:0.88rem;color:var(--charcoal);">{{ message }}</span>
+    <div class="flash-msg {{ category }}">
+      <span style="font-size:0.88rem; color:var(--charcoal);">{{ message }}</span>
       <button onclick="this.parentElement.remove()"
-        style="background:none;border:none;color:var(--mid-gray);cursor:pointer;font-size:1.1rem;line-height:1;flex-shrink:0;">&#215;</button>
+        style="background:none; border:none; color:var(--mid-gray); cursor:pointer; font-size:1.1rem; line-height:1; flex-shrink:0;">&times;</button>
     </div>
     {% endfor %}
   </div>
@@ -1910,6 +1915,12 @@
     }, 5000);
   </script>
   {% block extra_js %}{% endblock %}
+  <script>
+    function imgError(img) {
+      img.onerror = null;
+      img.src = '/static/images/placeholder.png';
+    }
+  </script>
 </body>
 
 </html>
