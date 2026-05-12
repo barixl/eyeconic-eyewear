@@ -95,6 +95,9 @@
       grid-template-columns: 1fr !important;
     }
   }
+
+  .pay-status-paid { color: #22c55e; }
+  .pay-status-pending { color: #fbbf24; }
 </style>
 {% endblock %}
 
@@ -133,7 +136,7 @@
       </div>
       <div class="order-detail-row">
         <span style="color:var(--text-muted);">Payment Status</span>
-        <span style="font-weight:600; font-size:0.85rem; color:{% if order.payment_status == 'paid' %}#22c55e{% else %}#fbbf24{% endif %};">
+        <span style="font-weight:600; font-size:0.85rem;" class="{% if order.payment_status == 'paid' %}pay-status-paid{% else %}pay-status-pending{% endif %}">
           {{ (order.payment_status or 'pending') | title }}
         </span>
       </div>
@@ -168,7 +171,7 @@
       <div style="width:56px; height:56px; background:white; border-radius:0.5rem; overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:0.25rem;">
         <img src="{{ resolve_image(item.image_url) }}" alt="{{ item.product_name_snapshot or item.product_name }}"
              style="width:100%; height:100%; object-fit:contain;"
-             onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
+             onerror='this.src="{{ url_for("static", filename="images/placeholder.png") }}"' />
       </div>
       <div style="flex:1;">
         <div style="font-weight:600; font-size:0.95rem;">{{ item.product_name_snapshot or item.product_name or 'Product' }}</div>

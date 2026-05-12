@@ -22,6 +22,17 @@
       gap: 1.5rem;
     }
   }
+
+  .status-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+  .status-delivered { background: #E8F5E9; color: #2E7D32; }
+  .status-cancelled { background: #FFEBEE; color: #C62828; }
+  .status-default { background: var(--cream); color: var(--gold); }
 </style>
 
 <div style="max-width:1100px; margin:0 auto; padding:3rem 5vw 6rem;">
@@ -55,10 +66,7 @@
               <td style="padding:1.25rem 0; color:var(--mid-gray); font-size:0.88rem;">{{ o.created_at.strftime('%d %b %Y') }}</td>
               <td style="padding:1.25rem 0; font-weight:600; font-size:0.88rem;">₹{{ "%.0f"|format(o.total_amount) }}</td>
               <td style="padding:1.25rem 0;">
-                <span style="font-size:0.65rem; font-weight:700; text-transform:uppercase; padding:4px 10px; border-radius:100px; 
-                  {% if o.status == 'delivered' %} background:#E8F5E9; color:#2E7D32; 
-                  {% elif o.status == 'cancelled' %} background:#FFEBEE; color:#C62828;
-                  {% else %} background:var(--cream); color:var(--gold); {% endif %}">{{ o.status }}</span>
+                <span class="status-badge {% if o.status == 'delivered' %}status-delivered{% elif o.status == 'cancelled' %}status-cancelled{% else %}status-default{% endif %}">{{ o.status }}</span>
               </td>
               <td style="padding:1.25rem 0; text-align:right;">
                 <a href="{{ url_for('public.order_detail', order_id=o.id) }}" style="color:var(--charcoal); font-size:0.75rem; font-weight:700; text-decoration:none; border-bottom:1.5px solid var(--gold);">View Details</a>
