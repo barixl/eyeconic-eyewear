@@ -1462,8 +1462,8 @@
 
     .insta-grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 0.4rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
       max-width: 1300px;
       margin: 0 auto 2.5rem;
     }
@@ -1771,11 +1771,8 @@
       }
 
       .insta-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .insta-item:nth-child(n+4) {
-        display: none;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
       }
     }
 
@@ -1810,7 +1807,7 @@
       }
 
       .insta-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
       }
 
       .footer-grid {
@@ -2631,40 +2628,28 @@
 
   <!-- INSTAGRAM -->
   <section class="insta-bg" style="padding-bottom:clamp(4rem,8vw,8rem);">
-    <p class="section-label">Follow Us @eyeconic</p>
+    <p class="section-label">Follow Us @eyeconiceyewear01</p>
     <h2 class="section-title">Be Part of the Community</h2>
     <div class="section-line"></div>
     <div class="insta-grid">
-      <div class="insta-item"><img
-          src="https://images.unsplash.com/photo-1556306535-0f09a537f0a3?w=400&q=75&auto=format&fit=crop" alt="style 1">
+      <div class="insta-item">
+        <img src="{{ url_for('static', filename='images/1.jpg') }}" alt="Community style 1">
         <div class="insta-overlay"><span class="insta-icon">♡</span></div>
       </div>
-      <div class="insta-item"><img
-          src="https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?w=400&q=75&auto=format&fit=crop"
-          alt="style 2">
+      <div class="insta-item">
+        <img src="{{ url_for('static', filename='images/2.jpg') }}" alt="Community style 2">
         <div class="insta-overlay"><span class="insta-icon">♡</span></div>
       </div>
-      <div class="insta-item"><img
-          src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&q=75&auto=format&fit=crop"
-          alt="style 3">
+      <div class="insta-item">
+        <img src="{{ url_for('static', filename='images/3.jpg') }}" alt="Community style 3">
         <div class="insta-overlay"><span class="insta-icon">♡</span></div>
       </div>
-      <div class="insta-item"><img
-          src="https://images.unsplash.com/photo-1587502537745-84b86da1204f?w=400&q=75&auto=format&fit=crop"
-          alt="style 4">
-        <div class="insta-overlay"><span class="insta-icon">♡</span></div>
-      </div>
-      <div class="insta-item"><img
-          src="https://images.unsplash.com/photo-1578632749014-ca77f29ead4c?w=400&q=75&auto=format&fit=crop"
-          alt="style 5">
-        <div class="insta-overlay"><span class="insta-icon">♡</span></div>
-      </div>
-      <div class="insta-item"><img
-          src="https://images.unsplash.com/photo-1543872084-c7bd3822856f?w=400&q=75&auto=format&fit=crop" alt="style 6">
+      <div class="insta-item">
+        <img src="{{ url_for('static', filename='images/4.jpg') }}" alt="Community style 4">
         <div class="insta-overlay"><span class="insta-icon">♡</span></div>
       </div>
     </div>
-    <div style="text-align:center;"><a href="https://instagram.com" target="_blank" class="btn-primary"
+    <div style="text-align:center;"><a href="https://www.instagram.com/eyeconiceyewear01" target="_blank" class="btn-primary"
         style="display:inline-block;">View More on Instagram</a></div>
   </section>
 
