@@ -229,7 +229,9 @@
 
 <!-- NAV HTML -->
 <nav id="main-nav">
-  <a href="{{ url_for('public.index') }}" class="nav-logo">CHASMA<span>GALLERY</span><small>Eyewear</small></a>
+  <a href="{{ url_for('public.index') }}" class="nav-logo">
+    <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="EyeConic Eyewear" style="height: 50px; width: auto; object-fit: contain;">
+  </a>
   <ul class="nav-links">
     <li><a href="{{ url_for('public.shop', category='eye-glasses') }}">Eye Glasses</a></li>
     <li><a href="{{ url_for('public.shop', category='sunglasses') }}">Sunglasses</a></li>

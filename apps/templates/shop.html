@@ -1,7 +1,7 @@
 {% extends 'eyeconic_base.html' %}
 
-{% block title %}Shop Eyewear Online – ChasmaGallery Sitapur{% endblock %}
-{% block meta_description %}Browse our full collection of eyewear, sunglasses, prescription glasses and contact lenses. Order online from ChasmaGallery – Sitapur's trusted optical store delivering across UP and India.{% endblock %}
+{% block title %}Shop Eyewear Online – EyeConic Sitapur{% endblock %}
+{% block meta_description %}Browse our full collection of eyewear, sunglasses, prescription glasses and contact lenses. Order online from EyeConic – Sitapur's trusted optical store delivering across UP and India.{% endblock %}
 {% block meta_keywords %}buy eyewear online Sitapur, shop glasses UP, sunglasses online India, prescription frames Sitapur, optical store Uttar Pradesh, chasma shop near me, contact lenses online{% endblock %}
 
 {% block extra_css %}
@@ -448,7 +448,7 @@
           <span class="shop-sale-badge">Sale</span>
           {% endif %}
         </div>
-        <div class="shop-product-brand">{{ p.brand_name or p.category_name or 'ChasmaGallery' }}</div>
+        <div class="shop-product-brand">{{ p.brand_name or p.category_name or 'EyeConic' }}</div>
         <div class="shop-product-name">{{ p.name }}</div>
         <div>
           <span class="shop-product-price">₹{{ "%.0f"|format(p.sale_price or p.price) }}</span>

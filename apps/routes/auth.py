@@ -90,7 +90,7 @@ def register():
                     "email": new_user["email"],
                     "role":  "customer",
                 }
-                flash(f"Welcome to ChasmaGallery, {name}!", "success")
+                flash(f"Welcome to EyeConic, {name}!", "success")
                 return redirect(url_for("public.index"))
         except Exception as e:
             flash(f"Registration failed: {e}", "error")

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChasmaGallery — See The World Differently</title>
+  <title>EyeConic — See The World Differently</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -905,15 +905,67 @@
 
     /* PRODUCTS GRID — used by every product section */
     .products-grid-2 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
       gap: 1.5rem;
+      padding: 10px 0;
+      scroll-behavior: smooth;
+    }
+
+    .products-grid-2::-webkit-scrollbar {
+      display: none;
+    }
+
+    .grid-wrapper {
+      position: relative;
       max-width: 1300px;
       margin: 0 auto;
     }
 
-    /* PRODUCT CARD */
+    .side-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      color: var(--charcoal);
+      opacity: 0;
+    }
+
+    .grid-wrapper:hover .side-arrow {
+      opacity: 1;
+    }
+
+    .side-arrow:hover {
+      background: var(--gold);
+      color: #fff;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .side-arrow.prev { left: -22px; }
+    .side-arrow.next { right: -22px; }
+
+    @media (max-width: 900px) {
+      .side-arrow { display: none; }
+    }
+
     .product-card {
+      flex: 0 0 calc(24%);
+      scroll-snap-align: start;
       cursor: pointer;
       transition: transform 0.3s;
     }
@@ -1653,8 +1705,8 @@
         margin-bottom: 1.2rem;
       }
 
-      .products-grid-2 {
-        grid-template-columns: repeat(2, 1fr);
+      .product-card {
+        flex: 0 0 75%;
       }
 
       .trust-divider {
@@ -2020,14 +2072,12 @@
     <p class="section-label">Top Picks</p>
     <div class="section-header-row">
       <h2 class="section-title">Best Sellers</h2>
-      <div class="scroll-arrows">
-        <button onclick="scrollGrid(this,-1)">&#8592;</button>
-        <button onclick="scrollGrid(this,1)">&#8594;</button>
-      </div>
     </div>
     <div class="section-line"></div>
-    <div class="products-grid-2">
-      {% for p in featured %}
+    <div class="grid-wrapper" style="margin-top: 2.5rem;">
+      <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <div class="products-grid-2">
+        {% for p in featured[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
@@ -2098,14 +2148,12 @@
     <p class="section-label">For Him</p>
     <div class="section-header-row">
       <h2 class="section-title">Men's Eyewear</h2>
-      <div class="scroll-arrows">
-        <button onclick="scrollGrid(this,-1)">&#8592;</button>
-        <button onclick="scrollGrid(this,1)">&#8594;</button>
-      </div>
     </div>
     <div class="section-line"></div>
-    <div class="products-grid-2">
-      {% for p in men_products %}
+    <div class="grid-wrapper" style="margin-top: 2.5rem;">
+      <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <div class="products-grid-2">
+        {% for p in men_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
@@ -2138,14 +2186,12 @@
     <p class="section-label">For Her</p>
     <div class="section-header-row">
       <h2 class="section-title">Women's Eyewear</h2>
-      <div class="scroll-arrows">
-        <button onclick="scrollGrid(this,-1)">&#8592;</button>
-        <button onclick="scrollGrid(this,1)">&#8594;</button>
-      </div>
     </div>
     <div class="section-line"></div>
-    <div class="products-grid-2">
-      {% for p in women_products %}
+    <div class="grid-wrapper" style="margin-top: 2.5rem;">
+      <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <div class="products-grid-2">
+        {% for p in women_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
@@ -2178,12 +2224,12 @@
     <p class="section-label">For Little Ones</p>
     <div class="section-header-row">
       <h2 class="section-title">Kids' Eyewear</h2>
-      <div class="scroll-arrows"><button onclick="scrollGrid(this,-1)">&#8592;</button><button
-          onclick="scrollGrid(this,1)">&#8594;</button></div>
     </div>
     <div class="section-line"></div>
-    <div class="products-grid-2">
-      {% for p in kids_products %}
+    <div class="grid-wrapper" style="margin-top: 2.5rem;">
+      <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <div class="products-grid-2">
+        {% for p in kids_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
@@ -2216,12 +2262,12 @@
     <p class="section-label">Screen Protection</p>
     <div class="section-header-row">
       <h2 class="section-title">Blue Light Glasses</h2>
-      <div class="scroll-arrows"><button onclick="scrollGrid(this,-1)">&#8592;</button><button
-          onclick="scrollGrid(this,1)">&#8594;</button></div>
     </div>
     <div class="section-line"></div>
-    <div class="products-grid-2">
-      {% for p in blue_products %}
+    <div class="grid-wrapper" style="margin-top: 2.5rem;">
+      <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <div class="products-grid-2">
+        {% for p in blue_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
@@ -2254,12 +2300,12 @@
     <p class="section-label">Sun Protection</p>
     <div class="section-header-row">
       <h2 class="section-title">Sunglasses</h2>
-      <div class="scroll-arrows"><button onclick="scrollGrid(this,-1)">&#8592;</button><button
-          onclick="scrollGrid(this,1)">&#8594;</button></div>
     </div>
     <div class="section-line"></div>
-    <div class="products-grid-2">
-      {% for p in sun_products %}
+    <div class="grid-wrapper" style="margin-top: 2.5rem;">
+      <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <div class="products-grid-2">
+        {% for p in sun_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
@@ -2292,12 +2338,12 @@
     <p class="section-label">Prescription Ready</p>
     <div class="section-header-row">
       <h2 class="section-title">Eyeglasses</h2>
-      <div class="scroll-arrows"><button onclick="scrollGrid(this,-1)">&#8592;</button><button
-          onclick="scrollGrid(this,1)">&#8594;</button></div>
     </div>
     <div class="section-line"></div>
-    <div class="products-grid-2">
-      {% for p in optical_products %}
+    <div class="grid-wrapper" style="margin-top: 2.5rem;">
+      <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <div class="products-grid-2">
+        {% for p in optical_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick="window.location.href='{{ url_for('public.product_detail', product_id=p.id) }}'">
@@ -2556,7 +2602,7 @@
 
   <!-- INSTAGRAM -->
   <section class="insta-bg" style="padding-bottom:clamp(4rem,8vw,8rem);">
-    <p class="section-label">Follow Us @chasmagallery</p>
+    <p class="section-label">Follow Us @eyeconic</p>
     <h2 class="section-title">Be Part of the Community</h2>
     <div class="section-line"></div>
     <div class="insta-grid">
@@ -2625,9 +2671,12 @@
 
     // scrollGrid helper for section arrows (scrolls the nearest products-grid-2 or scroll row)
     function scrollGrid(btn, dir) {
-      const section = btn.closest('section, .cat-block');
-      const grid = section && section.querySelector('.products-grid-2');
-      if (grid) grid.scrollBy({ left: dir * 230, behavior: 'smooth' });
+      const wrapper = btn.closest('.grid-wrapper');
+      const grid = wrapper && wrapper.querySelector('.products-grid-2');
+      if (grid) {
+        const scrollAmount = grid.clientWidth * 0.8;
+        grid.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+      }
     }
 
     // Show cat scroll on mobile
