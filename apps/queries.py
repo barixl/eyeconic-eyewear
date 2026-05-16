@@ -52,6 +52,7 @@ PRODUCTS_MINIMAL_SELECT = """
 def get_products(search=None, categories=(), brands=(), shape=None,
                  sort="created_at_desc", page=1, per_page=16,
                  featured=False, limit=None, on_sale=False,
+                 min_price=None, max_price=None,
                  # legacy single-value aliases kept for admin callers
                  category=None, brand=None):
     # Normalise: merge legacy single values into the multi-select tuples
@@ -89,6 +90,12 @@ def get_products(search=None, categories=(), brands=(), shape=None,
         conditions.append("p.is_featured = 1")
     if on_sale:
         conditions.append("p.sale_price IS NOT NULL AND p.sale_price > 0 AND p.sale_price < p.price")
+    if min_price is not None:
+        conditions.append("COALESCE(p.sale_price, p.price) >= ?")
+        params.append(min_price)
+    if max_price is not None:
+        conditions.append("COALESCE(p.sale_price, p.price) <= ?")
+        params.append(max_price)
     if shape:
         conditions.append("""
             (EXISTS (
@@ -146,13 +153,13 @@ def get_homepage_products():
     latest     = sorted(rows, key=lambda r: r.get("created_at") or _EPOCH, reverse=True)[:10]
     popular    = sorted(rows, key=lambda r: (r.get("name") or "").lower())[:10]
     
-    # Category-specific slices (using slugs from seed.py)
-    men_products    = [r for r in rows if r.get("category_slug") == "men"][:8]
-    women_products  = [r for r in rows if r.get("category_slug") == "women"][:8]
-    kids_products   = [r for r in rows if r.get("category_slug") == "kids"][:8]
-    sun_products    = [r for r in rows if r.get("category_slug") == "sunglasses"][:8]
+    # Category-specific slices using new sub-category slugs
+    men_products    = [r for r in rows if r.get("category_slug") in ("eyeglasses-men", "sunglasses-men")][:8]
+    women_products  = [r for r in rows if r.get("category_slug") in ("eyeglasses-women", "sunglasses-women")][:8]
+    kids_products   = [r for r in rows if r.get("category_slug") in ("eyeglasses-kids", "sunglasses-kids")][:8]
+    sun_products    = [r for r in rows if r.get("category_slug") in ("sunglasses", "sunglasses-men", "sunglasses-women", "sunglasses-kids")][:8]
     blue_products   = [r for r in rows if r.get("category_slug") == "blue-light"][:8]
-    optical_products= [r for r in rows if r.get("category_slug") == "eyeglasses"][:8]
+    optical_products= [r for r in rows if r.get("category_slug") in ("eyeglasses", "eyeglasses-men", "eyeglasses-women", "eyeglasses-kids")][:8]
 
     price_asc  = sorted(rows, key=lambda r: float(r.get("price") or 0))
     promo1     = rows[:2]

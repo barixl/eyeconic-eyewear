@@ -1,8 +1,10 @@
 {% extends 'eyeconic_base.html' %}
 
 {% block title %}Shop Eyewear Online – EyeConic Sitapur{% endblock %}
-{% block meta_description %}Browse our full collection of eyewear, sunglasses, prescription glasses and contact lenses. Order online from EyeConic – Sitapur's trusted optical store delivering across UP and India.{% endblock %}
-{% block meta_keywords %}buy eyewear online Sitapur, shop glasses UP, sunglasses online India, prescription frames Sitapur, optical store Uttar Pradesh, chasma shop near me, contact lenses online{% endblock %}
+{% block meta_description %}Browse our full collection of eyewear, sunglasses, prescription glasses and contact lenses.
+Order online from EyeConic – Sitapur's trusted optical store delivering across UP and India.{% endblock %}
+{% block meta_keywords %}buy eyewear online Sitapur, shop glasses UP, sunglasses online India, prescription frames
+Sitapur, optical store Uttar Pradesh, chasma shop near me, contact lenses online{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -13,17 +15,32 @@
     border-bottom: 1px solid var(--light-gray);
     text-align: center;
   }
+
   .page-header .breadcrumb {
-    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--mid-gray); margin-bottom: 0.8rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-bottom: 0.8rem;
   }
-  .page-header .breadcrumb a { color: var(--mid-gray); text-decoration: none; }
-  .page-header .breadcrumb a:hover { color: var(--gold); }
+
+  .page-header .breadcrumb a {
+    color: var(--mid-gray);
+    text-decoration: none;
+  }
+
+  .page-header .breadcrumb a:hover {
+    color: var(--gold);
+  }
+
   .page-header h1 {
     font-family: var(--font-display);
     font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 600; color: var(--charcoal); line-height: 1.2;
+    font-weight: 600;
+    color: var(--charcoal);
+    line-height: 1.2;
   }
+
   /* ── Light card ── */
   .light-card {
     background: #fff;
@@ -31,169 +48,717 @@
     border-radius: 4px;
     padding: 2rem;
   }
+
   /* ── Gold button ── */
   .btn-gold {
     display: inline-block;
-    background: var(--gold); color: #fff;
+    background: var(--gold);
+    color: #fff;
     font-family: var(--font-body);
-    font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase;
-    font-weight: 600; padding: 14px 32px;
-    border: none; cursor: pointer; text-decoration: none;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 14px 32px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
     transition: background 0.2s, transform 0.15s;
   }
-  .btn-gold:hover { background: #b8934e; transform: translateY(-1px); }
+
+  .btn-gold:hover {
+    background: #b8934e;
+    transform: translateY(-1px);
+  }
+
   .btn-outline-dark {
     display: inline-block;
-    border: 1.5px solid var(--charcoal); color: var(--charcoal);
+    border: 1.5px solid var(--charcoal);
+    color: var(--charcoal);
     font-family: var(--font-body);
-    font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase;
-    font-weight: 600; padding: 13px 32px;
-    background: transparent; cursor: pointer; text-decoration: none;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 13px 32px;
+    background: transparent;
+    cursor: pointer;
+    text-decoration: none;
     transition: background 0.2s, color 0.2s;
   }
-  .btn-outline-dark:hover { background: var(--charcoal); color: #fff; }
+
+  .btn-outline-dark:hover {
+    background: var(--charcoal);
+    color: #fff;
+  }
+
   /* ── Section wrapper ── */
-  .page-content { max-width: 1300px; margin: 0 auto; padding: 3rem 5vw; }
-  .page-content-sm { max-width: 560px; margin: 0 auto; padding: 3rem 5vw; }
+  .page-content {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 3rem 5vw;
+  }
+
+  .page-content-sm {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 3rem 5vw;
+  }
+
   /* ── Label/input group ── */
-  .form-group { margin-bottom: 1.25rem; }
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
   .form-label {
-    display: block; font-size: 0.72rem; letter-spacing: 0.15em;
-    text-transform: uppercase; font-weight: 700; color: var(--charcoal);
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--charcoal);
     margin-bottom: 0.5rem;
   }
+
   /* ── Tables ── */
-  table { width: 100%; border-collapse: collapse; }
-  th { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
-       color: var(--mid-gray); border-bottom: 1px solid var(--light-gray);
-       padding: 0.75rem 0; font-weight: 600; text-align: left; }
-  td { padding: 1rem 0; border-bottom: 1px solid var(--light-gray);
-       font-size: 0.9rem; vertical-align: middle; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    border-bottom: 1px solid var(--light-gray);
+    padding: 0.75rem 0;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  td {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--light-gray);
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+
   /* ── Status badges ── */
   .badge {
-    display: inline-block; padding: 3px 10px; border-radius: 100px;
-    font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
   }
-  .badge-green  { background: #E8F5E9; color: #2E7D32; }
-  .badge-gold   { background: #FFF8E7; color: #b8934e; }
-  .badge-gray   { background: var(--cream); color: var(--mid-gray); }
-  .badge-red    { background: #FFEBEE; color: #C62828; }
+
+  .badge-green {
+    background: #E8F5E9;
+    color: #2E7D32;
+  }
+
+  .badge-gold {
+    background: #FFF8E7;
+    color: #b8934e;
+  }
+
+  .badge-gray {
+    background: var(--cream);
+    color: var(--mid-gray);
+  }
+
+  .badge-red {
+    background: #FFEBEE;
+    color: #C62828;
+  }
 </style>
 <style>
-/* ── Shop layout ── */
-.shop-layout { display: grid; grid-template-columns: 280px 1fr; gap: 2.5rem; max-width: 1300px; margin: 0 auto; padding: 2.5rem 5vw; align-items: start; }
-@media (max-width: 960px) { .shop-layout { grid-template-columns: 1fr; } }
-.shop-sidebar { position: sticky; top: 90px; }
-
-/* ── Top category nav ── */
-.shop-category-nav {
-  display: flex;
-  gap: 1.5rem;
-  overflow: visible; /* Prevent clipping on hover lift */
-  padding: 1.5rem 0 1rem; /* Space for hover lift */
-  scrollbar-width: none;
-  justify-content: center;
-  flex-wrap: wrap; /* Allow wrapping on small desktops */
-}
-.shop-category-nav::-webkit-scrollbar { display: none; }
-
-@media (max-width: 600px) {
-  .shop-category-nav {
+  /* ── Shop layout ── */
+  .shop-layout {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem 0.5rem;
-    justify-items: center;
-    justify-content: center;
+    grid-template-columns: 280px 1fr;
+    gap: 2.5rem;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 2.5rem 5vw;
+    align-items: start;
   }
+
+  @media (max-width: 960px) {
+    .shop-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .shop-sidebar {
+    position: sticky;
+    top: 90px;
+  }
+
+  /* ── Top category nav ── */
+  .shop-category-nav {
+    display: flex;
+    gap: 1.5rem;
+    overflow: visible;
+    /* Prevent clipping on hover lift */
+    padding: 1.5rem 0 1rem;
+    /* Space for hover lift */
+    scrollbar-width: none;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* Allow wrapping on small desktops */
+  }
+
+  .shop-category-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (max-width: 600px) {
+    .shop-category-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem 0.5rem;
+      justify-items: center;
+      justify-content: center;
+    }
+  }
+
+  .shop-cat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 72px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border: none;
+    background: none;
+  }
+
+  .shop-cat-item:hover {
+    transform: translateY(-2px);
+  }
+
+  .shop-cat-img {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--cream);
+    border: 2px solid var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s;
+  }
+
+  .shop-cat-item.active .shop-cat-img {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201, 164, 85, 0.2);
+  }
+
+  .shop-cat-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .shop-cat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--mid-gray);
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+
+  .shop-cat-item.active .shop-cat-label {
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* ── Sidebar panel ── */
+  .sidebar-panel {
+    background: #fff;
+    border: 1px solid var(--light-gray);
+    padding: 1.5rem;
+  }
+
+  .shop-filter-btn {
+    display: none;
+    width: 100%;
+    background: var(--cream);
+    border: 1px solid var(--light-gray);
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: left;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  @media (max-width: 960px) {
+    .shop-filter-btn {
+      display: flex;
+    }
+
+    .shop-sidebar-content {
+      display: none;
+    }
+
+    .shop-sidebar-content.open {
+      display: block;
+    }
+  }
+
+  /* ── Sidebar checkbox items ── */
+  .cb-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.25rem;
+    cursor: pointer;
+    font-size: 0.88rem;
+    color: var(--mid-gray);
+    transition: color 0.15s;
+    user-select: none;
+  }
+
+  .cb-item:hover {
+    color: var(--charcoal);
+  }
+
+  .cb-item input[type="checkbox"] {
+    display: none;
+  }
+
+  .cb-box {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--light-gray);
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .cb-item input:checked~.cb-box {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .cb-item input:checked~.cb-box::after {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 8px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+
+  .cb-item input:checked~.cb-label {
+    color: var(--charcoal);
+    font-weight: 600;
+  }
+
+  .cb-label {
+    flex: 1;
+  }
+
+  .cb-count {
+    font-size: 0.72rem;
+    color: var(--mid-gray);
+    background: var(--cream);
+    padding: 1px 7px;
+    border-radius: 100px;
+    flex-shrink: 0;
+    border: 1px solid var(--light-gray);
+  }
+
+  /* ── Category accordion ── */
+  .cat-group {
+    margin-bottom: 0.1rem;
+  }
+
+  .cat-parent-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .cat-parent-row .cb-item {
+    flex: 1;
+  }
+
+  .cat-chevron {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    border: none;
+    background: none;
+    color: var(--mid-gray);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: color 0.15s;
+  }
+
+  .cat-chevron:hover {
+    color: var(--charcoal);
+  }
+
+  .cat-chevron svg {
+    transition: transform 0.2s;
+  }
+
+  .cat-chevron.open svg {
+    transform: rotate(90deg);
+  }
+
+  .cat-children {
+    display: none;
+    padding-left: 1.2rem;
+  }
+
+  .cat-children.open {
+    display: block;
+  }
+
+  /* ── Filter chips ── */
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #FFF8E7;
+    border: 1px solid rgba(201, 164, 85, 0.4);
+    color: var(--gold);
+    border-radius: 100px;
+    padding: 3px 10px;
+    font-size: 0.76rem;
+    font-weight: 600;
+  }
+
+  .filter-chip button {
+    background: none;
+    border: none;
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 0.95rem;
+    line-height: 1;
+    padding: 0;
+  }
+
+  /* ── Sidebar dividers and labels ── */
+  .sidebar-divider {
+    border: none;
+    border-top: 1px solid var(--light-gray);
+    margin: 1rem 0;
+  }
+
+  .sidebar-section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--charcoal);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ── Sidebar buttons ── */
+  .sidebar-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .btn-apply {
+    flex: 1;
+    padding: 0.7rem 0;
+    background: var(--charcoal);
+    color: #fff;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-apply:hover {
+    background: var(--gold);
+  }
+
+  .btn-clear {
+    padding: 0.7rem 0.9rem;
+    background: #fff;
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: background 0.15s;
+  }
+
+  .btn-clear:hover {
+    background: #FFEBEE;
+  }
+
+  .price-preset { background: var(--cream); border: 1px solid var(--light-gray); color: var(--charcoal); font-family: var(--font-body); font-size: 0.7rem; font-weight: 600; padding: 4px 9px; border-radius: 100px; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
+.price-preset:hover { background: var(--gold); border-color: var(--gold); color: #fff; }
+.price-preset.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+/* ── Custom Dual Slider ── */
+.dual-range-wrap { padding: 0.5rem 0 0.25rem; }
+.dual-range-track {
+  position: relative;
+  height: 5px;
+  background: var(--light-gray);
+  border-radius: 3px;
+  margin: 1.8rem 0.5rem 1rem;
+  user-select: none;
+}
+.dual-range-fill {
+  position: absolute;
+  height: 100%;
+  background: var(--gold);
+  border-radius: 3px;
+  pointer-events: none;
+}
+.dual-thumb {
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border: 2.5px solid var(--gold);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+  transition: box-shadow 0.15s, transform 0.1s;
+  z-index: 2;
+}
+.dual-thumb:hover, .dual-thumb.dragging {
+  box-shadow: 0 0 0 5px rgba(201,164,85,0.18), 0 2px 8px rgba(0,0,0,0.14);
+  transform: translate(-50%, -50%) scale(1.15);
+}
+.dual-thumb.dragging { cursor: grabbing; }
+.dual-thumb-label {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--charcoal);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.dual-thumb:hover .dual-thumb-label,
+.dual-thumb.dragging .dual-thumb-label { opacity: 1; }
+.price-range-display {
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.01em;
 }
 
-.shop-cat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 72px;
-  cursor: pointer;
-  transition: transform 0.2s;
-  border: none;
-  background: none;
-}
-.shop-cat-item:hover { transform: translateY(-2px); }
-.shop-cat-img { width: 68px; height: 68px; border-radius: 50%; overflow: hidden; background: var(--cream); border: 2px solid var(--light-gray); display: flex; align-items: center; justify-content: center; transition: border-color 0.2s; }
-.shop-cat-item.active .shop-cat-img { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,164,85,0.2); }
-.shop-cat-img img { width: 100%; height: 100%; object-fit: cover; }
-.shop-cat-label { font-size: 0.72rem; font-weight: 600; color: var(--mid-gray); letter-spacing: 0.05em; transition: color 0.2s; }
-.shop-cat-item.active .shop-cat-label { color: var(--gold); font-weight: 700; }
+  /* ── Product grid ── */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
 
-/* ── Sidebar panel ── */
-.sidebar-panel { background: #fff; border: 1px solid var(--light-gray); padding: 1.5rem; }
-.shop-filter-btn { display: none; width: 100%; background: var(--cream); border: 1px solid var(--light-gray); padding: 0.75rem 1rem; font-family: var(--font-body); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; text-align: left; justify-content: space-between; align-items: center; }
-@media (max-width: 960px) { .shop-filter-btn { display: flex; } .shop-sidebar-content { display: none; } .shop-sidebar-content.open { display: block; } }
+  @media (max-width: 600px) {
+    .product-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+  }
 
-/* ── Sidebar checkbox items ── */
-.cb-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.25rem; cursor: pointer; font-size: 0.88rem; color: var(--mid-gray); transition: color 0.15s; user-select: none; }
-.cb-item:hover { color: var(--charcoal); }
-.cb-item input[type="checkbox"] { display: none; }
-.cb-box { width: 16px; height: 16px; border: 1.5px solid var(--light-gray); border-radius: 3px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s, background 0.15s; }
-.cb-item input:checked ~ .cb-box { background: var(--gold); border-color: var(--gold); }
-.cb-item input:checked ~ .cb-box::after { content: ''; display: block; width: 4px; height: 8px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translate(-1px, -1px); }
-.cb-item input:checked ~ .cb-label { color: var(--charcoal); font-weight: 600; }
-.cb-label { flex: 1; }
-.cb-count { font-size: 0.72rem; color: var(--mid-gray); background: var(--cream); padding: 1px 7px; border-radius: 100px; flex-shrink: 0; border: 1px solid var(--light-gray); }
+  /* ── Shop product card ── */
+  .shop-product-card {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.25s;
+  }
 
-/* ── Category accordion ── */
-.cat-group { margin-bottom: 0.1rem; }
-.cat-parent-row { display: flex; align-items: center; gap: 0.25rem; }
-.cat-parent-row .cb-item { flex: 1; }
-.cat-chevron { width: 24px; height: 24px; flex-shrink: 0; border: none; background: none; color: var(--mid-gray); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: color 0.15s; }
-.cat-chevron:hover { color: var(--charcoal); }
-.cat-chevron svg { transition: transform 0.2s; }
-.cat-chevron.open svg { transform: rotate(90deg); }
-.cat-children { display: none; padding-left: 1.2rem; }
-.cat-children.open { display: block; }
+  .shop-product-card:hover {
+    transform: translateY(-3px);
+  }
 
-/* ── Filter chips ── */
-.filter-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem; }
-.filter-chip { display: inline-flex; align-items: center; gap: 0.35rem; background: #FFF8E7; border: 1px solid rgba(201,164,85,0.4); color: var(--gold); border-radius: 100px; padding: 3px 10px; font-size: 0.76rem; font-weight: 600; }
-.filter-chip button { background: none; border: none; color: var(--gold); cursor: pointer; font-size: 0.95rem; line-height: 1; padding: 0; }
+  .shop-product-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: var(--cream);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 0.8rem;
+  }
 
-/* ── Sidebar dividers and labels ── */
-.sidebar-divider { border: none; border-top: 1px solid var(--light-gray); margin: 1rem 0; }
-.sidebar-section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--charcoal); margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: space-between; }
+  .shop-product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+  }
 
-/* ── Sidebar buttons ── */
-.sidebar-actions { display: flex; gap: 0.5rem; margin-top: 1.25rem; }
-.btn-apply { flex: 1; padding: 0.7rem 0; background: var(--charcoal); color: #fff; border: none; font-family: var(--font-body); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-.btn-apply:hover { background: var(--gold); }
-.btn-clear { padding: 0.7rem 0.9rem; background: #fff; color: #ef4444; border: 1px solid rgba(239,68,68,0.3); font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: background 0.15s; }
-.btn-clear:hover { background: #FFEBEE; }
+  .shop-product-card:hover .shop-product-img img {
+    transform: scale(1.04);
+  }
 
-/* ── Product grid ── */
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 1.5rem; }
-@media (max-width: 600px) { .product-grid { grid-template-columns: repeat(2,1fr); gap: 0.75rem; } }
+  .shop-product-brand {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
 
-/* ── Shop product card ── */
-.shop-product-card { display: block; text-decoration: none; cursor: pointer; transition: transform 0.25s; }
-.shop-product-card:hover { transform: translateY(-3px); }
-.shop-product-img { width: 100%; aspect-ratio: 4/3; background: var(--cream); border-radius: 4px; overflow: hidden; position: relative; margin-bottom: 0.8rem; }
-.shop-product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
-.shop-product-card:hover .shop-product-img img { transform: scale(1.04); }
-.shop-product-brand { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 3px; }
-.shop-product-name { font-size: 0.92rem; font-weight: 600; color: var(--charcoal); line-height: 1.3; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.shop-product-price { font-size: 1rem; font-weight: 700; color: var(--charcoal); }
-.shop-product-old  { font-size: 0.78rem; color: var(--mid-gray); text-decoration: line-through; margin-left: 5px; }
-.shop-product-badge { display: inline-block; background: #E8F5E9; color: #2E7D32; font-size: 0.6rem; font-weight: 700; padding: 2px 7px; border-radius: 100px; margin-left: 5px; vertical-align: middle; }
-.shop-stock-badge { position: absolute; top: 8px; left: 8px; background: #ef4444; color: #fff; font-size: 0.6rem; font-weight: 800; padding: 3px 8px; letter-spacing: 0.05em; text-transform: uppercase; }
-.shop-sale-badge  { position: absolute; top: 8px; right: 8px; background: var(--gold); color: #fff; font-size: 0.6rem; font-weight: 800; padding: 3px 8px; letter-spacing: 0.05em; }
+  .shop-product-name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    line-height: 1.3;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-/* ── Pagination ── */
-.pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 3rem; }
-.page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--light-gray); background: #fff; color: var(--charcoal); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border-radius: 0; }
-.page-btn:hover { border-color: var(--gold); color: var(--gold); }
-.page-btn.active { background: var(--charcoal); border-color: var(--charcoal); color: #fff; }
+  .shop-product-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--charcoal);
+  }
 
-/* ── No results ── */
-.no-results-card { text-align: center; padding: 5rem 2rem; border: 1px dashed var(--light-gray); background: var(--cream); border-radius: 4px; }
+  .shop-product-old {
+    font-size: 0.78rem;
+    color: var(--mid-gray);
+    text-decoration: line-through;
+    margin-left: 5px;
+  }
+
+  .shop-product-badge {
+    display: inline-block;
+    background: #E8F5E9;
+    color: #2E7D32;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 100px;
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+
+  .shop-stock-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .shop-sale-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--gold);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Pagination ── */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 3rem;
+  }
+
+  .page-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid var(--light-gray);
+    background: #fff;
+    color: var(--charcoal);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 0;
+  }
+
+  .page-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .page-btn.active {
+    background: var(--charcoal);
+    border-color: var(--charcoal);
+    color: #fff;
+  }
+
+  /* ── No results ── */
+  .no-results-card {
+    text-align: center;
+    padding: 5rem 2rem;
+    border: 1px dashed var(--light-gray);
+    background: var(--cream);
+    border-radius: 4px;
+  }
 </style>
 {% endblock %}
 
@@ -201,16 +766,16 @@
 
 <!-- Top category icon nav -->
 <div style="padding: 2.5rem 5vw 0; max-width:1300px; margin:0 auto; text-align: center;">
-  <div style="font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem;">Shop By Shape</div>
+  <div
+    style="font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem;">
+    Shop By Shape</div>
   <div class="shop-category-nav section-fade visible">
     {% for shape in trending_shapes %}
-    <button type="button"
-            onclick="shapeNavToggle('{{ shape.label }}')"
-            class="shop-cat-item {% if shape.label == current_shape %}active{% endif %}"
-            style="background:none; border:none; cursor:pointer;">
+    <button type="button" onclick="shapeNavToggle('{{ shape.label }}')"
+      class="shop-cat-item {% if shape.label == current_shape %}active{% endif %}"
+      style="background:none; border:none; cursor:pointer;">
       <div class="shop-cat-img glass">
-        <img src="{{ shape.img }}" alt="{{ shape.label }}"
-             onerror="imgError(this)" />
+        <img src="{{ shape.img }}" alt="{{ shape.label }}" onerror="imgError(this)" />
       </div>
       <span class="shop-cat-label">{{ shape.label }}</span>
     </button>
@@ -228,163 +793,203 @@
     </button>
 
     <div class="shop-sidebar-content" id="shopSidebarContent">
-    <div class="sidebar-panel">
+      <div class="sidebar-panel">
 
-      <form method="get" action="{{ url_for('public.shop') }}" id="filterForm">
-        <!-- Hidden fields preserved across submissions -->
-        <input type="hidden" name="page"  id="pageInput"  value="1" />
-        <input type="hidden" name="sort"  id="sortInput"  value="{{ current_sort }}" />
-        <input type="hidden" name="shape" id="shapeInput" value="{{ current_shape }}" />
+        <form method="get" action="{{ url_for('public.shop') }}" id="filterForm">
+          <!-- Hidden fields preserved across submissions -->
+          <input type="hidden" name="page" id="pageInput" value="1" />
+          <input type="hidden" name="sort" id="sortInput" value="{{ current_sort }}" />
+          <input type="hidden" name="shape" id="shapeInput" value="{{ current_shape }}" />
 
-        <!-- ── Search ─────────────────────────────────────── -->
-        <div style="margin-bottom:1.1rem;">
-          <div class="sidebar-section-label">Search</div>
-          <input type="text" name="search" id="searchInput" value="{{ search or '' }}"
-                 placeholder="Search products…"
-                 style="width:100%; padding:0.6rem 0.85rem; background:rgba(255,255,255,0.05);
+          <!-- ── Search ─────────────────────────────────────── -->
+          <div style="margin-bottom:1.1rem;">
+            <div class="sidebar-section-label">Search</div>
+            <input type="text" name="search" id="searchInput" value="{{ search or '' }}" placeholder="Search products…"
+              style="width:100%; padding:0.6rem 0.85rem; background:rgba(255,255,255,0.05);
                         border:1px solid var(--light-gray); border-radius:0.55rem;
                         color:var(--charcoal); font-size:0.9rem; outline:none;
                         font-family:inherit; box-sizing:border-box;"
-                 onkeydown="if(event.key==='Enter'){applyFilters();}" />
-        </div>
-
-        <!-- ── Sort ──────────────────────────────────────── -->
-        <div style="margin-bottom:1.1rem;">
-          <div class="sidebar-section-label">Sort By</div>
-          <select id="sortSelect" onchange="document.getElementById('sortInput').value=this.value; applyFilters();"
-                  style="width:100%; padding:0.6rem 0.85rem; background:#fff; border:1px solid var(--light-gray); color:var(--charcoal); font-size:0.85rem; outline:none; font-family:inherit; box-sizing:border-box; cursor:pointer; border-radius:0;">
-            <option value="created_at_desc" {% if current_sort=='created_at_desc' %}selected{% endif %}>Newest First</option>
-            <option value="price_asc"       {% if current_sort=='price_asc'       %}selected{% endif %}>Price: Low to High</option>
-            <option value="price_desc"      {% if current_sort=='price_desc'      %}selected{% endif %}>Price: High to Low</option>
-            <option value="name_asc"        {% if current_sort=='name_asc'        %}selected{% endif %}>Name A–Z</option>
-          </select>
-        </div>
-
-        <hr class="sidebar-divider" />
-
-        <!-- ── Categories (accordion) ────────────────────── -->
-        <div style="margin-bottom:1.1rem;">
-          <div class="sidebar-section-label">
-            Category
-            {% if current_categories %}
-            <span style="background:var(--gold); color:white; border-radius:999px; padding:0.05rem 0.5rem; font-size:0.7rem;">{{ current_categories|length }}</span>
-            {% endif %}
+              onkeydown="if(event.key==='Enter'){applyFilters();}" />
           </div>
 
-          {% for parent in parent_cats %}
-          {% set p_id   = parent.id | string %}
-          {% set p_slug = parent.slug %}
-          {% set p_checked = p_slug in current_categories %}
-          {% set children  = children_map.get(p_id, []) %}
-          {% set any_child_checked = children | selectattr('slug', 'in', current_categories) | list | length > 0 %}
+          <!-- ── Sort ──────────────────────────────────────── -->
+          <div style="margin-bottom:1.1rem;">
+            <div class="sidebar-section-label">Sort By</div>
+            <select id="sortSelect" onchange="document.getElementById('sortInput').value=this.value; applyFilters();"
+              style="width:100%; padding:0.6rem 0.85rem; background:#fff; border:1px solid var(--light-gray); color:var(--charcoal); font-size:0.85rem; outline:none; font-family:inherit; box-sizing:border-box; cursor:pointer; border-radius:0;">
+              <option value="created_at_desc" {% if current_sort=='created_at_desc' %}selected{% endif %}>Newest First
+              </option>
+              <option value="price_asc" {% if current_sort=='price_asc' %}selected{% endif %}>Price: Low to High
+              </option>
+              <option value="price_desc" {% if current_sort=='price_desc' %}selected{% endif %}>Price: High to Low
+              </option>
+              <option value="name_asc" {% if current_sort=='name_asc' %}selected{% endif %}>Name A–Z</option>
+            </select>
+          </div>
 
-          <div class="cat-group">
-            <div class="cat-parent-row">
-              <label class="cb-item" style="flex:1;">
-                <input type="checkbox" name="category" value="{{ p_slug }}"
-                       {% if p_checked %}checked{% endif %}
-                       onchange="applyFilters();" />
-                <span class="cb-box"></span>
-                <span class="cb-label">{{ parent.name }}</span>
-                <span class="cb-count">{{ parent.product_count }}</span>
-              </label>
+          <hr class="sidebar-divider" />
 
-              {% if children %}
-              <button type="button"
-                      class="cat-chevron {% if p_checked or any_child_checked %}open{% endif %}"
-                      onclick="toggleCatGroup(this)"
-                      aria-label="Expand {{ parent.name }}">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2.5"
-                     stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"/>
-                </svg>
-              </button>
+          <!-- ── Categories (accordion) ────────────────────── -->
+          <div style="margin-bottom:1.1rem;">
+            <div class="sidebar-section-label">
+              Category
+              {% if current_categories %}
+              <span
+                style="background:var(--gold); color:white; border-radius:999px; padding:0.05rem 0.5rem; font-size:0.7rem;">{{
+                current_categories|length }}</span>
               {% endif %}
             </div>
 
-            {% if children %}
-            <div class="cat-children {% if p_checked or any_child_checked %}open{% endif %}">
-              {% for child in children %}
-              <label class="cb-item">
-                <input type="checkbox" name="category" value="{{ child.slug }}"
-                       {% if child.slug in current_categories %}checked{% endif %}
-                       onchange="applyFilters();" />
-                <span class="cb-box"></span>
-                <span class="cb-label">{{ child.name }}</span>
-                <span class="cb-count">{{ child.product_count }}</span>
-              </label>
-              {% endfor %}
+            {% for parent in parent_cats %}
+            {% set p_id = parent.id | string %}
+            {% set p_slug = parent.slug %}
+            {% set p_checked = p_slug in current_categories %}
+            {% set children = children_map.get(p_id, []) %}
+            {% set any_child_checked = children | selectattr('slug', 'in', current_categories) | list | length > 0 %}
+
+            <div class="cat-group">
+              <div class="cat-parent-row">
+                <label class="cb-item" style="flex:1;">
+                  <input type="checkbox" name="category" value="{{ p_slug }}" {% if p_checked %}checked{% endif %}
+                    onchange="applyFilters();" />
+                  <span class="cb-box"></span>
+                  <span class="cb-label">{{ parent.name }}</span>
+                  <span class="cb-count">{{ parent.product_count }}</span>
+                </label>
+
+                {% if children %}
+                <button type="button" class="cat-chevron {% if p_checked or any_child_checked %}open{% endif %}"
+                  onclick="toggleCatGroup(this)" aria-label="Expand {{ parent.name }}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+                {% endif %}
+              </div>
+
+              {% if children %}
+              <div class="cat-children {% if p_checked or any_child_checked %}open{% endif %}">
+                {% for child in children %}
+                <label class="cb-item">
+                  <input type="checkbox" name="category" value="{{ child.slug }}" {% if child.slug in current_categories
+                    %}checked{% endif %} onchange="applyFilters();" />
+                  <span class="cb-box"></span>
+                  <span class="cb-label">{{ child.name }}</span>
+                  <span class="cb-count">{{ child.product_count }}</span>
+                </label>
+                {% endfor %}
+              </div>
+              {% endif %}
             </div>
-            {% endif %}
-          </div>
-          {% endfor %}
-        </div>
-
-        <hr class="sidebar-divider" />
-
-        <!-- ── Brands ─────────────────────────────────────── -->
-        <div style="margin-bottom:0.5rem;">
-          <div class="sidebar-section-label">
-            Brand
-            {% if current_brands %}
-            <span style="background:var(--gold); color:white; border-radius:999px; padding:0.05rem 0.5rem; font-size:0.7rem;">{{ current_brands|length }}</span>
-            {% endif %}
+            {% endfor %}
           </div>
 
-          {% for b in brands %}
-          <label class="cb-item">
-            <input type="checkbox" name="brand" value="{{ b.slug }}"
-                   {% if b.slug in current_brands %}checked{% endif %}
-                   onchange="applyFilters();" />
-            <span class="cb-box"></span>
-            <span class="cb-label">{{ b.name }}</span>
-            <span class="cb-count">{{ b.product_count }}</span>
-          </label>
-          {% endfor %}
-        </div>
+          <hr class="sidebar-divider" />
 
-        <hr class="sidebar-divider" />
+          <!-- ── Brands ─────────────────────────────────────── -->
+          <div style="margin-bottom:0.5rem;">
+            <div class="sidebar-section-label">
+              Brand
+              {% if current_brands %}
+              <span
+                style="background:var(--gold); color:white; border-radius:999px; padding:0.05rem 0.5rem; font-size:0.7rem;">{{
+                current_brands|length }}</span>
+              {% endif %}
+            </div>
 
-        <!-- ── Sale ──────────────────────────────────────── -->
-        <div style="margin-bottom:0.5rem;">
-          <div class="sidebar-section-label">Offers</div>
-          <label class="cb-item">
-            <input type="checkbox" name="on_sale" value="1"
-                   {% if on_sale %}checked{% endif %}
-                   onchange="applyFilters();" />
-            <span class="cb-box"></span>
-            <span class="cb-label">On Sale</span>
-            <span class="cb-count" style="background:rgba(34,197,94,0.15); color:#22c55e;">%</span>
-          </label>
-        </div>
+            {% for b in brands %}
+            <label class="cb-item">
+              <input type="checkbox" name="brand" value="{{ b.slug }}" {% if b.slug in current_brands %}checked{% endif
+                %} onchange="applyFilters();" />
+              <span class="cb-box"></span>
+              <span class="cb-label">{{ b.name }}</span>
+              <span class="cb-count">{{ b.product_count }}</span>
+            </label>
+            {% endfor %}
+          </div>
 
-        <!-- ── Actions ────────────────────────────────────── -->
-        <div class="sidebar-actions">
-          <button type="button" class="btn-apply" onclick="applyFilters()">Apply Filters</button>
-          {% if search or current_categories or current_brands or current_shape or on_sale %}
-          <a href="{{ url_for('public.shop') }}" class="btn-clear">✕ Clear</a>
-          {% endif %}
-        </div>
+          <hr class="sidebar-divider" />
 
-      </form>
-    </div>
+          <!-- ── Price Range ─────────────────────────────── -->
+          <div style="margin-bottom:1.1rem;">
+            <div class="sidebar-section-label">Price Range
+              {% if min_price or max_price %}
+              <span style="background:var(--gold); color:white; border-radius:999px; padding:0.05rem 0.5rem; font-size:0.7rem;">&#10003;</span>
+              {% endif %}
+            </div>
+
+            <!-- Hidden inputs that go into the form -->
+            <input type="hidden" id="minPriceInput" name="min_price" value="{{ min_price or '' }}">
+            <input type="hidden" id="maxPriceInput" name="max_price" value="{{ max_price or '' }}">
+
+            <!-- Price display -->
+            <div class="price-range-display" id="priceRangeDisplay">&#8377;0 &ndash; &#8377;10,000</div>
+
+            <!-- Custom dual slider -->
+            <div class="dual-range-wrap">
+              <div class="dual-range-track" id="dualTrack">
+                <div class="dual-range-fill" id="dualFill"></div>
+                <div class="dual-thumb" id="thumbMin" style="left:0%">
+                  <span class="dual-thumb-label" id="labelMin">&#8377;0</span>
+                </div>
+                <div class="dual-thumb" id="thumbMax" style="left:100%">
+                  <span class="dual-thumb-label" id="labelMax">&#8377;10,000</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick presets -->
+            <div style="display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.5rem;">
+              <button type="button" onclick="sliderPreset(0,500)"    class="price-preset" data-preset="0-500">Under &#8377;500</button>
+              <button type="button" onclick="sliderPreset(500,1000)" class="price-preset" data-preset="500-1000">&#8377;500&ndash;1k</button>
+              <button type="button" onclick="sliderPreset(1000,2000)" class="price-preset" data-preset="1000-2000">&#8377;1k&ndash;2k</button>
+              <button type="button" onclick="sliderPreset(2000,10000)" class="price-preset" data-preset="2000-10000">&#8377;2k+</button>
+            </div>
+          </div>
+
+          <hr class="sidebar-divider" />
+
+          <!-- ── Sale ──────────────────────────────────────── -->
+          <div style="margin-bottom:0.5rem;">
+            <div class="sidebar-section-label">Offers</div>
+            <label class="cb-item">
+              <input type="checkbox" name="on_sale" value="1" {% if on_sale %}checked{% endif %}
+                onchange="applyFilters();" />
+              <span class="cb-box"></span>
+              <span class="cb-label">On Sale</span>
+              <span class="cb-count" style="background:rgba(34,197,94,0.15); color:#22c55e;">%</span>
+            </label>
+          </div>
+
+          <!-- ── Actions ────────────────────────────────────── -->
+          <div class="sidebar-actions">
+            <button type="button" class="btn-apply" onclick="applyFilters()">Apply Filters</button>
+            {% if search or current_categories or current_brands or current_shape or on_sale or min_price or max_price
+            %}
+            <a href="{{ url_for('public.shop') }}" class="btn-clear">✕ Clear</a>
+            {% endif %}
+          </div>
+
+        </form>
+      </div>
     </div>
   </aside>
 
   <!-- ══ MAIN CONTENT ══ -->
   <main>
     <!-- Page heading -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+    <div
+      style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
       <h1 style="font-size:2.2rem; font-family:var(--font-display); margin:0;">
         {% if current_categories|length == 1 %}
-          {% for c in categories %}{% if c.slug == current_categories[0] %}{{ c.name }}{% endif %}{% endfor %}
+        {% for c in categories %}{% if c.slug == current_categories[0] %}{{ c.name }}{% endif %}{% endfor %}
         {% elif current_categories|length > 1 %}
-          Selected Categories
+        Selected Categories
         {% elif current_shape %}
-          {{ current_shape }} Frames
+        {{ current_shape }} Frames
         {% else %}
-          Our Collection
+        Our Collection
         {% endif %}
       </h1>
       <p style="color:var(--mid-gray); font-size:0.88rem; margin:0;">
@@ -403,16 +1008,16 @@
       </span>
       {% endif %}
       {% for slug in current_categories %}
-        {% set cat_label = slug %}
-        {% for c in categories %}{% if c.slug == slug %}{% set cat_label = c.name %}{% endif %}{% endfor %}
+      {% set cat_label = slug %}
+      {% for c in categories %}{% if c.slug == slug %}{% set cat_label = c.name %}{% endif %}{% endfor %}
       <span class="filter-chip">
         {{ cat_label }}
         <button onclick="removeFilter('category', '{{ slug }}')" title="Remove">×</button>
       </span>
       {% endfor %}
       {% for slug in current_brands %}
-        {% set br_label = slug %}
-        {% for b in brands %}{% if b.slug == slug %}{% set br_label = b.name %}{% endif %}{% endfor %}
+      {% set br_label = slug %}
+      {% for b in brands %}{% if b.slug == slug %}{% set br_label = b.name %}{% endif %}{% endfor %}
       <span class="filter-chip">
         {{ br_label }}
         <button onclick="removeFilter('brand', '{{ slug }}')" title="Remove">×</button>
@@ -425,7 +1030,8 @@
       </span>
       {% endif %}
       {% if on_sale %}
-      <span class="filter-chip" style="background:rgba(34,197,94,0.12); border-color:rgba(34,197,94,0.3); color:#22c55e;">
+      <span class="filter-chip"
+        style="background:rgba(34,197,94,0.12); border-color:rgba(34,197,94,0.3); color:#22c55e;">
         🏷️ On Sale
         <button onclick="removeFilter('on_sale', '')" title="Remove" style="color:#22c55e;">×</button>
       </span>
@@ -439,23 +1045,21 @@
       {% for p in products %}
       <a href="{{ url_for('public.product_detail', product_id=p.id) }}" class="shop-product-card">
         <div class="shop-product-img">
-          <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy"
-               onerror="imgError(this)" />
+          <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy" onerror="imgError(this)" />
           {% if p.stock_status == 'out_of_stock' %}
           <span class="shop-stock-badge">Out of Stock</span>
           {% endif %}
-          {% if p.sale_price and p.sale_price < p.price %}
-          <span class="shop-sale-badge">Sale</span>
-          {% endif %}
+          {% if p.sale_price and p.sale_price < p.price %} <span class="shop-sale-badge">Sale</span>
+            {% endif %}
         </div>
         <div class="shop-product-brand">{{ p.brand_name or p.category_name or 'EyeConic' }}</div>
         <div class="shop-product-name">{{ p.name }}</div>
         <div>
           <span class="shop-product-price">₹{{ "%.0f"|format(p.sale_price or p.price) }}</span>
-          {% if p.sale_price and p.sale_price < p.price %}
-          <span class="shop-product-old">₹{{ "%.0f"|format(p.price) }}</span>
-          <span class="shop-product-badge">SALE</span>
-          {% endif %}
+          {% if p.sale_price and p.sale_price < p.price %} <span class="shop-product-old">₹{{ "%.0f"|format(p.price)
+            }}</span>
+            <span class="shop-product-badge">SALE</span>
+            {% endif %}
         </div>
       </a>
       {% endfor %}
@@ -465,21 +1069,22 @@
     {% if total_pages > 1 %}
     <div class="pagination">
       {% if current_page > 1 %}
-      <button type="button" class="page-btn" data-page="{{ current_page - 1 }}" onclick="gotoPage(this.dataset.page)">←</button>
+      <button type="button" class="page-btn" data-page="{{ current_page - 1 }}"
+        onclick="gotoPage(this.dataset.page)">←</button>
       {% endif %}
 
       {% for p_num in range(1, total_pages + 1) %}
-        {% if p_num == 1 or p_num == total_pages or (p_num >= current_page - 2 and p_num <= current_page + 2) %}
-        <button type="button" class="page-btn {% if p_num == current_page %}active{% endif %}"
-                data-page="{{ p_num }}" onclick="gotoPage(this.dataset.page)">{{ p_num }}</button>
+      {% if p_num == 1 or p_num == total_pages or (p_num >= current_page - 2 and p_num <= current_page + 2) %} <button
+        type="button" class="page-btn {% if p_num == current_page %}active{% endif %}" data-page="{{ p_num }}"
+        onclick="gotoPage(this.dataset.page)">{{ p_num }}</button>
         {% elif p_num == current_page - 3 or p_num == current_page + 3 %}
         <span style="color:var(--mid-gray);">…</span>
         {% endif %}
-      {% endfor %}
+        {% endfor %}
 
-      {% if current_page < total_pages %}
-      <button type="button" class="page-btn" data-page="{{ current_page + 1 }}" onclick="gotoPage(this.dataset.page)">→</button>
-      {% endif %}
+        {% if current_page < total_pages %} <button type="button" class="page-btn" data-page="{{ current_page + 1 }}"
+          onclick="gotoPage(this.dataset.page)">→</button>
+          {% endif %}
     </div>
     {% endif %}
 
@@ -487,7 +1092,8 @@
     <div class="no-results-card">
       <div class="no-results-icon">🔍</div>
       <h2 style="font-family:var(--font-display); margin-bottom:1rem;">No products found</h2>
-      <p style="color:var(--mid-gray); margin-bottom:2rem;">We couldn't find any items matching your current filters.</p>
+      <p style="color:var(--mid-gray); margin-bottom:2rem;">We couldn't find any items matching your current filters.
+      </p>
       <a href="{{ url_for('public.shop') }}" class="btn-gold">Reset All Filters</a>
     </div>
     {% endif %}
@@ -495,85 +1101,214 @@
 </div>
 
 <style>
-  @media (max-width: 768px) { aside { position: static !important; } }
+  @media (max-width: 768px) {
+    aside {
+      position: static !important;
+    }
+  }
 </style>
 
 <script>
-// ── Sidebar toggle (mobile) ────────────────────────────────────
-function toggleShopFilter() {
-  const content = document.getElementById('shopSidebarContent');
-  const arrow   = document.getElementById('shopFilterArrow');
-  const isOpen  = content.classList.toggle('open');
-  arrow.textContent = isOpen ? '▲' : '▼';
-}
-
-// ── Category accordion ─────────────────────────────────────────
-function toggleCatGroup(btn) {
-  const children = btn.closest('.cat-group').querySelector('.cat-children');
-  if (!children) return;
-  const isOpen = children.classList.toggle('open');
-  btn.classList.toggle('open', isOpen);
-}
-
-// ── Apply filters (submit form, reset to page 1) ───────────────
-function applyFilters() {
-  document.getElementById('pageInput').value  = 1;
-  document.getElementById('searchInput') && (
-    document.getElementById('searchInput').name = 'search'
-  );
-  document.getElementById('filterForm').submit();
-}
-
-// ── Go to a specific page preserving all filters ───────────────
-function gotoPage(n) {
-  document.getElementById('pageInput').value = n;
-  document.getElementById('filterForm').submit();
-}
-
-// ── Top-nav shape toggle ──────────────────────────────────────
-function shapeNavToggle(val) {
-  const input = document.getElementById('shapeInput');
-  if (input.value === val) {
-    input.value = ''; // Toggle off
-  } else {
-    input.value = val;
+  // ── Sidebar toggle (mobile) ────────────────────────────────────
+  function toggleShopFilter() {
+    const content = document.getElementById('shopSidebarContent');
+    const arrow = document.getElementById('shopFilterArrow');
+    const isOpen = content.classList.toggle('open');
+    arrow.textContent = isOpen ? '▲' : '▼';
   }
-  applyFilters();
-}
 
-// ── Top-nav category toggle (unused now, but kept for logic) ──
-function topNavToggle(slug) {
-  const cb = document.querySelector(`input[name="category"][value="${slug}"]`);
-  if (cb) {
-    cb.checked = !cb.checked;
-    // Expand that group's children if now checked
-    const group = cb.closest('.cat-group');
-    if (group) {
-      const children = group.querySelector('.cat-children');
-      const chevron  = group.querySelector('.cat-chevron');
-      if (children && cb.checked) { children.classList.add('open'); }
-      if (chevron  && cb.checked) { chevron.classList.add('open');  }
+  // ── Category accordion ─────────────────────────────────────────
+  function toggleCatGroup(btn) {
+    const children = btn.closest('.cat-group').querySelector('.cat-children');
+    if (!children) return;
+    const isOpen = children.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+  }
+
+  // ── Apply filters (submit form, reset to page 1) ───────────────
+  function applyFilters() {
+    document.getElementById('pageInput').value = 1;
+    document.getElementById('searchInput') && (
+      document.getElementById('searchInput').name = 'search'
+    );
+    document.getElementById('filterForm').submit();
+  }
+
+  // ── Go to a specific page preserving all filters ───────────────
+  function gotoPage(n) {
+    document.getElementById('pageInput').value = n;
+    document.getElementById('filterForm').submit();
+  }
+
+  // ── Top-nav shape toggle ──────────────────────────────────────
+  function shapeNavToggle(val) {
+    const input = document.getElementById('shapeInput');
+    if (input.value === val) {
+      input.value = ''; // Toggle off
+    } else {
+      input.value = val;
     }
     applyFilters();
   }
-}
 
-// ── Remove a single filter chip ────────────────────────────────
-function removeFilter(name, value) {
-  const form = document.getElementById('filterForm');
-  if (name === 'search') {
-    document.getElementById('searchInput').value = '';
-  } else if (name === 'shape') {
-    document.getElementById('shapeInput').value = '';
-  } else if (name === 'on_sale') {
-    const cb = form.querySelector('input[name="on_sale"]');
-    if (cb) cb.checked = false;
-  } else {
-    // uncheck the matching checkbox
-    const cb = form.querySelector(`input[name="${name}"][value="${value}"]`);
-    if (cb) cb.checked = false;
+  // ── Top-nav category toggle (unused now, but kept for logic) ──
+  function topNavToggle(slug) {
+    const cb = document.querySelector(`input[name="category"][value="${slug}"]`);
+    if (cb) {
+      cb.checked = !cb.checked;
+      // Expand that group's children if now checked
+      const group = cb.closest('.cat-group');
+      if (group) {
+        const children = group.querySelector('.cat-children');
+        const chevron = group.querySelector('.cat-chevron');
+        if (children && cb.checked) { children.classList.add('open'); }
+        if (chevron && cb.checked) { chevron.classList.add('open'); }
+      }
+      applyFilters();
+    }
   }
-  applyFilters();
-}
+
+
+  // ── Remove a single filter chip ────────────────────────────────
+  function removeFilter(name, value) {
+    const form = document.getElementById('filterForm');
+    if (name === 'search') {
+      document.getElementById('searchInput').value = '';
+    } else if (name === 'shape') {
+      document.getElementById('shapeInput').value = '';
+    } else if (name === 'on_sale') {
+      const cb = form.querySelector('input[name="on_sale"]');
+      if (cb) cb.checked = false;
+    } else if (name === 'min_price') {
+      sliderSetValues(0, currentMax);
+    } else if (name === 'max_price') {
+      sliderSetValues(currentMin, PRICE_MAX);
+    } else {
+      const cb = form.querySelector(`input[name="${name}"][value="${value}"]`);
+      if (cb) cb.checked = false;
+    }
+    applyFilters();
+  }
+
+
+  // ════════════════════════════════════════════════════
+  //  CUSTOM DUAL-HANDLE PRICE SLIDER
+  // ════════════════════════════════════════════════════
+  const PRICE_MAX = 10000;
+  const PRICE_MIN = 0;
+  let currentMin = 0;
+  let currentMax = PRICE_MAX;
+
+  function fmt(v) {
+    return v >= 1000 ? '\u20b9' + (v/1000).toFixed(v%1000===0?0:1) + 'k' : '\u20b9' + v;
+  }
+
+  function sliderUpdateUI() {
+    const track = document.getElementById('dualTrack');
+    if (!track) return;
+    const pMin = currentMin / PRICE_MAX * 100;
+    const pMax = currentMax / PRICE_MAX * 100;
+
+    document.getElementById('thumbMin').style.left = pMin + '%';
+    document.getElementById('thumbMax').style.left = pMax + '%';
+    document.getElementById('dualFill').style.left  = pMin + '%';
+    document.getElementById('dualFill').style.width = (pMax - pMin) + '%';
+    document.getElementById('labelMin').textContent = fmt(currentMin);
+    document.getElementById('labelMax').textContent = fmt(currentMax);
+
+    const display = document.getElementById('priceRangeDisplay');
+    if (display) {
+      if (currentMin === PRICE_MIN && currentMax === PRICE_MAX) {
+        display.textContent = 'All Prices';
+      } else {
+        display.textContent = fmt(currentMin) + ' \u2013 ' + (currentMax === PRICE_MAX ? fmt(currentMax)+'+' : fmt(currentMax));
+      }
+    }
+
+    // sync hidden inputs
+    document.getElementById('minPriceInput').value = currentMin > PRICE_MIN ? currentMin : '';
+    document.getElementById('maxPriceInput').value = currentMax < PRICE_MAX ? currentMax : '';
+
+    // highlight matching preset
+    document.querySelectorAll('.price-preset').forEach(btn => {
+      const [a, b] = (btn.dataset.preset || '').split('-').map(Number);
+      btn.classList.toggle('active', a === currentMin && b === currentMax);
+    });
+  }
+
+  function sliderSetValues(min, max) {
+    currentMin = Math.max(PRICE_MIN, Math.min(min, PRICE_MAX));
+    currentMax = Math.max(PRICE_MIN, Math.min(max, PRICE_MAX));
+    if (currentMin > currentMax) currentMin = currentMax;
+    sliderUpdateUI();
+  }
+
+  function sliderPreset(min, max) {
+    sliderSetValues(min, max);
+  }
+
+  function initSlider() {
+    const track    = document.getElementById('dualTrack');
+    const thumbMin = document.getElementById('thumbMin');
+    const thumbMax = document.getElementById('thumbMax');
+    if (!track || !thumbMin || !thumbMax) return;
+
+    // Set initial values from server
+    const initMin = parseInt('{{ min_price or 0 }}') || PRICE_MIN;
+    const initMax = parseInt('{{ max_price or 10000 }}') || PRICE_MAX;
+    sliderSetValues(initMin, initMax);
+
+    function posToValue(clientX) {
+      const rect = track.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      return Math.round(ratio * PRICE_MAX / 50) * 50;
+    }
+
+    function makeDraggable(thumb, isMin) {
+      let dragging = false;
+
+      function onMove(e) {
+        if (!dragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const val = posToValue(clientX);
+        if (isMin) {
+          sliderSetValues(Math.min(val, currentMax - 50), currentMax);
+        } else {
+          sliderSetValues(currentMin, Math.max(val, currentMin + 50));
+        }
+      }
+
+      function onUp() {
+        if (!dragging) return;
+        dragging = false;
+        thumb.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+      }
+
+      thumb.addEventListener('mousedown', e => {
+        e.preventDefault();
+        dragging = true;
+        thumb.classList.add('dragging');
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      thumb.addEventListener('touchstart', e => {
+        e.preventDefault();
+        dragging = true;
+        thumb.classList.add('dragging');
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onUp);
+      }, { passive: false });
+    }
+
+    makeDraggable(thumbMin, true);
+    makeDraggable(thumbMax, false);
+  }
+
+  document.addEventListener('DOMContentLoaded', initSlider);
 </script>
 {% endblock %}

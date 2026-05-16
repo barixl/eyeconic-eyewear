@@ -8,24 +8,19 @@
     
     <div class="container" style="max-width: 1300px; margin: 0 auto; padding: 0 2rem;">
         
-        <!-- Hero Section: Text Left, Image Right -->
-        <div class="glass" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; padding: 4rem; border-radius: 3rem; margin-bottom: 5rem; border: 1px solid rgba(255,255,255,0.05);">
-            <div>
-                <h1 style="font-size: 4rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-main); font-family: var(--font-heading); line-height: 1.1;">EyeConic</h1>
-                <p style="color: var(--text-main); font-size: 1.2rem; line-height: 1.8; margin-bottom: 1.5rem; opacity: 0.9;">
-                    Founded with a passion for precise vision and timeless style, EyeConic has emerged as Ramgarh Cantt's premier destination for luxury eyewear.
-                </p>
-                <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.8; margin-bottom: 3rem;">
-                    We believe that glasses are more than just a medical necessity—they are a reflection of your personality. Our curated collection brings together the best of global trends and local craftsmanship.
-                </p>
-                <a href="{{ url_for('public.shop') }}" style="display: inline-flex; align-items: center; gap: 0.75rem; background: #FFD700; color: #000; padding: 1.25rem 2.5rem; border-radius: 1rem; font-weight: 800; font-size: 1.1rem; transition: 0.3s; box-shadow: 0 10px 20px rgba(255,215,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 30px rgba(255,215,0,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 20px rgba(255,215,0,0.2)'">
-                    See Collection
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </a>
-            </div>
-            <div style="border-radius: 2rem; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1);">
-                <img src="{{ resolve_image('about/Ameen_chasma.webp') }}" alt="EyeConic Storefront" style="width: 100%; height: auto; display: block; object-fit: cover;">
-            </div>
+        <!-- Hero Section: Centered Text, No Image -->
+        <div class="glass" style="max-width: 900px; margin: 0 auto 5rem; padding: 4rem; border-radius: 3rem; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+            <h1 style="font-size: 4rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-main); font-family: var(--font-heading); line-height: 1.1;">EyeConic</h1>
+            <p style="color: var(--text-main); font-size: 1.2rem; line-height: 1.8; margin-bottom: 1.5rem; opacity: 0.9;">
+                Founded with a passion for precise vision and timeless style, EyeConic has emerged as Ramgarh Cantt's premier destination for luxury eyewear.
+            </p>
+            <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.8; margin-bottom: 3rem;">
+                We believe that glasses are more than just a medical necessity—they are a reflection of your personality. Our curated collection brings together the best of global trends and local craftsmanship.
+            </p>
+            <a href="{{ url_for('public.shop') }}" style="display: inline-flex; align-items: center; gap: 0.75rem; background: #FFD700; color: #000; padding: 1.25rem 2.5rem; border-radius: 1rem; font-weight: 800; font-size: 1.1rem; transition: 0.3s; box-shadow: 0 10px 20px rgba(255,215,0,0.2);" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 15px 30px rgba(255,215,0,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 20px rgba(255,215,0,0.2)'">
+                See Collection
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
         </div>
 
         <!-- Mission & Vision -->

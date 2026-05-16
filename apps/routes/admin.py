@@ -736,6 +736,9 @@ def register(app):
     def admin_attribute_value_delete(val_id):
         attr_id = request.form.get("attribute_id")
         try:
+            # Cascade: remove all product & variation references first
+            db.execute("DELETE FROM product_attribute_values WHERE attribute_value_id = ?", [val_id])
+            db.execute("DELETE FROM variation_attribute_values WHERE attribute_value_id = ?", [val_id])
             db.execute("DELETE FROM attribute_values WHERE id = ?", [val_id])
             get_trending_shapes.cache_clear()
             flash("Value deleted", "success")

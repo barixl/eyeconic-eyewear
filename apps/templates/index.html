@@ -827,9 +827,9 @@
 
     .shapes-grid {
       display: grid;
-      grid-template-columns: repeat(6, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 1.5rem;
-      max-width: 1400px;
+      max-width: 1300px;
       margin: 0 auto;
     }
 
@@ -1123,21 +1123,46 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 3.5rem;
-      padding: 2.5rem 5vw;
+      gap: 4rem;
+      padding: 1.5rem 5vw;
       border-top: 1px solid var(--light-gray);
       border-bottom: 1px solid var(--light-gray);
       flex-wrap: wrap;
-      filter: grayscale(1);
-      opacity: 0.4;
+      transition: all 0.4s;
     }
 
-    .brand-name {
-      font-family: var(--font-display);
-      font-size: clamp(1rem, 2vw, 1.6rem);
-      letter-spacing: 0.15em;
-      color: var(--charcoal);
-      font-weight: 700;
+    .brands-row img {
+      filter: grayscale(1);
+      opacity: 0.5;
+      transition: all 0.3s ease;
+    }
+
+    .brands-row img:hover {
+      filter: grayscale(0);
+      opacity: 1;
+    }
+
+    .brand-logo {
+      height: 85px;
+      width: auto;
+      max-width: 220px;
+      object-fit: contain;
+      transition: all 0.3s;
+    }
+
+    .brand-logo:hover {
+      transform: scale(1.08);
+    }
+
+    @media (max-width: 768px) {
+      .brands-row {
+        gap: 1.5rem;
+        padding: 1rem 1rem;
+      }
+      .brand-logo {
+        height: 55px;
+        max-width: 140px;
+      }
     }
 
     /* PROMO BANNER */
@@ -2139,8 +2164,12 @@
     </div>
   </div>
   <div class="brands-row">
-    <span class="brand-name">ZEISS</span><span class="brand-name">Crizal</span><span class="brand-name">HOYA</span><span
-      class="brand-name">Nikon</span><span class="brand-name">Essilor</span>
+    <img src="{{ url_for('static', filename='images/brands/rayban.png') }}" alt="Ray-Ban" class="brand-logo">
+    <img src="{{ url_for('static', filename='images/brands/titan.png') }}" alt="Titan" class="brand-logo">
+    <img src="{{ url_for('static', filename='images/brands/fastrack.webp') }}" alt="Fastrack" class="brand-logo">
+    <img src="{{ url_for('static', filename='images/brands/vogue.png') }}" alt="Vogue" class="brand-logo">
+    <img src="{{ url_for('static', filename='images/brands/carrera.png') }}" alt="Carrera" class="brand-logo">
+    <img src="{{ url_for('static', filename='images/brands/police.png') }}" alt="Police" class="brand-logo">
   </div>
 
   <!-- MEN'S EYEWEAR -->

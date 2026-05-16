@@ -54,11 +54,18 @@ def shop():
     page            = max(1, int(request.args.get("page", 1)))
     on_sale         = bool(request.args.get("on_sale", ""))
     featured        = bool(request.args.get("featured", ""))
+    min_price       = request.args.get("min_price", "").strip()
+    max_price       = request.args.get("max_price", "").strip()
+    try:
+        min_price_val = float(min_price) if min_price else None
+        max_price_val = float(max_price) if max_price else None
+    except ValueError:
+        min_price_val = max_price_val = None
     try:
         products, total, total_pages = get_products(
             search=search, categories=selected_cats, brands=selected_brands,
-            shape=shape, sort=sort, page=page, per_page=16, on_sale=on_sale,
-            featured=featured,
+            shape=shape, sort=sort, page=page, per_page=18, on_sale=on_sale,
+            featured=featured, min_price=min_price_val, max_price=max_price_val,
         )
         all_categories = get_categories()
         all_brands     = get_brands()
@@ -88,6 +95,7 @@ def shop():
         current_sort=sort, current_shape=shape,
         on_sale=on_sale,
         trending_shapes=trending_shapes,
+        min_price=min_price, max_price=max_price,
     )
 
 
