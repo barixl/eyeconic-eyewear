@@ -92,9 +92,17 @@ def create_app():
     def not_found(e):
         return render_template("errors/404.html"), 404
 
-    @app.errorhandler(500)
-    def server_error(e):
-        return render_template("errors/500.html"), 500
+    @app.route('/debug-static')
+    def debug_static():
+        import os
+        return {
+            "static_folder": app.static_folder,
+            "root_path": app.root_path,
+            "cwd": os.getcwd(),
+            "static_exists": os.path.exists(app.static_folder) if app.static_folder else False,
+            "logo_exists": os.path.exists(os.path.join(app.static_folder, "images/logo.jpg")) if app.static_folder and os.path.exists(app.static_folder) else False,
+            "files_in_static": os.listdir(app.static_folder) if app.static_folder and os.path.exists(app.static_folder) else []
+        }
 
     return app
 
