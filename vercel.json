@@ -11,8 +11,11 @@
   ],
   "routes": [
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/static/(.*)",
-      "dest": "apps/static/$1"
+      "dest": "/apps/static/$1"
     },
     {
       "src": "/(.*)",
