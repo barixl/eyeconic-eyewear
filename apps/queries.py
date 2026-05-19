@@ -186,12 +186,10 @@ def get_trending_shapes():
 
 @ttl_cache(ttl_seconds=600)
 def get_featured_categories():
-    # SQLite: no DISTINCT ON — use GROUP BY instead
     return db.query("""
         SELECT name AS label, image_url AS img, slug
         FROM categories
         WHERE parent_id IS NULL
-        GROUP BY name
         ORDER BY name ASC
     """) or []
 

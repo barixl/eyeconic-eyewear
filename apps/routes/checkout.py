@@ -488,7 +488,7 @@ def submit_review(product_id):
             flash("You have already submitted a review for this product.", "info")
             return redirect(url_for("public.product_detail", product_id=product_id))
         db.execute(
-            "INSERT INTO product_reviews (product_id, user_id, rating, comment, is_approved) VALUES (?,?,?,?,TRUE)",
+            "INSERT INTO product_reviews (product_id, user_id, rating, body, is_approved) VALUES (?,?,?,?,TRUE)",
             [product_id, uid, rating, comment],
         )
         flash("Thank you! Your review has been submitted.", "success")

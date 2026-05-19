@@ -76,7 +76,6 @@ def generate_variations(product_id):
         "VALUES (?,?,?,?,?)",
         [var_id, product_id, var_sku, base_price, base_stock],
     )
-    print(f"DEBUG: Created 1 placeholder variation for product {product_id}")
 
 def require_admin(f):
     @wraps(f)
@@ -131,15 +130,14 @@ def register(app):
             recent_products = []
 
         try:
-            # SQLite-compatible: strftime instead of TO_CHAR / INTERVAL
             chart_rows = db.query("""
-                SELECT strftime('%d %b', created_at) AS day,
+                SELECT TO_CHAR(created_at, 'DD Mon') AS day,
                        SUM(total_amount) AS amount
                 FROM orders
-                WHERE created_at >= date('now', '-7 days')
+                WHERE created_at >= NOW() - INTERVAL '7 days'
                   AND status != 'cancelled'
-                GROUP BY strftime('%Y-%m-%d', created_at)
-                ORDER BY strftime('%Y-%m-%d', created_at)
+                GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
+                ORDER BY TO_CHAR(created_at, 'YYYY-MM-DD')
             """)
             chart_data = {
                 "labels": [r["day"] for r in chart_rows],
@@ -166,8 +164,6 @@ def register(app):
             products, total, total_pages = get_products(
                 search=search, category=category, brand=brand, page=page, per_page=20
             )
-            if products:
-                print(f"DEBUG: First product '{products[0]['name']}' price: {products[0]['price']}")
             categories = get_categories()
             brands     = get_brands()
         except Exception as e:
@@ -195,9 +191,6 @@ def register(app):
         if request.method == "POST":
             f = request.form
             try:
-                import time as _t
-                t0 = _t.time()
-
                 stock_qty = int(f.get("stock_quantity") or 0)
                 stock_status = f.get("stock_status", "in_stock")
                 name = f.get("name")
@@ -205,7 +198,6 @@ def register(app):
                 sku_input = f.get("sku", "").strip()
                 sku = sku_input or generate_unique_product_sku(name)
 
-                print(f"DEBUG [{_t.time()-t0:.2f}s]: Creating product '{name}'...")
                 product_id = db.execute_returning(
                     """INSERT INTO products
                        (id, name, slug, sku, type, description, short_description,
@@ -221,32 +213,25 @@ def register(app):
                         f.get("is_featured") == "on", f.get("is_active", "on") == "on",
                     ]
                 )["id"]
-                print(f"DEBUG [{_t.time()-t0:.2f}s]: Product row inserted.")
 
                 # Handle Primary Image
                 primary_file = request.files.get("primary_image")
                 if primary_file and primary_file.filename:
-                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Uploading primary image to Cloudinary...")
                     url = handle_upload(primary_file)
                     mid = str(uuid.uuid4())
                     db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
                     db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
-                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Primary image done.")
 
                 # Handle Gallery Images
                 gallery_files = request.files.getlist("gallery_images")
                 if gallery_files and any(g.filename for g in gallery_files):
-                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Uploading {len(gallery_files)} gallery images...")
                     for i, gfile in enumerate(gallery_files):
                         if gfile and gfile.filename:
                             url = handle_upload(gfile)
                             mid = str(uuid.uuid4())
                             db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
                             db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,FALSE,?)", [str(uuid.uuid4()), product_id, mid, i+1])
-                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Gallery images done.")
 
-                # Batch-insert attribute associations (1 query instead of N)
-                print(f"DEBUG [{_t.time()-t0:.2f}s]: Saving attributes...")
                 attr_ids = request.form.getlist("attribute_ids")
                 if attr_ids:
                     values_sql = ",".join(["(?,?,?)"] * len(attr_ids))
@@ -268,13 +253,9 @@ def register(app):
                         f"INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES {values_sql}",
                         params
                     )
-                print(f"DEBUG [{_t.time()-t0:.2f}s]: {len(attr_ids)} attrs + {len(val_ids)} values saved in batch.")
-
                 if f.get("type") == "variable":
-                    print(f"DEBUG [{_t.time()-t0:.2f}s]: Creating placeholder variation...")
                     generate_variations(product_id)
 
-                print(f"DEBUG [{_t.time()-t0:.2f}s]: Product creation complete.")
                 get_products.cache_clear()
                 flash("Product created successfully.", "success")
                 return redirect(url_for("admin_products"))
@@ -649,7 +630,7 @@ def register(app):
             else:
                 try:
                     db.execute(
-                        "INSERT INTO attributes (id, name, slug, image_url, is_featured) VALUES (?,?,?,?,?)",
+                        "INSERT INTO attributes (id, name, slug, display_order, image_url, is_featured) VALUES (?,?,?,0,?,?)",
                         [str(uuid.uuid4()), name, slug, image_url, is_featured]
                     )
                     flash("Attribute created", "success")
@@ -668,7 +649,7 @@ def register(app):
             image_url = handle_upload(request.files.get("image_file")) or attribute["image_url"]
             try:
                 db.execute(
-                    "UPDATE attributes SET name=?, slug=?, image_url=?, is_featured=? WHERE id=?",
+                    "UPDATE attributes SET name=%s, slug=%s, image_url=%s, is_featured=%s WHERE id=%s",
                     [request.form.get("name"), request.form.get("slug"),
                      image_url,
                      request.form.get("is_featured") == "on", attr_id]
@@ -1035,17 +1016,21 @@ def register(app):
                         if db.query_one("SELECT id FROM products WHERE sku=? OR slug=?", [sku, slug]):
                             skipped += 1
                             continue
-                        result = db.execute_returning(
-                            """INSERT INTO products (name, slug, sku, price, sale_price,
+                        pid = str(uuid.uuid4())
+                        db.execute(
+                            """INSERT INTO products (id, name, slug, sku, price, sale_price,
                                stock_quantity, stock_status, description, short_description, is_active)
-                               VALUES (?,?,?,?,?,?,?,?,?,TRUE) RETURNING id""",
-                            [name, slug, sku, price, sale, stock,
+                               VALUES (?,?,?,?,?,?,?,?,?,?,TRUE)""",
+                            [pid, name, slug, sku, price, sale, stock,
                              "in_stock" if stock > 0 else "out_of_stock", desc, short]
                         )
+                        result = {"id": pid}
                         if result and img:
+                            mid = str(uuid.uuid4())
+                            db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, img])
                             db.execute(
-                                "INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?,?,TRUE)",
-                                [result["id"], img]
+                                "INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,TRUE)",
+                                [str(uuid.uuid4()), result["id"], mid]
                             )
                         imported += 1
                     except Exception as row_err:
