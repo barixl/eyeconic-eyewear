@@ -1,7 +1,7 @@
 {
-  "name": "EyeConic",
+  "name": "EyeConic Eyewear",
   "short_name": "EyeConic",
-  "description": "Premium Eyewear Store in Sitapur, Uttar Pradesh",
+  "description": "Premium Eyewear Store",
   "icons": [
     {
       "src": "/static/images/favicons/android-chrome-192x192.png",
@@ -14,8 +14,8 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#111827",
-  "background_color": "#0f172a",
+  "theme_color": "#C9A455",
+  "background_color": "#FAFAF7",
   "display": "standalone",
   "start_url": "/"
 }
