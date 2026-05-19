@@ -1,6 +1,5 @@
 import uuid
 import json
-import razorpay
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify, abort
 import db
@@ -10,6 +9,15 @@ from extensions import csrf
 bp = Blueprint("checkout", __name__)
 
 ALLOWED_PAYMENT_METHODS = {"cod", "razorpay"}
+
+
+def _load_razorpay():
+    """Import razorpay lazily so app startup does not fail when dependency is missing."""
+    try:
+        import razorpay  # type: ignore
+        return razorpay, None
+    except Exception as e:
+        return None, e
 
 
 def _calc_shipping(subtotal, settings=None):
@@ -122,6 +130,10 @@ def rzp_create_order():
     if not cart:
         return jsonify({"success": False, "message": "Cart is empty."}), 400
 
+    razorpay, import_error = _load_razorpay()
+    if not razorpay:
+        return jsonify({"success": False, "message": f"Online payment dependency error: {import_error}"}), 500
+
     try:
         data        = request.get_json(silent=True) or {}
         coupon_code = (data.get("coupon_code") or "").strip()
@@ -145,8 +157,6 @@ def rzp_create_order():
             "payment_capture": 1,
         })
         return jsonify({"success": True, "order": order})
-    except razorpay.errors.BadRequestError as e:
-        return jsonify({"success": False, "message": f"Razorpay error: {e}"}), 400
     except Exception:
         return jsonify({"success": False, "message": "Could not create payment order. Please try again."}), 500
 
@@ -257,6 +267,11 @@ def checkout():
 
         payment_status = "pending"
         if payment_method == "razorpay":
+            razorpay, import_error = _load_razorpay()
+            if not razorpay:
+                flash(f"Online payment dependency error: {import_error}", "error")
+                return redirect(url_for("checkout.checkout"))
+
             rzp_payment_id = request.form.get("razorpay_payment_id", "").strip()
             rzp_order_id   = request.form.get("razorpay_order_id", "").strip()
             rzp_signature  = request.form.get("razorpay_signature", "").strip()
