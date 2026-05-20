@@ -441,7 +441,7 @@
 <!-- NAV HTML -->
 <nav id="main-nav">
   <a href="{{ url_for('public.index') }}" class="nav-logo">
-    <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="EyeConic Eyewear"
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="EyeConic Eyewear"
       style="height: 50px; width: auto; object-fit: contain;">
   </a>
   <ul class="nav-links">
@@ -557,7 +557,7 @@
   <div class="mobile-nav-header">
     <a href="{{ url_for('public.index') }}"
       onclick="document.getElementById('mobile-nav').classList.remove('open'); document.getElementById('mobile-overlay').classList.remove('open'); document.body.style.overflow='';">
-      <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="EyeConic">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="EyeConic">
     </a>
     <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">&times;</button>
   </div>
