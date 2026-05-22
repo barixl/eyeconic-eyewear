@@ -764,25 +764,6 @@ Sitapur, optical store Uttar Pradesh, chasma shop near me, contact lenses online
 
 {% block content %}
 
-<!-- Top category icon nav -->
-<div style="padding: 2.5rem 5vw 0; max-width:1300px; margin:0 auto; text-align: center;">
-  <div
-    style="font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem;">
-    Shop By Shape</div>
-  <div class="shop-category-nav section-fade visible">
-    {% for shape in trending_shapes %}
-    <button type="button" onclick="shapeNavToggle('{{ shape.label }}')"
-      class="shop-cat-item {% if shape.label == current_shape %}active{% endif %}"
-      style="background:none; border:none; cursor:pointer;">
-      <div class="shop-cat-img glass">
-        <img src="{{ shape.img }}" alt="{{ shape.label }}" onerror="imgError(this)" />
-      </div>
-      <span class="shop-cat-label">{{ shape.label }}</span>
-    </button>
-    {% endfor %}
-  </div>
-</div>
-
 <div class="shop-layout">
 
   <!-- ══ SIDEBAR ══ -->

@@ -1904,11 +1904,7 @@
         </div>
       </div>
     </div>
-    <div class="hero-price-tag">
-      <div class="pt-label">Starting at</div>
-      <div class="pt-price">₹999</div>
-      <div class="pt-ship">Free shipping above ₹599</div>
-    </div>
+
     <div class="hero-dots">
       <button class="hero-dot active" data-slide="0"></button>
       <button class="hero-dot" data-slide="1"></button>
@@ -2011,7 +2007,7 @@
     <div class="cat-grid-desktop">
       <div class="cat-card" onclick='window.location.href="{{ url_for("public.shop", category="men") }}";'>
         <img
-          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80&auto=format&fit=crop&crop=face"
+          src="{{ url_for('static', filename='images/man.webp') }}"
           alt="Men">
         <div class="cat-overlay"></div>
         <div class="cat-label"><strong>Men</strong><a href="{{ url_for('public.shop', category='men') }}">Explore
@@ -2019,7 +2015,7 @@
       </div>
       <div class="cat-card" onclick='window.location.href="{{ url_for("public.shop", category="women") }}";'>
         <img
-          src="https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?w=500&q=80&auto=format&fit=crop&crop=face"
+          src="{{ url_for('static', filename='images/woman.webp') }}"
           alt="Women">
         <div class="cat-overlay"></div>
         <div class="cat-label"><strong>Women</strong><a href="{{ url_for('public.shop', category='women') }}">Explore
@@ -2027,7 +2023,7 @@
       </div>
       <div class="cat-card" onclick='window.location.href="{{ url_for("public.shop", category="kids") }}";'>
         <img
-          src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=500&q=80&auto=format&fit=crop&crop=face"
+          src="{{ url_for('static', filename='images/kid.webp') }}"
           alt="Kids">
         <div class="cat-overlay"></div>
         <div class="cat-label"><strong>Kids</strong><a href="{{ url_for('public.shop', category='kids') }}">Explore
@@ -2037,7 +2033,7 @@
     <div class="cat-scroll-mobile" id="cat-scroll">
       <div class="cat-card" onclick='window.location.href="{{ url_for("public.shop", category="men") }}";'>
         <img
-          src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80&auto=format&fit=crop&crop=face"
+          src="{{ url_for('static', filename='images/man.webp') }}"
           alt="Men">
         <div class="cat-overlay"></div>
         <div class="cat-label"><strong>Men</strong><a href="{{ url_for('public.shop', category='men') }}">Explore</a>
@@ -2045,7 +2041,7 @@
       </div>
       <div class="cat-card" onclick='window.location.href="{{ url_for("public.shop", category="women") }}";'>
         <img
-          src="https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?w=500&q=80&auto=format&fit=crop&crop=face"
+          src="{{ url_for('static', filename='images/woman.webp') }}"
           alt="Women">
         <div class="cat-overlay"></div>
         <div class="cat-label"><strong>Women</strong><a
@@ -2053,7 +2049,7 @@
       </div>
       <div class="cat-card" onclick='window.location.href="{{ url_for("public.shop", category="kids") }}";'>
         <img
-          src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=500&q=80&auto=format&fit=crop&crop=face"
+          src="{{ url_for('static', filename='images/kid.webp') }}"
           alt="Kids">
         <div class="cat-overlay"></div>
         <div class="cat-label"><strong>Kids</strong><a href="{{ url_for('public.shop', category='kids') }}">Explore</a>
