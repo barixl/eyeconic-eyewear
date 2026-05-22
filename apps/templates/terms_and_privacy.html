@@ -1,0 +1,173 @@
+{% extends 'eyeconic_base.html' %}
+{% block title %}Terms of Service & Privacy Policy – EyeConic Eyewear{% endblock %}
+{% block meta_description %}Read the combined Terms of Service and Privacy Policy for EyeConic Eyewear. Learn about our commitments to data security, privacy, shipping, and purchase terms.{% endblock %}
+{% block meta_keywords %}terms of service EyeConic, privacy policy EyeConic, return policy, shipping terms Ramgarh Cantt{% endblock %}
+
+{% block content %}
+<div class="section-padding" style="padding-top: 120px; padding-bottom: 5rem;">
+    <div class="container" style="max-width: 1000px; margin: 0 auto; padding: 0 2rem;">
+        
+        <!-- Header -->
+        <div class="glass" style="margin-bottom: 3rem; padding: 3rem; border-radius: 2rem; border: 1px solid rgba(255,255,255,0.05); text-align: center;">
+            <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-main); font-family: var(--font-heading); line-height: 1.2;">Terms & Privacy</h1>
+            <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; margin: 0;">
+                Last Updated: May 2026. Please read our combined Privacy Policy and Terms of Service carefully before using our platform.
+            </p>
+        </div>
+
+        <!-- Combined Policy Navigation Tabs -->
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2.5rem;">
+            <button onclick="showTab('privacy')" id="btn-tab-privacy" style="background: #FFD700; color: #000; border: none; padding: 0.8rem 1.8rem; border-radius: 0.75rem; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.15);">Privacy Policy</button>
+            <button onclick="showTab('terms')" id="btn-tab-terms" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 1.8rem; border-radius: 0.75rem; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.3s;">Terms of Service</button>
+        </div>
+
+        <!-- Privacy Policy Content -->
+        <div id="content-privacy" class="glass tab-content-pane" style="padding: 3.5rem; border-radius: 2rem; border: 1px solid rgba(255,255,255,0.05);">
+            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main); font-family: var(--font-heading);">Privacy Policy</h2>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                At EyeConic, accessible from Anshu Plaza, NaiSarai Ramgarh Cantt, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by EyeConic and how we use it.
+            </p>
+
+            <h3 style="font-size: 1.3rem; font-weight: 600; margin: 2rem 0 1rem; color: var(--text-main);">1. Information We Collect</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                The personal information that you are asked to provide, and the reasons why you are asked to provide it, will be made clear to you at the point we ask you to provide your personal information.
+                When you register for an Account or place an order, we may ask for your contact information, including items such as name, company name, address, email address, and telephone number.
+            </p>
+
+            <h3 style="font-size: 1.3rem; font-weight: 600; margin: 2rem 0 1rem; color: var(--text-main);">2. How We Use Your Information</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1rem;">
+                We use the information we collect in various ways, including to:
+            </p>
+            <ul style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-left: 2rem; margin-bottom: 1.5rem; list-style-type: disc;">
+                <li>Provide, operate, and maintain our website</li>
+                <li>Improve, personalize, and expand our website</li>
+                <li>Understand and analyze how you use our website</li>
+                <li>Develop new products, services, features, and functionality</li>
+                <li>Communicate with you, either directly or through one of our partners, for customer service, updates, and marketing</li>
+                <li>Process your transactions and prevent fraudulent activities</li>
+            </ul>
+
+            <h3 style="font-size: 1.3rem; font-weight: 600; margin: 2rem 0 1rem; color: var(--text-main);">3. Log Files & Cookies</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                EyeConic follows a standard procedure of using log files. These files log visitors when they visit websites. All hosting companies do this as a part of hosting services' analytics. The information collected by log files includes internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp, referring/exit pages, and possibly the number of clicks.
+            </p>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                Like any other website, EyeConic uses 'cookies'. These cookies are used to store information including visitors' preferences, and the pages on the website that the visitor accessed or visited. The information is used to optimize the users' experience by customizing our web page content based on visitors' browser type and/or other information.
+            </p>
+
+            <h3 style="font-size: 1.3rem; font-weight: 600; margin: 2rem 0 1rem; color: var(--text-main);">4. Data Protection & Security</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                We value your trust in providing us your Personal Information, thus we are striving to use commercially acceptable means of protecting it. But remember that no method of transmission over the internet, or method of electronic storage is 100% secure and reliable, and we cannot guarantee its absolute security.
+            </p>
+        </div>
+
+        <!-- Terms of Service Content -->
+        <div id="content-terms" class="glass tab-content-pane" style="padding: 3.5rem; border-radius: 2rem; border: 1px solid rgba(255,255,255,0.05); display: none;">
+            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main); font-family: var(--font-heading);">Terms of Service</h2>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                Welcome to EyeConic! These terms and conditions outline the rules and regulations for the use of EyeConic's Website and services. By accessing this website we assume you accept these terms and conditions. Do not continue to use EyeConic if you do not agree to take all of the terms and conditions stated on this page.
+            </p>
+
+            <h3 style="font-size: 1.3rem; font-weight: 600; margin: 2rem 0 1rem; color: var(--text-main);">1. Intellectual Property Rights</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                Unless otherwise stated, EyeConic and/or its licensors own the intellectual property rights for all material on EyeConic. All intellectual property rights are reserved. You may access this from EyeConic for your own personal use subjected to restrictions set in these terms and conditions.
+            </p>
+
+            <h3 style="font-size: 1.3rem; font-weight: 600; margin: 2rem 0 1rem; color: var(--text-main);">2. Use & Restrictions</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.1rem;">
+                You are specifically restricted from all of the following:
+            </p>
+            <ul style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-left: 2rem; margin-bottom: 1.5rem; list-style-type: disc;">
+                <li>Publishing any website material in any other media</li>
+                <li>Selling, sublicensing and/or otherwise commercializing any website material</li>
+                <li>Publicly performing and/or showing any website material</li>
+                <li>Using this website in any way that is or may be damaging to this website</li>
+                <li>Using this website in any way that impacts user access to this website</li>
+            </ul>
+
+            <h3 style="font-size: 1.3rem; font-weight: 600; margin: 2rem 0 1rem; color: var(--text-main);">3. Shipping & Purchases</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                We offer free shipping on all orders above ₹599. Orders are processed and dispatched within 1-2 business days.
+                Payments are securely processed, and you agree to provide current, complete, and accurate purchase and account information for all purchases made at our store.
+            </p>
+
+            <h3 style="font-size: 1.3rem; font-weight: 600; margin: 2rem 0 1rem; color: var(--text-main);">4. Easy Return & Exchange Policy</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                We provide a hassle-free 7-day return and exchange policy. In case you are not satisfied with your purchase, you can request an exchange or return within 7 days of delivery. Please note that products are eligible for exchange only, and are non-refundable. All returned items must be in their original packaging and unused condition.
+            </p>
+
+            <h3 style="font-size: 1.3rem; font-weight: 600; margin: 2rem 0 1rem; color: var(--text-main);">5. Governing Law & Jurisdiction</h3>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                These Terms will be governed by and interpreted in accordance with the laws of India, and you submit to the jurisdiction of the state and federal courts located in Jharkhand / Ramgarh for the resolution of any disputes.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    // Hide all panes
+    document.querySelectorAll('.tab-content-pane').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Deactivate both buttons
+    const btnPrivacy = document.getElementById('btn-tab-privacy');
+    const btnTerms = document.getElementById('btn-tab-terms');
+    
+    btnPrivacy.style.background = 'rgba(255,255,255,0.05)';
+    btnPrivacy.style.color = 'var(--text-main)';
+    btnPrivacy.style.border = '1px solid rgba(255,255,255,0.1)';
+    btnPrivacy.style.boxShadow = 'none';
+    
+    btnTerms.style.background = 'rgba(255,255,255,0.05)';
+    btnTerms.style.color = 'var(--text-main)';
+    btnTerms.style.border = '1px solid rgba(255,255,255,0.1)';
+    btnTerms.style.boxShadow = 'none';
+    
+    // Show active pane and activate button
+    if (tabName === 'privacy') {
+        document.getElementById('content-privacy').style.display = 'block';
+        btnPrivacy.style.background = '#FFD700';
+        btnPrivacy.style.color = '#000';
+        btnPrivacy.style.border = 'none';
+        btnPrivacy.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.15)';
+    } else {
+        document.getElementById('content-terms').style.display = 'block';
+        btnTerms.style.background = '#FFD700';
+        btnTerms.style.color = '#000';
+        btnTerms.style.border = 'none';
+        btnTerms.style.boxShadow = '0 4px 15px rgba(255, 215, 0, 0.15)';
+    }
+}
+</script>
+
+<style>
+@media (max-width: 768px) {
+    .section-padding { padding-top: 100px !important; padding-bottom: 3rem !important; }
+    .container { padding: 0 1.25rem !important; }
+    
+    /* Hero section glass box */
+    div[style*="padding: 3rem"] {
+        padding: 2rem 1.25rem !important;
+        border-radius: 1.5rem !important;
+        margin-bottom: 2rem !important;
+    }
+    
+    h1[style*="font-size: 3rem"] {
+        font-size: 2.2rem !important;
+    }
+    
+    /* Content sections */
+    div[style*="padding: 3.5rem"] {
+        padding: 2rem 1.25rem !important;
+        border-radius: 1.5rem !important;
+    }
+    
+    h2[style*="font-size: 2rem"] {
+        font-size: 1.6rem !important;
+    }
+}
+</style>
+{% endblock %}

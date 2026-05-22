@@ -134,6 +134,13 @@ def about():
     return render_template("about.html")
 
 
+@bp.route("/privacy-policy")
+@bp.route("/terms")
+@bp.route("/terms-and-privacy")
+def terms_and_privacy():
+    return render_template("terms_and_privacy.html")
+
+
 @bp.route("/contact", methods=["GET", "POST"])
 def contact():
     if request.method == "POST":
