@@ -118,14 +118,64 @@
     @media (max-width: 860px) { .product-container { grid-template-columns: 1fr; gap: 2rem; } }
 
     /* GALLERY */
-    .gallery-main { aspect-ratio: 1; background: var(--cream); border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem; }
-    .gallery-main img { width: 100%; height: 100%; object-fit: contain; padding: 2rem; transition: transform 0.4s; }
+    .gallery-main { position: relative; aspect-ratio: 1; background: var(--cream); border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 1rem; user-select: none; }
+    .gallery-main img { width: 100%; height: 100%; object-fit: contain; padding: 2rem; transition: transform 0.4s; pointer-events: none; -webkit-user-drag: none; }
     .gallery-main:hover img { transform: scale(1.05); }
     .gallery-thumbs { display: flex; gap: 0.8rem; overflow-x: auto; scrollbar-width: none; }
     .gallery-thumbs::-webkit-scrollbar { display: none; }
     .thumb { width: 80px; height: 80px; border-radius: 4px; background: var(--cream); border: 2px solid transparent; cursor: pointer; flex-shrink: 0; padding: 0.5rem; transition: border-color 0.2s; }
     .thumb.active, .thumb:hover { border-color: var(--gold); }
     .thumb img { width: 100%; height: 100%; object-fit: contain; }
+
+    /* GALLERY NAV ARROWS */
+    .gallery-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      color: var(--charcoal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .gallery-main:hover .gallery-arrow {
+      opacity: 0.8;
+    }
+    .gallery-arrow:hover {
+      background: var(--gold);
+      color: #fff;
+      border-color: var(--gold);
+      transform: translateY(-50%) scale(1.08);
+      opacity: 1 !important;
+      box-shadow: 0 6px 16px rgba(201, 164, 85, 0.25);
+    }
+    .gallery-arrow.prev {
+      left: 1rem;
+    }
+    .gallery-arrow.next {
+      right: 1rem;
+    }
+    .gallery-arrow svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+    @media (hover: none) {
+      .gallery-arrow {
+        opacity: 0.75;
+      }
+    }
 
     /* INFO */
     .product-brand { font-size: 0.75rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 0.5rem; }
@@ -393,15 +443,24 @@
     
     <!-- GALLERY -->
     <div>
-      <div class="gallery-main">
+      <div class="gallery-main" id="galleryMain">
         {% set main_img = (images[0].image_url if images else product.image_url) %}
         <img src="{{ resolve_image(main_img) }}" alt="{{ product.name }}" id="mainImg"
              onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'" />
+        
+        {% if images|length > 1 %}
+        <button type="button" class="gallery-arrow prev" onclick="navigateGallery(-1)" aria-label="Previous image">
+          <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <button type="button" class="gallery-arrow next" onclick="navigateGallery(1)" aria-label="Next image">
+          <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
+        {% endif %}
       </div>
       {% if images|length > 1 %}
-      <div class="gallery-thumbs">
+      <div class="gallery-thumbs" id="galleryThumbs">
         {% for img in images %}
-        <div class="thumb {% if loop.first %}active{% endif %}" onclick="setMainImg(this, '{{ resolve_image(img.image_url) }}')">
+        <div class="thumb {% if loop.first %}active{% endif %}" onclick="setMainImg(this, '{{ resolve_image(img.image_url) }}', {{ loop.index0 }})">
           <img src="{{ resolve_image(img.image_url) }}" alt="{{ img.alt_text or product.name }}" loading="lazy" />
         </div>
         {% endfor %}
@@ -554,11 +613,70 @@
   <script>
     const variations = {{ variations | tojson | safe if variations else '[]' }};
     
-    function setMainImg(thumb, src) {
+    {% if images|length > 1 %}
+    const galleryImages = [
+      {% for img in images %}
+      '{{ resolve_image(img.image_url) }}',
+      {% endfor %}
+    ];
+    {% else %}
+    const galleryImages = [];
+    {% endif %}
+    let currentImageIndex = 0;
+
+    function setMainImg(thumb, src, index) {
       document.getElementById('mainImg').src = src;
       document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-      thumb.classList.add('active');
+      if (thumb) {
+        thumb.classList.add('active');
+      } else {
+        const thumbs = document.querySelectorAll('.thumb');
+        if (thumbs[index]) thumbs[index].classList.add('active');
+      }
+      currentImageIndex = index;
+      
+      const activeThumb = document.querySelectorAll('.thumb')[index];
+      if (activeThumb) {
+        activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
     }
+
+    function navigateGallery(direction) {
+      if (galleryImages.length <= 1) return;
+      let newIndex = currentImageIndex + direction;
+      if (newIndex < 0) {
+        newIndex = galleryImages.length - 1;
+      } else if (newIndex >= galleryImages.length) {
+        newIndex = 0;
+      }
+      setMainImg(null, galleryImages[newIndex], newIndex);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const galleryMain = document.getElementById('galleryMain');
+      if (galleryMain && galleryImages.length > 1) {
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        galleryMain.addEventListener('touchstart', (e) => {
+          touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        galleryMain.addEventListener('touchend', (e) => {
+          touchEndX = e.changedTouches[0].screenX;
+          handleSwipe();
+        }, { passive: true });
+        
+        function handleSwipe() {
+          const swipeThreshold = 40; // minimum distance in pixels
+          if (touchStartX - touchEndX > swipeThreshold) {
+            navigateGallery(1); // Swipe left -> Next image
+          } else if (touchEndX - touchStartX > swipeThreshold) {
+            navigateGallery(-1); // Swipe right -> Previous image
+          }
+        }
+      }
+    });
 
     function qtyChange(delta) {
       const inp = document.getElementById('qtyInput');

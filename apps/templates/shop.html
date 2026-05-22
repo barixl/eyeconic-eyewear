@@ -892,6 +892,28 @@ Sitapur, optical store Uttar Pradesh, chasma shop near me, contact lenses online
 
           <hr class="sidebar-divider" />
 
+          <!-- ── Frame Shape ────────────────────────────────── -->
+          <div style="margin-bottom:0.5rem;">
+            <div class="sidebar-section-label">
+              Frame Shape
+              {% if current_shape %}
+              <span
+                style="background:var(--gold); color:white; border-radius:999px; padding:0.05rem 0.5rem; font-size:0.7rem;">1</span>
+              {% endif %}
+            </div>
+
+            {% for s in trending_shapes %}
+            <label class="cb-item">
+              <input type="checkbox" name="shape_filter" value="{{ s.label }}" {% if s.label == current_shape %}checked{% endif %}
+                onchange="toggleShapeFilter(this);" />
+              <span class="cb-box"></span>
+              <span class="cb-label">{{ s.label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+
+          <hr class="sidebar-divider" />
+
           <!-- ── Price Range ─────────────────────────────── -->
           <div style="margin-bottom:1.1rem;">
             <div class="sidebar-section-label">Price Range
@@ -1132,6 +1154,20 @@ Sitapur, optical store Uttar Pradesh, chasma shop near me, contact lenses online
     applyFilters();
   }
 
+  // ── Sidebar shape checkbox toggle ──────────────────────────────
+  function toggleShapeFilter(checkbox) {
+    const input = document.getElementById('shapeInput');
+    if (checkbox.checked) {
+      document.querySelectorAll('input[name="shape_filter"]').forEach(cb => {
+        if (cb !== checkbox) cb.checked = false;
+      });
+      input.value = checkbox.value;
+    } else {
+      input.value = '';
+    }
+    applyFilters();
+  }
+
   // ── Top-nav category toggle (unused now, but kept for logic) ──
   function topNavToggle(slug) {
     const cb = document.querySelector(`input[name="category"][value="${slug}"]`);
@@ -1157,6 +1193,7 @@ Sitapur, optical store Uttar Pradesh, chasma shop near me, contact lenses online
       document.getElementById('searchInput').value = '';
     } else if (name === 'shape') {
       document.getElementById('shapeInput').value = '';
+      document.querySelectorAll('input[name="shape_filter"]').forEach(cb => cb.checked = false);
     } else if (name === 'on_sale') {
       const cb = form.querySelector('input[name="on_sale"]');
       if (cb) cb.checked = false;
