@@ -7,7 +7,7 @@ from functools import wraps
 from flask import render_template, request, redirect, url_for, flash, abort, session
 import db
 from helpers import slugify, get_cached_store_settings, get_unique_slug, handle_upload
-from queries import get_products, get_categories, get_brands, get_admin_stats, get_featured_categories, get_trending_shapes, PRODUCTS_SELECT
+from queries import get_products, get_categories, get_brands, get_admin_stats, get_featured_categories, get_trending_shapes, PRODUCTS_SELECT, get_product_detail, get_homepage_products
 
 
 def _sanitize_sku_prefix(prefix, fallback):
@@ -210,7 +210,7 @@ def register(app):
                         float(f.get("price") or 0), float(f.get("sale_price") or 0) or None,
                         stock_qty, stock_status, True,
                         f.get("category_id") or None, f.get("brand_id") or None,
-                        f.get("is_featured") == "on", f.get("is_active", "on") == "on",
+                        1 if f.get("is_featured") == "on" else 0, 1 if f.get("is_active", "on") == "on" else 0,
                     ]
                 )["id"]
 
@@ -220,7 +220,7 @@ def register(app):
                     url = handle_upload(primary_file)
                     mid = str(uuid.uuid4())
                     db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
-                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
+                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,1,0)", [str(uuid.uuid4()), product_id, mid])
 
                 # Handle Gallery Images
                 gallery_files = request.files.getlist("gallery_images")
@@ -230,7 +230,7 @@ def register(app):
                             url = handle_upload(gfile)
                             mid = str(uuid.uuid4())
                             db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
-                            db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,FALSE,?)", [str(uuid.uuid4()), product_id, mid, i+1])
+                            db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,0,?)", [str(uuid.uuid4()), product_id, mid, i+1])
 
                 attr_ids = request.form.getlist("attribute_ids")
                 if attr_ids:
@@ -257,6 +257,8 @@ def register(app):
                     generate_variations(product_id)
 
                 get_products.cache_clear()
+                get_homepage_products.cache_clear()
+                get_product_detail.cache_clear()
                 flash("Product created successfully.", "success")
                 return redirect(url_for("admin_products"))
             except Exception as e:
@@ -292,7 +294,7 @@ def register(app):
                         f.get("short_description"), float(f.get("price") or 0), float(f.get("sale_price") or 0) or None,
                         int(f.get("stock_quantity") or 0), f.get("stock_status"),
                         f.get("category_id") or None, f.get("brand_id") or None,
-                        f.get("is_featured") == "on", f.get("is_active") == "on", product_id
+                        1 if f.get("is_featured") == "on" else 0, 1 if f.get("is_active") == "on" else 0, product_id
                     ]
                 )
 
@@ -302,8 +304,8 @@ def register(app):
                     url = handle_upload(primary_file)
                     mid = str(uuid.uuid4())
                     db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
-                    db.execute("DELETE FROM product_images WHERE product_id=? AND is_primary=TRUE", [product_id])
-                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,TRUE,0)", [str(uuid.uuid4()), product_id, mid])
+                    db.execute("DELETE FROM product_images WHERE product_id=? AND is_primary=1", [product_id])
+                    db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary, display_order) VALUES (?,?,?,1,0)", [str(uuid.uuid4()), product_id, mid])
 
                 # Handle New Gallery Images
                 gallery_files = request.files.getlist("gallery_images")
@@ -312,7 +314,7 @@ def register(app):
                         url = handle_upload(gfile)
                         mid = str(uuid.uuid4())
                         db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, url])
-                        db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,FALSE)", [str(uuid.uuid4()), product_id, mid])
+                        db.execute("INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,0)", [str(uuid.uuid4()), product_id, mid])
 
                 # Handle Deletions
                 for key in request.form:
@@ -329,6 +331,8 @@ def register(app):
                     db.execute("INSERT INTO product_attribute_values (id, product_id, attribute_value_id) VALUES (?,?,?)", [str(uuid.uuid4()), product_id, vid])
 
                 get_products.cache_clear()
+                get_homepage_products.cache_clear()
+                get_product_detail.cache_clear()
                 flash("Product updated successfully.", "success")
                 return redirect(url_for("admin_products"))
             except Exception as e:
@@ -357,8 +361,10 @@ def register(app):
     @require_admin
     def admin_product_delete(product_id):
         try:
-            db.execute("UPDATE products SET is_active=FALSE WHERE id=?", [product_id])
+            db.execute("UPDATE products SET is_active=0 WHERE id=?", [product_id])
             get_products.cache_clear()
+            get_homepage_products.cache_clear()
+            get_product_detail.cache_clear()
             flash("Product deleted (deactivated).", "success")
         except Exception as e:
             flash(f"Error: {e}", "error")
@@ -383,7 +389,7 @@ def register(app):
             name       = request.form.get("name")
             slug       = request.form.get("slug") or slugify(name)
             parent_id  = request.form.get("parent_id") or None
-            is_featured = request.form.get("is_featured") == "on"
+            is_featured = 1 if request.form.get("is_featured") == "on" else 0
             
             # Handle Upload
             image_url = handle_upload(request.files.get("image_file")) or request.form.get("image_url") or None
@@ -416,7 +422,7 @@ def register(app):
                     "UPDATE categories SET name=?, slug=?, parent_id=?, image_url=?, is_featured=? WHERE id=?",
                     [request.form.get("name"), request.form.get("slug"),
                      request.form.get("parent_id") or None, image_url,
-                     request.form.get("is_featured") == "on", cat_id]
+                     1 if request.form.get("is_featured") == "on" else 0, cat_id]
                 )
                 get_categories.cache_clear()
                 get_featured_categories.cache_clear()
@@ -1020,7 +1026,7 @@ def register(app):
                         db.execute(
                             """INSERT INTO products (id, name, slug, sku, price, sale_price,
                                stock_quantity, stock_status, description, short_description, is_active)
-                               VALUES (?,?,?,?,?,?,?,?,?,?,TRUE)""",
+                               VALUES (?,?,?,?,?,?,?,?,?,?,1)""",
                             [pid, name, slug, sku, price, sale, stock,
                              "in_stock" if stock > 0 else "out_of_stock", desc, short]
                         )
@@ -1029,13 +1035,17 @@ def register(app):
                             mid = str(uuid.uuid4())
                             db.execute("INSERT INTO media (id, file_url) VALUES (?,?)", [mid, img])
                             db.execute(
-                                "INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,TRUE)",
+                                "INSERT INTO product_images (id, product_id, media_id, is_primary) VALUES (?,?,?,1)",
                                 [str(uuid.uuid4()), result["id"], mid]
                             )
                         imported += 1
                     except Exception as row_err:
                         errors.append(f"Row {i}: {row_err}")
                 results = {"imported": imported, "skipped": skipped, "errors": errors}
+                if imported > 0:
+                    get_products.cache_clear()
+                    get_homepage_products.cache_clear()
+                    get_product_detail.cache_clear()
                 flash(f"Import complete: {imported} imported, {skipped} skipped.", "success")
             except Exception as e:
                 flash(f"CSV parse error: {e}", "error")

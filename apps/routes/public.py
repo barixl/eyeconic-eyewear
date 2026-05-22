@@ -23,13 +23,14 @@ def index():
         kids_products       = data["kids"]
         sun_products        = data["sunglasses"]
         blue_products       = data["blue_light"]
+        accessories_products = data.get("accessories", [])
         optical_products    = data["optical"]
         
         trending_shapes     = get_trending_shapes()
         featured_categories = get_featured_categories()
     except Exception as e:
         featured = latest = popular = promo1 = promo2 = []
-        men_products = women_products = kids_products = sun_products = blue_products = optical_products = []
+        men_products = women_products = kids_products = sun_products = blue_products = accessories_products = optical_products = []
         trending_shapes = featured_categories = []
         flash(f"Data loading error: {e}", "error")
     return render_template(
@@ -38,7 +39,8 @@ def index():
         promo1=promo1, promo2=promo2,
         men_products=men_products, women_products=women_products,
         kids_products=kids_products, sun_products=sun_products,
-        blue_products=blue_products, optical_products=optical_products,
+        blue_products=blue_products, accessories_products=accessories_products,
+        optical_products=optical_products,
         trending_shapes=trending_shapes,
         featured_categories=featured_categories,
     )

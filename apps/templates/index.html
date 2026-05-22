@@ -927,7 +927,7 @@
 
     .side-arrow {
       position: absolute;
-      top: 50%;
+      top: 40%;
       transform: translateY(-50%);
       width: 44px;
       height: 44px;
@@ -1879,15 +1879,14 @@
       </div>
       <div class="hero-slide">
         <img src="https://images.unsplash.com/photo-1604537529428-15bcbeecfe4d?w=1600&q=85&auto=format&fit=crop"
-          alt="Blue light" loading="lazy">
+          alt="Accessories" loading="lazy">
         <div class="slide-overlay"></div>
         <div class="hero-content">
-          <div class="hero-badge">Blue Light Collection</div>
-          <h1 class="hero-title">Protect Your<br><em>Vision</em></h1>
-          <p class="hero-sub">Our blue light glasses reduce eye strain so you stay focused — because clarity is
-            everything.</p>
-          <div class="hero-ctas"><a href="{{ url_for('public.shop', category='blue-light') }}" class="btn-primary">Shop
-              Blue Light</a><a href="{{ url_for('public.shop') }}" class="btn-outline">Learn More</a></div>
+          <div class="hero-badge">Accessories Collection</div>
+          <h1 class="hero-title">Complete Your<br><em>Look</em></h1>
+          <p class="hero-sub">Premium lens cleaners, microfiber cloths, and contact solutions to keep your vision crystal clear.</p>
+          <div class="hero-ctas"><a href="{{ url_for('public.shop', category='accessories') }}" class="btn-primary">Shop
+              Accessories</a><a href="{{ url_for('public.shop') }}" class="btn-outline">Learn More</a></div>
         </div>
       </div>
       <div class="hero-slide">
@@ -1950,12 +1949,12 @@
       <div class="mobile-hero-slide">
         <div class="mobile-hero-card">
           <img src="https://images.unsplash.com/photo-1604537529428-15bcbeecfe4d?w=800&q=80&auto=format&fit=crop"
-            alt="Blue Light" loading="lazy">
+            alt="Accessories" loading="lazy">
           <div class="mobile-hero-card-overlay"></div>
           <div class="mobile-hero-card-content">
-            <span class="mobile-hero-badge">Blue Light Collection</span>
-            <div class="mobile-hero-title">Protect Your <em>Vision</em></div>
-            <a href="{{ url_for('public.shop', category='blue-light') }}" class="mobile-hero-btn">Shop Blue Light</a>
+            <span class="mobile-hero-badge">Accessories Collection</span>
+            <div class="mobile-hero-title">Complete Your <em>Look</em></div>
+            <a href="{{ url_for('public.shop', category='accessories') }}" class="mobile-hero-btn">Shop Accessories</a>
           </div>
         </div>
       </div>
@@ -2094,13 +2093,13 @@
     <div class="section-line"></div>
     <div class="grid-wrapper" style="margin-top: 2.5rem;">
       <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <button class="side-arrow next" onclick="scrollGrid(this, 1)">&#8594;</button>
       <div class="products-grid-2">
         {% for p in featured[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick='window.location.href="{{ url_for("public.product_detail", product_id=p.id) }}";'>
-          <img src="{{ p.image_url }}" alt="{{ p.name }}">
-          <button class="product-wish">♡</button>
+          <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
           {% if p.sale_price and p.price > 0 %}
           {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
           {% if discount > 0 %}
@@ -2124,6 +2123,7 @@
         <p>No featured products found. Mark products as "Featured" in Admin.</p>
       </div>
       {% endfor %}
+      </div>
     </div>
     <div class="section-top-bar"><a href="{{ url_for('public.shop', featured=1) }}" class="view-all">View All Best
         Sellers</a></div>
@@ -2166,13 +2166,13 @@
     <div class="section-line"></div>
     <div class="grid-wrapper" style="margin-top: 2.5rem;">
       <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <button class="side-arrow next" onclick="scrollGrid(this, 1)">&#8594;</button>
       <div class="products-grid-2">
         {% for p in men_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick='window.location.href="{{ url_for("public.product_detail", product_id=p.id) }}";'>
-          <img src="{{ p.image_url }}" alt="{{ p.name }}">
-          <button class="product-wish">♡</button>
+          <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
           {% if p.sale_price and p.price > 0 %}
           {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
           {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
@@ -2190,6 +2190,7 @@
         </div>
       </div>
       {% endfor %}
+      </div>
     </div>
     <div class="section-top-bar"><a href="/shop?category=eyeglasses-men&category=sunglasses-men" class="view-all">View All
         Men's</a></div>
@@ -2204,13 +2205,13 @@
     <div class="section-line"></div>
     <div class="grid-wrapper" style="margin-top: 2.5rem;">
       <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <button class="side-arrow next" onclick="scrollGrid(this, 1)">&#8594;</button>
       <div class="products-grid-2">
         {% for p in women_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick='window.location.href="{{ url_for("public.product_detail", product_id=p.id) }}";'>
-          <img src="{{ p.image_url }}" alt="{{ p.name }}">
-          <button class="product-wish">♡</button>
+          <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
           {% if p.sale_price and p.price > 0 %}
           {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
           {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
@@ -2228,6 +2229,7 @@
         </div>
       </div>
       {% endfor %}
+      </div>
     </div>
     <div class="section-top-bar"><a href="/shop?category=eyeglasses-women&category=sunglasses-women" class="view-all">View All
         Women's</a></div>
@@ -2242,13 +2244,13 @@
     <div class="section-line"></div>
     <div class="grid-wrapper" style="margin-top: 2.5rem;">
       <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <button class="side-arrow next" onclick="scrollGrid(this, 1)">&#8594;</button>
       <div class="products-grid-2">
         {% for p in kids_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick='window.location.href="{{ url_for("public.product_detail", product_id=p.id) }}";'>
-          <img src="{{ p.image_url }}" alt="{{ p.name }}">
-          <button class="product-wish">♡</button>
+          <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
           {% if p.sale_price and p.price > 0 %}
           {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
           {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
@@ -2266,27 +2268,28 @@
         </div>
       </div>
       {% endfor %}
+      </div>
     </div>
     <div class="section-top-bar"><a href="/shop?category=eyeglasses-kids&category=sunglasses-kids" class="view-all">View All
         Kids'</a></div>
   </section>
 
-  <!-- BLUE LIGHT GLASSES SECTION -->
+  <!-- ACCESSORIES SECTION -->
   <section class="cat-block" style="background:var(--cream);">
-    <p class="section-label">Screen Protection</p>
+    <p class="section-label">Essential Care</p>
     <div class="section-header-row">
-      <h2 class="section-title">Blue Light Glasses</h2>
+      <h2 class="section-title">Premium Accessories</h2>
     </div>
     <div class="section-line"></div>
     <div class="grid-wrapper" style="margin-top: 2.5rem;">
       <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <button class="side-arrow next" onclick="scrollGrid(this, 1)">&#8594;</button>
       <div class="products-grid-2">
-        {% for p in blue_products[:8] %}
+        {% for p in accessories_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick='window.location.href="{{ url_for("public.product_detail", product_id=p.id) }}";'>
-          <img src="{{ p.image_url }}" alt="{{ p.name }}">
-          <button class="product-wish">♡</button>
+          <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
           {% if p.sale_price and p.price > 0 %}
           {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
           {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
@@ -2304,8 +2307,9 @@
         </div>
       </div>
       {% endfor %}
+      </div>
     </div>
-    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='blue-light') }}" class="view-all">View
+    <div class="section-top-bar"><a href="{{ url_for('public.shop', category='accessories') }}" class="view-all">View
         All</a></div>
   </section>
 
@@ -2318,13 +2322,13 @@
     <div class="section-line"></div>
     <div class="grid-wrapper" style="margin-top: 2.5rem;">
       <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <button class="side-arrow next" onclick="scrollGrid(this, 1)">&#8594;</button>
       <div class="products-grid-2">
         {% for p in sun_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick='window.location.href="{{ url_for("public.product_detail", product_id=p.id) }}";'>
-          <img src="{{ p.image_url }}" alt="{{ p.name }}">
-          <button class="product-wish">♡</button>
+          <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
           {% if p.sale_price and p.price > 0 %}
           {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
           {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
@@ -2342,6 +2346,7 @@
         </div>
       </div>
       {% endfor %}
+      </div>
     </div>
     <div class="section-top-bar"><a href="{{ url_for('public.shop', category='sunglasses') }}" class="view-all">View All
         Sunglasses</a></div>
@@ -2356,13 +2361,13 @@
     <div class="section-line"></div>
     <div class="grid-wrapper" style="margin-top: 2.5rem;">
       <button class="side-arrow prev" onclick="scrollGrid(this, -1)">&#8592;</button>
+      <button class="side-arrow next" onclick="scrollGrid(this, 1)">&#8594;</button>
       <div class="products-grid-2">
         {% for p in optical_products[:8] %}
       <div class="product-card">
         <div class="product-img"
           onclick='window.location.href="{{ url_for("public.product_detail", product_id=p.id) }}";'>
-          <img src="{{ p.image_url }}" alt="{{ p.name }}">
-          <button class="product-wish">♡</button>
+          <img src="{{ resolve_image(p.image_url) }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
           {% if p.sale_price and p.price > 0 %}
           {% set discount = ((p.price - p.sale_price) / p.price * 100) | round | int %}
           {% if discount > 0 %}<div class="product-badge">-{{ discount }}%</div>{% endif %}
@@ -2380,6 +2385,7 @@
         </div>
       </div>
       {% endfor %}
+      </div>
     </div>
     <div class="section-top-bar"><a href="{{ url_for('public.shop', category='eyeglasses') }}" class="view-all">View All
         Eyeglasses</a></div>
@@ -2614,20 +2620,56 @@
     <div class="section-line"></div>
     <div class="insta-grid">
       <div class="insta-item">
-        <img src="{{ url_for('static', filename='images/1.jpg') }}" alt="Community style 1">
-        <div class="insta-overlay"><span class="insta-icon">♡</span></div>
+        <img src="{{ url_for('static', filename='images/1.webp') }}" alt="Community style 1">
+        <div class="insta-overlay">
+          <span class="insta-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </span>
+        </div>
       </div>
       <div class="insta-item">
-        <img src="{{ url_for('static', filename='images/2.jpg') }}" alt="Community style 2">
-        <div class="insta-overlay"><span class="insta-icon">♡</span></div>
+        <img src="{{ url_for('static', filename='images/2.webp') }}" alt="Community style 2">
+        <div class="insta-overlay">
+          <span class="insta-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </span>
+        </div>
       </div>
       <div class="insta-item">
-        <img src="{{ url_for('static', filename='images/3.jpg') }}" alt="Community style 3">
-        <div class="insta-overlay"><span class="insta-icon">♡</span></div>
+        <img src="{{ url_for('static', filename='images/3.webp') }}" alt="Community style 3">
+        <div class="insta-overlay">
+          <span class="insta-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </span>
+        </div>
       </div>
       <div class="insta-item">
-        <img src="{{ url_for('static', filename='images/4.jpg') }}" alt="Community style 4">
-        <div class="insta-overlay"><span class="insta-icon">♡</span></div>
+        <img src="{{ url_for('static', filename='images/4.webp') }}" alt="Community style 4">
+        <div class="insta-overlay">
+          <span class="insta-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+          </span>
+        </div>
       </div>
     </div>
     <div style="text-align:center;"><a href="https://www.instagram.com/eyeconiceyewear01" target="_blank" class="btn-primary"
@@ -2683,13 +2725,7 @@
     checkMobile(); window.addEventListener('resize', checkMobile);
 
 
-    // Wishlist
-    document.querySelectorAll('.product-wish').forEach(btn => {
-      btn.addEventListener('click', () => {
-        btn.textContent = btn.textContent === '♡' ? '♥' : '♡';
-        btn.style.color = btn.textContent === '♥' ? '#e05' : '';
-      });
-    });
+    // Wishlist (removed)
 
     // Nav scroll shadow
     window.addEventListener('scroll', () => {

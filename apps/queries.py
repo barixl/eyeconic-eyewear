@@ -115,7 +115,7 @@ def get_products(search=None, categories=(), brands=(), shape=None,
         "price_desc":      "p.price DESC",
         "name_asc":        "p.name ASC",
     }
-    glasses_priority = "CASE WHEN c.slug IN ('eyeglasses', 'sunglasses') THEN 0 ELSE 1 END"
+    glasses_priority = "CASE WHEN c.slug LIKE 'eyeglasses%%' OR c.slug LIKE 'sunglasses%%' THEN 0 ELSE 1 END"
     order            = f"{glasses_priority}, {order_map.get(sort, 'p.created_at DESC')}"
 
     if limit:
@@ -159,6 +159,7 @@ def get_homepage_products():
     kids_products   = [r for r in rows if r.get("category_slug") in ("eyeglasses-kids", "sunglasses-kids")][:8]
     sun_products    = [r for r in rows if r.get("category_slug") in ("sunglasses", "sunglasses-men", "sunglasses-women", "sunglasses-kids")][:8]
     blue_products   = [r for r in rows if r.get("category_slug") == "blue-light"][:8]
+    accessories_products = [r for r in rows if r.get("category_slug") in ("accessories", "accessories-contacts-solutions", "accessories-lens-cleaners")][:8]
     optical_products= [r for r in rows if r.get("category_slug") in ("eyeglasses", "eyeglasses-men", "eyeglasses-women", "eyeglasses-kids")][:8]
 
     price_asc  = sorted(rows, key=lambda r: float(r.get("price") or 0))
@@ -169,7 +170,7 @@ def get_homepage_products():
         "featured": featured, "latest": latest, "popular": popular,
         "promo1": promo1, "promo2": promo2,
         "men": men_products, "women": women_products, "kids": kids_products,
-        "sunglasses": sun_products, "blue_light": blue_products, "optical": optical_products
+        "sunglasses": sun_products, "blue_light": blue_products, "accessories": accessories_products, "optical": optical_products
     }
 
 
@@ -325,11 +326,28 @@ def get_product_detail(product_id):
 
 @ttl_cache(ttl_seconds=120)
 def get_related_products(category_slug, exclude_id, limit=4):
-    return db.query(
+    # Try fetching from the exact category first
+    results = db.query(
         f"{PRODUCTS_MINIMAL_SELECT} WHERE p.is_active = 1 AND c.slug = ? AND p.id != ? "
         f"ORDER BY p.created_at DESC LIMIT ?",
         [category_slug, exclude_id, limit],
     )
+    # If we don't have enough, fall back to other active products from any category
+    if len(results) < limit:
+        already_fetched = [r["id"] for r in results]
+        already_fetched.append(exclude_id)
+        
+        needed = limit - len(results)
+        placeholders = ",".join(["?"] * len(already_fetched))
+        
+        fallback_query = (
+            f"{PRODUCTS_MINIMAL_SELECT} WHERE p.is_active = 1 AND p.id NOT IN ({placeholders}) "
+            f"ORDER BY p.created_at DESC LIMIT ?"
+        )
+        fallback_results = db.query(fallback_query, already_fetched + [needed])
+        results.extend(fallback_results)
+        
+    return results[:limit]
 
 
 @ttl_cache(ttl_seconds=120)

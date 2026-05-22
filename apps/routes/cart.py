@@ -111,9 +111,13 @@ def cart_add():
                     "sku": sku,
                 }
         session["cart"] = cart
-        flash(f"'{display_name}' added to cart!", "success")
+        if request.headers.get("X-Requested-With") != "XMLHttpRequest":
+            flash(f"'{display_name}' added to cart!", "success")
     except Exception as e:
-        flash(f"Error adding to cart: {e}", "error")
+        if request.headers.get("X-Requested-With") != "XMLHttpRequest":
+            flash(f"Error adding to cart: {e}", "error")
+        else:
+            return jsonify({"success": False, "message": str(e)})
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         count = sum(i["qty"] for i in session.get("cart", {}).values())
